@@ -3,9 +3,16 @@ import { useProducts } from '../hooks/useProducts';
 import { useCart } from '../hooks/useCart';
 import { DOG_SIZE_PRESETS } from '../constants/dogSizes';
 import { HeroSection } from './HeroSection';
+import { BenefitsBar } from './BenefitsBar';
+import { StorySection } from './StorySection';
+import { IngredientsSection } from './IngredientsSection';
+import { TestimonialsSection } from './TestimonialsSection';
 import { DogSizeCalculator } from './DogSizeCalculator';
 import { AddonsStep } from './AddonsStep';
+import { HowItWorks } from './HowItWorks';
 import { OrderSummary } from './OrderSummary';
+import { FAQSection } from './FAQSection';
+import { Footer } from './Footer';
 import type { Product } from '../types/shopify';
 import type { AddonSelection } from '../lib/cart';
 
@@ -118,7 +125,7 @@ export function LandingPage() {
     return (
       <div className="loading">
         <div className="spinner" />
-        <p>Loading your subscription options…</p>
+        <p>Loading your subscription options...</p>
       </div>
     );
   }
@@ -138,44 +145,60 @@ export function LandingPage() {
   if (!sampleProduct) return null;
 
   return (
-    <main className="funnel">
-      <HeroSection onGetStarted={handleGetStarted} />
+    <>
+      <header className="announcement-bar">
+        <p>50% Off Your First Box — Limited Time</p>
+      </header>
 
-      {step !== 'hero' && (
-        <DogSizeCalculator
-          selectedSize={selectedSize}
-          bagWeight={bagWeight}
-          frequencyWeeks={frequencyWeeks}
-          onSelectSize={handleSelectSize}
-          onBagWeightChange={setBagWeight}
-          onFrequencyChange={setFrequencyWeeks}
-          onContinue={handleSizeContinue}
-        />
-      )}
+      <main className="landing-page">
+        <HeroSection onGetStarted={handleGetStarted} />
+        <BenefitsBar />
+        <StorySection />
+        <IngredientsSection />
+        <TestimonialsSection />
 
-      {(step === 'addons' || step === 'summary') && addonProducts.length > 0 && (
-        <AddonsStep
-          addonProducts={addonProducts}
-          selectedAddons={selectedAddons}
-          onToggleAddon={handleToggleAddon}
-          onAddonQuantityChange={handleAddonQuantityChange}
-          onContinue={handleAddonsContinue}
-          onSkip={handleAddonsContinue}
-        />
-      )}
+        {step !== 'hero' && (
+          <DogSizeCalculator
+            selectedSize={selectedSize}
+            bagWeight={bagWeight}
+            frequencyWeeks={frequencyWeeks}
+            onSelectSize={handleSelectSize}
+            onBagWeightChange={setBagWeight}
+            onFrequencyChange={setFrequencyWeeks}
+            onContinue={handleSizeContinue}
+          />
+        )}
 
-      {step === 'summary' && (
-        <OrderSummary
-          sampleProduct={sampleProduct}
-          bagWeight={bagWeight}
-          frequencyWeeks={frequencyWeeks}
-          selectedAddons={selectedAddons}
-          addonProducts={addonProducts}
-          isSubmitting={isSubmitting}
-          error={cartError}
-          onCheckout={handleCheckout}
-        />
-      )}
-    </main>
+        {(step === 'addons' || step === 'summary') && addonProducts.length > 0 && (
+          <AddonsStep
+            addonProducts={addonProducts}
+            selectedAddons={selectedAddons}
+            onToggleAddon={handleToggleAddon}
+            onAddonQuantityChange={handleAddonQuantityChange}
+            onContinue={handleAddonsContinue}
+            onSkip={handleAddonsContinue}
+          />
+        )}
+
+        <HowItWorks />
+
+        {step === 'summary' && (
+          <OrderSummary
+            sampleProduct={sampleProduct}
+            bagWeight={bagWeight}
+            frequencyWeeks={frequencyWeeks}
+            selectedAddons={selectedAddons}
+            addonProducts={addonProducts}
+            isSubmitting={isSubmitting}
+            error={cartError}
+            onCheckout={handleCheckout}
+          />
+        )}
+
+        <FAQSection />
+      </main>
+
+      <Footer />
+    </>
   );
 }
