@@ -509,6 +509,114 @@ img {
 }
 
 /* ============================================
+   Why You'll Love It Section
+   ============================================ */
+.why-love-section {
+  padding: 6rem 4rem;
+  background: var(--color-bg-alt);
+  border-top: 1px solid var(--color-border);
+}
+
+.why-love-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.why-love-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.why-love-content h2 {
+  font-family: var(--font-serif);
+  font-size: 2.25rem;
+  font-weight: 400;
+  margin-bottom: 2.5rem;
+  line-height: 1.2;
+}
+
+.why-love-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.why-love-feature {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.why-love-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-green);
+  color: var(--color-green);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+}
+
+.why-love-text h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--color-text);
+}
+
+.why-love-text p {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.why-love-image {
+  display: flex;
+  justify-content: center;
+}
+
+.why-love-image-placeholder {
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(145deg, var(--color-bg) 0%, #e8e4db 100%);
+  border-radius: var(--radius);
+  position: relative;
+}
+
+.annotation-dot {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-green);
+  background: var(--color-bg);
+  color: var(--color-green);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+}
+
+.annotation-dot-1 { top: 12%; left: 15%; }
+.annotation-dot-2 { top: 25%; right: 10%; }
+.annotation-dot-3 { top: 42%; left: 8%; }
+.annotation-dot-4 { top: 58%; right: 15%; }
+.annotation-dot-5 { top: 72%; left: 12%; }
+.annotation-dot-6 { top: 85%; right: 18%; }
+
+/* ============================================
    Story Section (editorial)
    ============================================ */
 .story-section {
@@ -1879,6 +1987,12 @@ img {
 @media (max-width: 768px) {
   .sticky-cta-inner { padding: 0.5rem 1.5rem; height: 60px; }
   .sticky-cta-label { display: none; }
+
+  .why-love-section { padding: 4rem 1.5rem; }
+  .why-love-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .why-love-image { order: -1; }
+  .why-love-image-placeholder { max-width: 280px; aspect-ratio: 1; }
+  .why-love-content h2 { font-size: 1.75rem; }
 
   .tab-bar { padding: 0 1.5rem; overflow-x: auto; }
   .tab-btn { padding: 1rem 1.25rem; font-size: 0.8125rem; }

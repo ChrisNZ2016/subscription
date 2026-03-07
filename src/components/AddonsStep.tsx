@@ -1,6 +1,12 @@
 import type { Product } from '../types/shopify';
 import type { AddonSelection } from '../lib/cart';
 
+const CUSTOM_DESCRIPTIONS: Record<string, string> = {
+  'hypoallergenic-dog-treat': 'Delicious and gentle on the tummy.',
+  'compostable-poop-bags-60-pack': '100% compostable and extra thick. 60 pack.',
+  'compostable-poop-bags-120-pack': '100% compostable and extra thick. 120 pack.',
+};
+
 interface AddonsStepProps {
   addonProducts: Product[];
   selectedAddons: AddonSelection[];
@@ -41,9 +47,9 @@ export function AddonsStep({
     <section className="step" id="addons">
       <div className="step-inner">
         <span className="section-label">Step 2</span>
-        <h2>Add extras to every delivery</h2>
+        <h2>Save even more by adding extras to every delivery</h2>
         <p className="step-subtitle">
-          Treats, toppers, and supplements — delivered alongside your kibble.
+          Poop bags and treats — delivered alongside your kibble.
           You can always change these later.
         </p>
 
@@ -73,8 +79,10 @@ export function AddonsStep({
                 )}
                 <div className="addon-info">
                   <strong>{product.title}</strong>
-                  {product.description && (
-                    <span className="addon-desc">{product.description}</span>
+                  {(CUSTOM_DESCRIPTIONS[product.handle] || product.description) && (
+                    <span className="addon-desc">
+                      {CUSTOM_DESCRIPTIONS[product.handle] || product.description}
+                    </span>
                   )}
                   {price && (
                     <span className="addon-price">{price}/delivery</span>

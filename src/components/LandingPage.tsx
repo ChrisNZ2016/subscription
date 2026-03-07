@@ -4,6 +4,7 @@ import { useCart } from '../hooks/useCart';
 import { DOG_SIZE_PRESETS } from '../constants/dogSizes';
 import { HeroSection } from './HeroSection';
 import { BenefitsBar } from './BenefitsBar';
+import { WhyYoullLoveIt } from './WhyYoullLoveIt';
 import { ProductTabs } from './ProductTabs';
 import { TestimonialsSection } from './TestimonialsSection';
 import { DogSizeCalculator } from './DogSizeCalculator';
@@ -164,6 +165,7 @@ export function LandingPage() {
       <main className="landing-page">
         <HeroSection onGetStarted={handleGetStarted} />
         <BenefitsBar />
+        <WhyYoullLoveIt />
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />
         <TestimonialsSection />
         <SubscriptionExplainer />
