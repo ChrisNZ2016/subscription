@@ -1,6 +1,12 @@
 import type { Product } from '../types/shopify';
 import type { AddonSelection } from '../lib/cart';
 
+const CUSTOM_DESCRIPTIONS: Record<string, string> = {
+  'hypoallergenic-dog-treat': 'Delicious and gentle on the tummy.',
+  'compostable-poop-bags-60-pack': '100% compostable and extra thick. 60 pack.',
+  'compostable-poop-bags-120-pack': '100% compostable and extra thick. 120 pack.',
+};
+
 interface AddonsStepProps {
   addonProducts: Product[];
   selectedAddons: AddonSelection[];
@@ -39,76 +45,86 @@ export function AddonsStep({
 }: AddonsStepProps) {
   return (
     <section className="step" id="addons">
-      <h2>Add to your subscription</h2>
-      <p className="step-subtitle">
-        These extras are delivered with every order. You can skip them for now.
-      </p>
+      <div className="step-inner">
+        <span className="section-label">Step 2</span>
+        <h2>Save even more by adding extras to every delivery</h2>
+        <p className="step-subtitle">
+          Poop bags and treats — delivered alongside your kibble.
+          You can always change these later.
+        </p>
 
-      <div className="addon-cards">
-        {addonProducts.map((product) => {
-          const variant = product.variants.nodes[0];
-          if (!variant) return null;
+        <div className="addon-cards">
+          {addonProducts.map((product) => {
+            const variant = product.variants.nodes[0];
+            if (!variant) return null;
 
-          const selected = selectedAddons.find(
-            (a) => a.variantId === variant.id,
-          );
-          const isSelected = !!selected;
-          const price = getAddonPrice(product);
-          const image = product.images.nodes[0];
+            const selected = selectedAddons.find(
+              (a) => a.variantId === variant.id,
+            );
+            const isSelected = !!selected;
+            const price = getAddonPrice(product);
+            const image = product.images.nodes[0];
 
-          return (
-            <div
-              key={product.id}
-              className={`addon-card ${isSelected ? 'selected' : ''}`}
-            >
-              {image && (
-                <img
-                  className="addon-image"
-                  src={image.url}
-                  alt={image.altText || product.title}
-                />
-              )}
-              <div className="addon-info">
-                <strong>{product.title}</strong>
-                {price && (
-                  <span className="addon-price">{price}/delivery</span>
+            return (
+              <div
+                key={product.id}
+                className={`addon-card ${isSelected ? 'selected' : ''}`}
+              >
+                {image && (
+                  <img
+                    className="addon-image"
+                    src={image.url}
+                    alt={image.altText || product.title}
+                  />
                 )}
-              </div>
-              <div className="addon-actions">
-                <button
-                  className={`btn ${isSelected ? 'btn-outline' : 'btn-secondary'}`}
-                  onClick={() => onToggleAddon(product)}
-                >
-                  {isSelected ? 'Remove' : 'Add'}
-                </button>
-                {isSelected && (
-                  <select
-                    className="addon-qty"
-                    value={selected.quantity}
-                    onChange={(e) =>
-                      onAddonQuantityChange(variant.id, Number(e.target.value))
-                    }
+                <div className="addon-info">
+                  <strong>{product.title}</strong>
+                  {(CUSTOM_DESCRIPTIONS[product.handle] || product.description) && (
+                    <span className="addon-desc">
+                      {CUSTOM_DESCRIPTIONS[product.handle] || product.description}
+                    </span>
+                  )}
+                  {price && (
+                    <span className="addon-price">{price}/delivery</span>
+                  )}
+                </div>
+                <div className="addon-actions">
+                  <button
+                    className={`btn ${isSelected ? 'btn-outline' : 'btn-secondary'}`}
+                    onClick={() => onToggleAddon(product)}
                   >
-                    {[1, 2, 3, 4, 5].map((q) => (
-                      <option key={q} value={q}>
-                        {q}
-                      </option>
-                    ))}
-                  </select>
-                )}
+                    {isSelected ? 'Remove' : 'Add'}
+                  </button>
+                  {isSelected && (
+                    <select
+                      className="addon-qty"
+                      value={selected.quantity}
+                      aria-label={`Quantity for ${product.title}`}
+                      onChange={(e) =>
+                        onAddonQuantityChange(variant.id, Number(e.target.value))
+                      }
+                    >
+                      {[1, 2, 3, 4, 5].map((q) => (
+                        <option key={q} value={q}>
+                          {q}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      <div className="step-actions">
-        <button className="btn btn-link" onClick={onSkip}>
-          Skip
-        </button>
-        <button className="btn btn-primary" onClick={onContinue}>
-          Continue
-        </button>
+        <div className="step-actions">
+          <button className="btn btn-link" onClick={onSkip}>
+            Skip for now
+          </button>
+          <button className="btn-order" onClick={onContinue}>
+            Order Now
+          </button>
+        </div>
       </div>
     </section>
   );

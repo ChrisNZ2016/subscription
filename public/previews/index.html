@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Little Green Dog — Design Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #111; color: #fff; }
+  .header { text-align: center; padding: 48px 24px 32px; }
+  .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .header p { color: #888; font-size: 14px; }
+  .options { display: flex; flex-direction: column; gap: 48px; padding: 0 24px 64px; max-width: 1400px; margin: 0 auto; }
+  .option { }
+  .option-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 16px; padding: 0 4px; }
+  .option-num { background: #ACD45C; color: #111; font-size: 13px; font-weight: 800; padding: 4px 12px; border-radius: 6px; }
+  .option-title { font-size: 18px; font-weight: 700; }
+  .option-desc { font-size: 13px; color: #888; margin-left: auto; }
+  .frame-wrapper { border-radius: 12px; overflow: hidden; border: 1px solid #333; background: #fff; position: relative; }
+  iframe { width: 100%; height: 800px; border: none; display: block; }
+  .open-link { display: inline-block; margin-top: 12px; color: #ACD45C; font-size: 13px; font-weight: 600; text-decoration: none; }
+  .open-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>🐕 Little Green Dog — 5 Design Options</h1>
+    <p>Scroll through all 5 options. Click "Open full page" to view each in its own tab.</p>
+  </div>
+  <div class="options">
+    <div class="option">
+      <div class="option-header">
+        <span class="option-num">1</span>
+        <span class="option-title">Clean & Bold — DTC</span>
+        <span class="option-desc">Think Farmer's Dog / Ollie. White dominant, bold type, generous whitespace.</span>
+      </div>
+      <div class="frame-wrapper"><iframe src="option1.html"></iframe></div>
+      <a href="option1.html" target="_blank" class="open-link">Open full page →</a>
+    </div>
+    <div class="option">
+      <div class="option-header">
+        <span class="option-num">2</span>
+        <span class="option-title">Warm & Premium — Boutique</span>
+        <span class="option-desc">Think Sundays for Dogs. Warm cream tones, serif + sans-serif, lifestyle focus.</span>
+      </div>
+      <div class="frame-wrapper"><iframe src="option2.html"></iframe></div>
+      <a href="option2.html" target="_blank" class="open-link">Open full page →</a>
+    </div>
+    <div class="option">
+      <div class="option-header">
+        <span class="option-num">3</span>
+        <span class="option-title">Bold & Playful — Fun</span>
+        <span class="option-desc">Think BarkBox / Wild One. Energetic, colorful, strong contrast, all 3 brand colours.</span>
+      </div>
+      <div class="frame-wrapper"><iframe src="option3.html"></iframe></div>
+      <a href="option3.html" target="_blank" class="open-link">Open full page →</a>
+    </div>
+    <div class="option">
+      <div class="option-header">
+        <span class="option-num">4</span>
+        <span class="option-title">Minimal Editorial — Health-Focused</span>
+        <span class="option-desc">Think Nom Nom / Honest Kitchen. Editorial layout, data-driven, restrained colour.</span>
+      </div>
+      <div class="frame-wrapper"><iframe src="option4.html"></iframe></div>
+      <a href="option4.html" target="_blank" class="open-link">Open full page →</a>
+    </div>
+    <div class="option">
+      <div class="option-header">
+        <span class="option-num">5</span>
+        <span class="option-title">Nature & Organic — Earthy</span>
+        <span class="option-desc">Think Open Farm / Jinx. Nature-inspired, organic shapes, green dominant, earthy trust.</span>
+      </div>
+      <div class="frame-wrapper"><iframe src="option5.html"></iframe></div>
+      <a href="option5.html" target="_blank" class="open-link">Open full page →</a>
+    </div>
+  </div>
+</body>
+</html>
