@@ -126,11 +126,11 @@ export function OrderSummary({
         {error && <p className="error-message">{error}</p>}
 
         <button
-          className="btn btn-primary btn-lg btn-checkout"
+          className="btn-order btn-checkout"
           onClick={onCheckout}
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Redirecting to checkout...' : 'Complete Checkout'}
+          {isSubmitting ? 'Redirecting to checkout...' : 'Order Now'}
         </button>
 
         <div className="checkout-trust">

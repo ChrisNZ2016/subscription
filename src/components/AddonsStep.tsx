@@ -40,6 +40,7 @@ export function AddonsStep({
   return (
     <section className="step" id="addons">
       <div className="step-inner">
+        <span className="section-label">Step 2</span>
         <h2>Add extras to every delivery</h2>
         <p className="step-subtitle">
           Treats, toppers, and supplements — delivered alongside your kibble.
@@ -112,8 +113,8 @@ export function AddonsStep({
           <button className="btn btn-link" onClick={onSkip}>
             Skip for now
           </button>
-          <button className="btn btn-primary" onClick={onContinue}>
-            Continue
+          <button className="btn-order" onClick={onContinue}>
+            Order Now
           </button>
         </div>
       </div>

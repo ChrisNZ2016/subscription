@@ -4,13 +4,14 @@ export function Footer() {
       <div className="footer-inner">
         <div className="footer-brand">
           <strong>Little Green Dog</strong>
-          <span>NZ Owned & Operated</span>
+          <span>82 Balfour St, Wellington, NZ</span>
         </div>
         <nav className="footer-links" aria-label="Footer navigation">
           <a href="#faq">FAQ</a>
-          <a href="mailto:hello@littlegreendog.com">Contact</a>
-          <a href="/privacy">Privacy</a>
-          <a href="/terms">Terms</a>
+          <a href="#product-tabs">Ingredients</a>
+          <a href="https://www.littlegreendog.co.nz/pages/contact-us" target="_blank" rel="noopener noreferrer">Contact</a>
+          <a href="https://www.littlegreendog.co.nz/policies/refund-policy" target="_blank" rel="noopener noreferrer">Refund Policy</a>
+          <a href="https://www.littlegreendog.co.nz/policies/terms-of-service" target="_blank" rel="noopener noreferrer">Terms</a>
         </nav>
       </div>
     </footer>

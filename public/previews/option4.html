@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Option 4 — Minimal Editorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; line-height: 1.7; }
+
+/* — NAV — */
+.topbar { background: #fafaf8; border-bottom: 1px solid #eee; text-align: center; padding: 10px; font-size: 13px; color: #888; }
+.topbar strong { color: #1a1a1a; }
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 64px; max-width: 1400px; margin: 0 auto; }
+.nav-logo { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+.nav-logo span { color: #ACD45C; }
+.nav-links { display: flex; gap: 32px; font-size: 14px; color: #777; }
+.nav-links a { text-decoration: none; color: inherit; }
+.nav-cta { background: none; border: 1.5px solid #1a1a1a; color: #1a1a1a; padding: 8px 24px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+/* — HERO — */
+.hero { max-width: 1400px; margin: 0 auto; padding: 64px 64px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.hero-text .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #ACD45C; font-weight: 600; margin-bottom: 20px; }
+.hero h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 52px; font-weight: 400; line-height: 1.12; margin-bottom: 24px; letter-spacing: -0.01em; }
+.hero-text p { font-size: 17px; color: #666; margin-bottom: 32px; max-width: 440px; }
+.btn-primary { background: #1a1a1a; color: #fff; border: none; padding: 14px 36px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; letter-spacing: 0.02em; }
+.btn-text { background: none; border: none; color: #1a1a1a; font-size: 14px; font-weight: 600; cursor: pointer; margin-left: 24px; text-decoration: underline; text-underline-offset: 4px; }
+.hero-img { background: #f4f4f0; border-radius: 4px; aspect-ratio: 4/5; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 14px; font-weight: 500; }
+
+/* — METRICS — */
+.metrics { border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+.metrics-inner { max-width: 1400px; margin: 0 auto; padding: 40px 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
+.metric { text-align: center; }
+.metric .num { font-family: 'Playfair Display', serif; font-size: 36px; margin-bottom: 4px; }
+.metric .num span { color: #ACD45C; }
+.metric p { font-size: 13px; color: #999; }
+
+/* — EDITORIAL — */
+.editorial { max-width: 680px; margin: 0 auto; padding: 80px 64px; }
+.editorial .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #ACD45C; font-weight: 600; margin-bottom: 16px; }
+.editorial h2 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 400; margin-bottom: 24px; line-height: 1.3; }
+.editorial p { font-size: 16px; color: #555; margin-bottom: 20px; }
+.editorial-img { background: #f4f4f0; border-radius: 4px; height: 360px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 14px; font-weight: 500; margin: 40px 0; }
+
+/* — INGREDIENTS — */
+.ingredients { background: #fafaf8; }
+.ingredients-inner { max-width: 1400px; margin: 0 auto; padding: 80px 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+.ingredients .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #ACD45C; font-weight: 600; margin-bottom: 16px; }
+.ingredients h2 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 400; margin-bottom: 24px; }
+.ingredients p { font-size: 15px; color: #666; margin-bottom: 24px; }
+.ing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ing-item { background: #fff; border: 1px solid #eee; border-radius: 6px; padding: 14px 18px; font-size: 14px; font-weight: 500; }
+.ing-item span { color: #ACD45C; margin-right: 8px; }
+.excluded { margin-top: 32px; }
+.excluded h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #ccc; margin-bottom: 12px; }
+.excluded-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.excluded-list span { font-size: 13px; color: #bbb; text-decoration: line-through; }
+
+/* — PRODUCT — */
+.product { max-width: 1400px; margin: 0 auto; padding: 80px 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.product-img { background: linear-gradient(180deg, #f0f4e8 0%, #e8efd8 100%); border-radius: 4px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; color: #a8c070; font-size: 14px; font-weight: 500; }
+.product-info .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #5465A3; font-weight: 600; margin-bottom: 12px; }
+.product-info h2 { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 8px; }
+.product-info .price { font-size: 14px; color: #888; margin-bottom: 24px; }
+.product-info .price strong { font-size: 28px; color: #1a1a1a; font-weight: 700; margin-right: 8px; }
+.product-info .price del { color: #ccc; }
+.product-list { list-style: none; margin-bottom: 32px; }
+.product-list li { padding: 12px 0; border-bottom: 1px solid #f0f0f0; font-size: 15px; color: #444; display: flex; gap: 12px; }
+.product-list li span { color: #ACD45C; font-weight: 600; }
+.btn-full { background: #1a1a1a; color: #fff; border: none; padding: 16px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; }
+
+/* — TESTIMONIALS — */
+.testimonials { background: #fafaf8; }
+.testimonials-inner { max-width: 1400px; margin: 0 auto; padding: 80px 64px; }
+.testimonials .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #ACD45C; font-weight: 600; margin-bottom: 16px; text-align: center; }
+.testimonials h2 { font-family: 'Playfair Display', serif; font-size: 32px; text-align: center; margin-bottom: 48px; }
+.test-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.test-card { border-top: 2px solid #1a1a1a; padding-top: 24px; }
+.test-card .stars { color: #ACD45C; margin-bottom: 16px; font-size: 14px; letter-spacing: 2px; }
+.test-card p { font-size: 16px; font-family: 'Playfair Display', serif; color: #333; margin-bottom: 24px; line-height: 1.5; }
+.test-card .author { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #999; }
+
+/* — HOW — */
+.how { max-width: 680px; margin: 0 auto; padding: 80px 64px; text-align: center; }
+.how .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #ACD45C; font-weight: 600; margin-bottom: 16px; }
+.how h2 { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 48px; }
+.how-steps { display: flex; flex-direction: column; gap: 32px; text-align: left; }
+.how-step { display: grid; grid-template-columns: 48px 1fr; gap: 20px; align-items: start; }
+.how-step .num { font-family: 'Playfair Display', serif; font-size: 28px; color: #ddd; }
+.how-step h4 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.how-step p { font-size: 14px; color: #888; }
+
+/* — FAQ — */
+.faq { max-width: 680px; margin: 0 auto; padding: 80px 64px; }
+.faq .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #ACD45C; font-weight: 600; margin-bottom: 16px; text-align: center; }
+.faq h2 { font-family: 'Playfair Display', serif; font-size: 32px; text-align: center; margin-bottom: 40px; }
+.faq-item { border-top: 1px solid #eee; padding: 20px 0; }
+.faq-item:last-child { border-bottom: 1px solid #eee; }
+.faq-item summary { font-size: 15px; font-weight: 600; cursor: pointer; list-style: none; color: #333; }
+.faq-item summary::marker { display: none; }
+.faq-item p { margin-top: 12px; font-size: 14px; color: #888; }
+
+/* — FOOTER — */
+.footer { border-top: 1px solid #eee; padding: 48px 64px; max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.footer p { font-size: 13px; color: #bbb; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 13px; color: #999; text-decoration: none; }
+
+@media (max-width: 768px) {
+  .hero, .product, .ingredients-inner { grid-template-columns: 1fr; gap: 40px; }
+  .hero, .editorial, .how, .faq { padding-left: 24px; padding-right: 24px; }
+  .hero h1 { font-size: 36px; }
+  .metrics-inner { grid-template-columns: repeat(2, 1fr); }
+  .test-grid { grid-template-columns: 1fr; }
+  .nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .product, .ingredients-inner, .testimonials-inner { padding-left: 24px; padding-right: 24px; }
+  .footer { flex-direction: column; gap: 16px; padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">Your first 2kg sample box — <strong>50% off</strong>. Money-back guarantee.</div>
+
+<nav class="nav">
+  <div class="nav-logo">little<span>green</span>dog</div>
+  <div class="nav-links">
+    <a href="#">Ingredients</a>
+    <a href="#">How It Works</a>
+    <a href="#">Reviews</a>
+    <a href="#">FAQ</a>
+  </div>
+  <button class="nav-cta">Get Started</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-text">
+    <div class="label">Hypoallergenic Dog Food</div>
+    <h1>Formulated for sensitive stomachs. Loved by dogs.</h1>
+    <p>Vet-formulated, single-protein kibble with 20+ functional superfoods. Gentle digestion guaranteed or your money back.</p>
+    <div>
+      <button class="btn-primary">Build Your Plan</button>
+      <button class="btn-text">View Ingredients ↓</button>
+    </div>
+  </div>
+  <div class="hero-img">[ Product Image ]</div>
+</section>
+
+<section class="metrics">
+  <div class="metrics-inner">
+    <div class="metric"><div class="num">2,000<span>+</span></div><p>Happy dogs</p></div>
+    <div class="metric"><div class="num">20<span>+</span></div><p>Superfoods per bag</p></div>
+    <div class="metric"><div class="num">50<span>%</span></div><p>Off first box</p></div>
+    <div class="metric"><div class="num">100<span>%</span></div><p>Money-back guarantee</p></div>
+  </div>
+</section>
+
+<section class="editorial">
+  <div class="label">Our Story</div>
+  <h2>We made this food because we couldn't find it anywhere else</h2>
+  <p>When our founder's dog Chloe developed severe sensitivities, every "natural" brand still contained hidden allergens. So we created a truly hypoallergenic formula — single protein, no grains, no fillers, packed with real functional ingredients.</p>
+  <p>The result? Clear skin, calm stomachs, and dogs who actually love mealtime again.</p>
+  <div class="editorial-img">[ Lifestyle Photo ]</div>
+</section>
+
+<section class="ingredients">
+  <div class="ingredients-inner">
+    <div>
+      <div class="label">Transparency</div>
+      <h2>Every ingredient has a purpose</h2>
+      <p>No fillers. No by-products. Each ingredient is chosen by our veterinary nutritionists for a specific health benefit.</p>
+      <div class="excluded">
+        <h4>Never included</h4>
+        <div class="excluded-list">
+          <span>Wheat</span><span>Corn</span><span>Soy</span><span>Dairy</span><span>Chicken</span><span>Artificial colours</span><span>Preservatives</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="ing-grid">
+        <div class="ing-item"><span>●</span> Salmon</div>
+        <div class="ing-item"><span>●</span> Sweet Potato</div>
+        <div class="ing-item"><span>●</span> Kelp</div>
+        <div class="ing-item"><span>●</span> Turmeric</div>
+        <div class="ing-item"><span>●</span> Blueberries</div>
+        <div class="ing-item"><span>●</span> Flaxseed</div>
+        <div class="ing-item"><span>●</span> Chicory Root</div>
+        <div class="ing-item"><span>●</span> Rosemary</div>
+        <div class="ing-item"><span>●</span> Coconut Oil</div>
+        <div class="ing-item"><span>●</span> Green Lipped Mussel</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="product">
+  <div class="product-img">[ Product Photo ]</div>
+  <div class="product-info">
+    <div class="label">Best Seller</div>
+    <h2>Sample Box — 2kg</h2>
+    <div class="price"><strong>$24.99</strong> <del>$49.99</del></div>
+    <ul class="product-list">
+      <li><span>01</span> Single-protein, grain-free recipe</li>
+      <li><span>02</span> 20+ functional superfoods</li>
+      <li><span>03</span> Prebiotics for gentle digestion</li>
+      <li><span>04</span> Omega-3 & 6 for skin and coat</li>
+      <li><span>05</span> Flexible subscription — cancel anytime</li>
+    </ul>
+    <button class="btn-full">Build Your Plan — Save 50%</button>
+  </div>
+</section>
+
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <div class="label">Reviews</div>
+    <h2>From their humans</h2>
+    <div class="test-grid">
+      <div class="test-card"><div class="stars">★ ★ ★ ★ ★</div><p>"Chloe's skin cleared up in two weeks. We've tried everything — this is the one."</p><div class="author">Sarah M. — Border Collie</div></div>
+      <div class="test-card"><div class="stars">★ ★ ★ ★ ★</div><p>"Finally a food Charlie wants to eat and doesn't upset his stomach."</p><div class="author">James T. — Labrador</div></div>
+      <div class="test-card"><div class="stars">★ ★ ★ ★ ★</div><p>"Seamless subscription. Great food, always on time."</p><div class="author">Emily R. — Cavoodle</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="how">
+  <div class="label">Process</div>
+  <h2>Three simple steps</h2>
+  <div class="how-steps">
+    <div class="how-step"><div class="num">01</div><div><h4>Tell us about your dog</h4><p>Select your dog's size and we'll recommend the right plan.</p></div></div>
+    <div class="how-step"><div class="num">02</div><div><h4>We ship to your door</h4><p>Free shipping on all orders. Delivered on your schedule.</p></div></div>
+    <div class="how-step"><div class="num">03</div><div><h4>Flexible by design</h4><p>Pause, adjust, or cancel anytime. No contracts.</p></div></div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="label">Support</div>
+  <h2>Common questions</h2>
+  <details class="faq-item"><summary>What makes this food hypoallergenic?</summary><p>Single-protein recipe with novel ingredients. No wheat, corn, soy, dairy, or chicken.</p></details>
+  <details class="faq-item"><summary>Can I cancel my subscription?</summary><p>Cancel, pause, or modify anytime from your dashboard. No lock-in contracts.</p></details>
+  <details class="faq-item"><summary>Is there a money-back guarantee?</summary><p>If your dog doesn't love it, we'll refund your first box — no questions asked.</p></details>
+  <details class="faq-item"><summary>Where is it made?</summary><p>All our food is made in New Zealand with locally sourced ingredients.</p></details>
+</section>
+
+<footer class="footer">
+  <p>© 2026 Little Green Dog</p>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

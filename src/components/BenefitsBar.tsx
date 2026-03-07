@@ -1,20 +1,20 @@
 export function BenefitsBar() {
-  const benefits = [
-    { icon: '\u2714', label: 'Healthy Digestion' },
-    { icon: '\u2728', label: 'Shiny Coat' },
-    { icon: '\u26A1', label: 'Joint Support' },
-    { icon: '\u2764', label: 'Immune Support' },
-    { icon: '\u2705', label: 'Odour Control' },
-    { icon: '\u2B50', label: 'Superfoods' },
+  const metrics = [
+    { value: '2,000', accent: '+', label: 'Happy dogs' },
+    { value: '20', accent: '+', label: 'Superfoods per bag' },
+    { value: '50', accent: '%', label: 'Off first box' },
+    { value: '100', accent: '%', label: 'Money-back guarantee' },
   ];
 
   return (
-    <section className="benefits-bar" aria-label="Product benefits">
+    <section className="benefits-bar" aria-label="Key metrics">
       <div className="benefits-inner">
-        {benefits.map((b) => (
-          <div className="benefit-item" key={b.label}>
-            <span className="benefit-icon" aria-hidden="true">{b.icon}</span>
-            <span className="benefit-label">{b.label}</span>
+        {metrics.map((m) => (
+          <div className="benefit-item" key={m.label}>
+            <div className="benefit-icon">
+              {m.value}<span>{m.accent}</span>
+            </div>
+            <span className="benefit-label">{m.label}</span>
           </div>
         ))}
       </div>

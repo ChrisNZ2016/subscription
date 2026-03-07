@@ -40,15 +40,12 @@ export function TestimonialsSection() {
                 ))}
               </div>
               <blockquote className="testimonial-quote">
-                {t.quote}
+                "{t.quote}"
               </blockquote>
               <div className="testimonial-footer">
-                <div className="testimonial-avatar" aria-hidden="true">
-                  {t.dogName[0]}
-                </div>
                 <div className="testimonial-attribution">
-                  <strong>{t.dogName}</strong>
-                  <span>{t.breed} &middot; {t.ownerName}</span>
+                  <strong>{t.ownerName}</strong>
+                  <span>{t.dogName} the {t.breed}</span>
                 </div>
               </div>
             </div>

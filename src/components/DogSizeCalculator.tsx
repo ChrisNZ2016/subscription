@@ -1,7 +1,6 @@
 import {
   DOG_SIZE_PRESETS,
   BAG_WEIGHT_OPTIONS,
-  FREQUENCY_OPTIONS,
 } from '../constants/dogSizes';
 
 interface DogSizeCalculatorProps {
@@ -23,19 +22,17 @@ const SIZE_ICONS: Record<string, string> = {
 export function DogSizeCalculator({
   selectedSize,
   bagWeight,
-  frequencyWeeks,
   onSelectSize,
   onBagWeightChange,
-  onFrequencyChange,
   onContinue,
 }: DogSizeCalculatorProps) {
   return (
     <section className="step" id="dog-size">
       <div className="step-inner">
+        <span className="section-label">Step 1</span>
         <h2>Build your perfect plan</h2>
         <p className="step-subtitle">
-          Pick your dog's size and we'll recommend the right bag and delivery
-          schedule. You can always customise it.
+          Pick your dog's size and we'll recommend the right bag. Delivered every 4 weeks.
         </p>
 
         <div className="size-cards">
@@ -55,41 +52,29 @@ export function DogSizeCalculator({
         </div>
 
         {selectedSize !== null && (
-          <div className="customiser">
-            <div className="customiser-field">
-              <label htmlFor="bag-weight">Bag size</label>
-              <select
-                id="bag-weight"
-                value={bagWeight}
-                onChange={(e) => onBagWeightChange(Number(e.target.value))}
-              >
-                {BAG_WEIGHT_OPTIONS.map((w) => (
-                  <option key={w} value={w}>
-                    {w}kg
-                  </option>
-                ))}
-              </select>
-            </div>
+          <>
+            <div className="customiser">
+              <div className="customiser-field">
+                <label htmlFor="bag-weight">Bag size</label>
+                <select
+                  id="bag-weight"
+                  value={bagWeight}
+                  onChange={(e) => onBagWeightChange(Number(e.target.value))}
+                >
+                  {BAG_WEIGHT_OPTIONS.map((w) => (
+                    <option key={w} value={w}>
+                      {w}kg
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="customiser-field">
-              <label htmlFor="frequency">Delivery every</label>
-              <select
-                id="frequency"
-                value={frequencyWeeks}
-                onChange={(e) => onFrequencyChange(Number(e.target.value))}
-              >
-                {FREQUENCY_OPTIONS.map((w) => (
-                  <option key={w} value={w}>
-                    {w} {w === 1 ? 'week' : 'weeks'}
-                  </option>
-                ))}
-              </select>
+              <button className="btn-order" onClick={onContinue}>
+                Order Now
+              </button>
             </div>
-
-            <button className="btn btn-primary" onClick={onContinue}>
-              Continue
-            </button>
-          </div>
+            <p className="customiser-frequency-note">We'll deliver every 4 weeks</p>
+          </>
         )}
       </div>
     </section>

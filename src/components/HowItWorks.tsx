@@ -23,13 +23,15 @@ export function HowItWorks() {
     <section className="how-it-works-section">
       <div className="how-it-works-inner">
         <span className="section-label">How it works</span>
-        <h2>How your subscription works</h2>
+        <h2>Three steps to happier mealtimes</h2>
         <div className="how-it-works-steps">
           {steps.map((s) => (
             <div className="how-it-works-step" key={s.number}>
               <div className="step-number" aria-hidden="true">{s.number}</div>
-              <h3>{s.title}</h3>
-              <p>{s.description}</p>
+              <div>
+                <h3>{s.title}</h3>
+                <p>{s.description}</p>
+              </div>
             </div>
           ))}
         </div>
