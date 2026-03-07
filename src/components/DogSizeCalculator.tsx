@@ -2,11 +2,14 @@ import {
   DOG_SIZE_PRESETS,
   BAG_WEIGHT_OPTIONS,
 } from '../constants/dogSizes';
+import type { Product } from '../types/shopify';
+import { getSubscriptionPricing, formatMoney } from '../lib/pricing';
 
 interface DogSizeCalculatorProps {
   selectedSize: number | null;
   bagWeight: number;
   frequencyWeeks: number;
+  subscriptionProduct: Product | null;
   onSelectSize: (index: number) => void;
   onBagWeightChange: (weight: number) => void;
   onFrequencyChange: (weeks: number) => void;
@@ -22,10 +25,15 @@ const SIZE_ICONS: Record<string, string> = {
 export function DogSizeCalculator({
   selectedSize,
   bagWeight,
+  subscriptionProduct,
   onSelectSize,
   onBagWeightChange,
   onContinue,
 }: DogSizeCalculatorProps) {
+  const pricing = subscriptionProduct
+    ? getSubscriptionPricing(subscriptionProduct, bagWeight)
+    : null;
+
   return (
     <section className="step" id="dog-size">
       <div className="step-inner">
@@ -36,19 +44,30 @@ export function DogSizeCalculator({
         </p>
 
         <div className="size-cards">
-          {DOG_SIZE_PRESETS.map((preset, i) => (
-            <button
-              key={preset.label}
-              className={`size-card ${selectedSize === i ? 'selected' : ''}`}
-              onClick={() => onSelectSize(i)}
-            >
-              <span className="size-icon" aria-hidden="true">
-                {SIZE_ICONS[preset.label] ?? preset.label[0]}
-              </span>
-              <strong>{preset.label}</strong>
-              <span className="size-desc">{preset.description}</span>
-            </button>
-          ))}
+          {DOG_SIZE_PRESETS.map((preset, i) => {
+            const presetPricing = subscriptionProduct
+              ? getSubscriptionPricing(subscriptionProduct, preset.bagWeight)
+              : null;
+
+            return (
+              <button
+                key={preset.label}
+                className={`size-card ${selectedSize === i ? 'selected' : ''}`}
+                onClick={() => onSelectSize(i)}
+              >
+                <span className="size-icon" aria-hidden="true">
+                  {SIZE_ICONS[preset.label] ?? preset.label[0]}
+                </span>
+                <strong>{preset.label}</strong>
+                <span className="size-desc">{preset.description}</span>
+                {presetPricing && (
+                  <span className="size-price">
+                    {formatMoney(presetPricing.price)}/{preset.bagWeight}kg
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {selectedSize !== null && (
@@ -68,6 +87,21 @@ export function DogSizeCalculator({
                   ))}
                 </select>
               </div>
+
+              {pricing && (
+                <div className="customiser-pricing">
+                  <div className="customiser-price-row">
+                    <span className="customiser-price">{formatMoney(pricing.price)}</span>
+                    <span className="customiser-price-label">every 4 weeks</span>
+                  </div>
+                  {pricing.retailPrice && pricing.savingsPercent > 0 && (
+                    <div className="customiser-savings">
+                      <span className="customiser-retail">{formatMoney(pricing.retailPrice)}</span>
+                      <span className="savings-badge">Save {pricing.savingsPercent}%</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <button className="btn-order" onClick={onContinue}>
                 Order Now

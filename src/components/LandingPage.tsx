@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { useCart } from '../hooks/useCart';
 import { DOG_SIZE_PRESETS } from '../constants/dogSizes';
+import { getSubscriptionPricing, formatMoney } from '../lib/pricing';
 import { HeroSection } from './HeroSection';
 import { BenefitsBar } from './BenefitsBar';
 import { WhyYoullLoveIt } from './WhyYoullLoveIt';
@@ -43,7 +44,7 @@ function findSampleSellingPlan(product: Product): string | null {
 }
 
 export function LandingPage() {
-  const { sampleProduct, addonProducts, loading, error: loadError } = useProducts();
+  const { sampleProduct, subscriptionProduct, addonProducts, loading, error: loadError } = useProducts();
   const { submit, isSubmitting, error: cartError } = useCart();
 
   const [step, setStep] = useState<FunnelStep>('hero');
@@ -100,14 +101,21 @@ export function LandingPage() {
     setTimeout(() => scrollToId('summary'), 100);
   }, []);
 
+  const subscriptionPricing = subscriptionProduct
+    ? getSubscriptionPricing(subscriptionProduct, bagWeight)
+    : null;
+  const subscriptionPriceFormatted = subscriptionPricing
+    ? formatMoney(subscriptionPricing.price)
+    : undefined;
+
   const handleCheckout = useCallback(() => {
     if (!sampleProduct) return;
     const variant = sampleProduct.variants.nodes[0];
     if (!variant) return;
     const sellingPlanId = findSampleSellingPlan(sampleProduct);
     if (!sellingPlanId) return;
-    submit(variant.id, sellingPlanId, { bagWeight, frequencyWeeks }, selectedAddons);
-  }, [sampleProduct, bagWeight, frequencyWeeks, selectedAddons, submit]);
+    submit(variant.id, sellingPlanId, { bagWeight, frequencyWeeks }, selectedAddons, subscriptionPriceFormatted);
+  }, [sampleProduct, bagWeight, frequencyWeeks, selectedAddons, submit, subscriptionPriceFormatted]);
 
   if (loading) {
     return (
@@ -175,6 +183,7 @@ export function LandingPage() {
           selectedSize={selectedSize}
           bagWeight={bagWeight}
           frequencyWeeks={frequencyWeeks}
+          subscriptionProduct={subscriptionProduct}
           onSelectSize={handleSelectSize}
           onBagWeightChange={setBagWeight}
           onFrequencyChange={() => {}}
@@ -195,6 +204,7 @@ export function LandingPage() {
         {step === 'summary' && (
           <OrderSummary
             sampleProduct={sampleProduct}
+            subscriptionProduct={subscriptionProduct}
             bagWeight={bagWeight}
             frequencyWeeks={frequencyWeeks}
             selectedAddons={selectedAddons}

@@ -32,16 +32,22 @@ export async function createCartAndRedirect(
   sampleSellingPlanId: string,
   subscription: SubscriptionSelection,
   addons: AddonSelection[],
+  subscriptionPrice?: string,
 ): Promise<void> {
+  const attributes = [
+    { key: 'Subscription Bag Size', value: `${subscription.bagWeight}kg` },
+    { key: 'Subscription Frequency', value: `${subscription.frequencyWeeks} weeks` },
+  ];
+  if (subscriptionPrice) {
+    attributes.push({ key: 'Subscription Price', value: subscriptionPrice });
+  }
+
   const lines: CartLine[] = [
     {
       merchandiseId: sampleVariantId,
       quantity: 1,
       sellingPlanId: sampleSellingPlanId,
-      attributes: [
-        { key: 'Subscription Bag Size', value: `${subscription.bagWeight}kg` },
-        { key: 'Subscription Frequency', value: `${subscription.frequencyWeeks} weeks` },
-      ],
+      attributes,
     },
     ...addons
       .filter((a) => a.quantity > 0)
