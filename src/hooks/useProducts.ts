@@ -3,6 +3,7 @@ import { fetchProduct, fetchMultipleProducts } from '../lib/shopify';
 import type { Product } from '../types/shopify';
 
 const SAMPLE_HANDLE = import.meta.env.VITE_SAMPLE_PRODUCT_HANDLE || 'sample-2kg';
+const SUBSCRIPTION_HANDLE = import.meta.env.VITE_SUBSCRIPTION_PRODUCT_HANDLE || '';
 const ADDON_HANDLES = (import.meta.env.VITE_ADDON_HANDLES || '')
   .split(',')
   .map((h: string) => h.trim())
@@ -10,6 +11,7 @@ const ADDON_HANDLES = (import.meta.env.VITE_ADDON_HANDLES || '')
 
 interface UseProductsReturn {
   sampleProduct: Product | null;
+  subscriptionProduct: Product | null;
   addonProducts: Product[];
   loading: boolean;
   error: string | null;
@@ -17,6 +19,7 @@ interface UseProductsReturn {
 
 export function useProducts(): UseProductsReturn {
   const [sampleProduct, setSampleProduct] = useState<Product | null>(null);
+  const [subscriptionProduct, setSubscriptionProduct] = useState<Product | null>(null);
   const [addonProducts, setAddonProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,13 +27,17 @@ export function useProducts(): UseProductsReturn {
   useEffect(() => {
     async function load() {
       try {
-        const [sample, addons] = await Promise.all([
+        const [sample, subscription, addons] = await Promise.all([
           fetchProduct(SAMPLE_HANDLE),
+          SUBSCRIPTION_HANDLE
+            ? fetchProduct(SUBSCRIPTION_HANDLE).catch(() => null)
+            : Promise.resolve(null),
           ADDON_HANDLES.length > 0
             ? fetchMultipleProducts(ADDON_HANDLES)
             : Promise.resolve([]),
         ]);
         setSampleProduct(sample);
+        setSubscriptionProduct(subscription);
         setAddonProducts(addons);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load products');
@@ -41,5 +48,5 @@ export function useProducts(): UseProductsReturn {
     load();
   }, []);
 
-  return { sampleProduct, addonProducts, loading, error };
+  return { sampleProduct, subscriptionProduct, addonProducts, loading, error };
 }

@@ -1,8 +1,10 @@
 import type { Product } from '../types/shopify';
 import type { AddonSelection } from '../lib/cart';
+import { getSubscriptionPricing, formatMoney } from '../lib/pricing';
 
 interface OrderSummaryProps {
   sampleProduct: Product;
+  subscriptionProduct: Product | null;
   bagWeight: number;
   frequencyWeeks: number;
   selectedAddons: AddonSelection[];
@@ -12,15 +14,9 @@ interface OrderSummaryProps {
   onCheckout: () => void;
 }
 
-function formatMoney(money: { amount: string; currencyCode: string }): string {
-  return new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency: money.currencyCode,
-  }).format(parseFloat(money.amount));
-}
-
 export function OrderSummary({
   sampleProduct,
+  subscriptionProduct,
   bagWeight,
   frequencyWeeks,
   selectedAddons,
@@ -44,6 +40,10 @@ export function OrderSummary({
       ? formatMoney(sampleVariant.compareAtPrice)
       : null;
 
+  const subscriptionPricing = subscriptionProduct
+    ? getSubscriptionPricing(subscriptionProduct, bagWeight)
+    : null;
+
   return (
     <section className="step" id="summary">
       <div className="step-inner">
@@ -55,6 +55,8 @@ export function OrderSummary({
         </div>
 
         <div className="summary-card">
+          <div className="summary-section-label">Today's order</div>
+
           <div className="summary-line">
             <div>
               <strong>2kg Sample Box</strong>
@@ -70,16 +72,30 @@ export function OrderSummary({
 
           <hr />
 
+          <div className="summary-section-label">Ongoing subscription</div>
+
           <div className="summary-line summary-subscription">
             <div>
-              <strong>Ongoing Subscription</strong>
+              <strong>{bagWeight}kg bag</strong>
               <span className="summary-detail">
-                {bagWeight}kg bag, every {frequencyWeeks}{' '}
-                {frequencyWeeks === 1 ? 'week' : 'weeks'}
+                Every {frequencyWeeks}{' '}
+                {frequencyWeeks === 1 ? 'week' : 'weeks'}, starting after your sample
               </span>
             </div>
             <div className="summary-price">
-              <span className="price-note">Starts after sample</span>
+              {subscriptionPricing ? (
+                <>
+                  <span className="price-current">{formatMoney(subscriptionPricing.price)}</span>
+                  {subscriptionPricing.retailPrice && subscriptionPricing.savingsPercent > 0 && (
+                    <>
+                      <span className="price-compare">{formatMoney(subscriptionPricing.retailPrice)}</span>
+                      <span className="price-saving">Save {subscriptionPricing.savingsPercent}%</span>
+                    </>
+                  )}
+                </>
+              ) : (
+                <span className="price-note">Starts after sample</span>
+              )}
             </div>
           </div>
 
