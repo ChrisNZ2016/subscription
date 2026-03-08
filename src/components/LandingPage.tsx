@@ -69,8 +69,8 @@ export function LandingPage() {
     trackPageViewed();
   }, []);
 
-  const handleGetStarted = useCallback(() => {
-    trackCtaClicked('hero');
+  const handleGetStarted = useCallback((location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq' = 'hero') => {
+    trackCtaClicked(location);
     setStep('size');
     setTimeout(() => scrollToId('dog-size'), 100);
   }, []);
@@ -228,14 +228,14 @@ export function LandingPage() {
           <li><a href="#faq">FAQ</a></li>
           <li><a href="https://www.littlegreendog.co.nz/pages/contact-us" target="_blank" rel="noopener noreferrer">Contact</a></li>
         </ul>
-        <button className="btn-order nav-order-btn" onClick={handleGetStarted}>
+        <button className="btn-order nav-order-btn" onClick={() => handleGetStarted('nav')}>
           Order Now
         </button>
       </nav>
 
       <main className="landing-page">
         <HeroSection
-          onGetStarted={handleGetStarted}
+          onGetStarted={() => handleGetStarted('hero')}
           onViewIngredients={() => {
             setActiveProductTab('ingredients');
             setTimeout(() => scrollToId('product-tabs'), 50);
@@ -243,7 +243,7 @@ export function LandingPage() {
           samplePrice={samplePriceFormatted}
         />
         <BenefitsBar />
-        <WhyYoullLoveIt onGetStarted={handleGetStarted} samplePrice={samplePriceFormatted} />
+        <WhyYoullLoveIt onGetStarted={() => handleGetStarted('why-you-love-it')} samplePrice={samplePriceFormatted} />
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />
         <TestimonialsSection />
         <SubscriptionExplainer />
@@ -285,13 +285,13 @@ export function LandingPage() {
           />
         )}
 
-        <FAQSection onGetStarted={handleGetStarted} samplePrice={samplePriceFormatted} />
+        <FAQSection onGetStarted={() => handleGetStarted('faq')} samplePrice={samplePriceFormatted} />
       </main>
 
       <Footer />
 
       {/* Sticky bottom CTA */}
-      <StickyCTA onOrderNow={handleGetStarted} samplePrice={samplePriceFormatted} comparePrice={comparePriceFormatted} />
+      <StickyCTA onOrderNow={() => handleGetStarted('sticky')} samplePrice={samplePriceFormatted} comparePrice={comparePriceFormatted} />
     </>
   );
 }

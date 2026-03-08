@@ -25,7 +25,7 @@ export function trackPageViewed(): void {
   mixpanel.track('Page Viewed', { page: 'landing' });
 }
 
-export function trackCtaClicked(location: 'hero'): void {
+export function trackCtaClicked(location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq'): void {
   mixpanel.track('CTA Clicked', { location });
 }
 
