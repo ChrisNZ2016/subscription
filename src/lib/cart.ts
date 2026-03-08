@@ -39,9 +39,12 @@ export async function createCartAndRedirect(
   addons: AddonSelection[],
   subscriptionPrice?: string,
 ): Promise<void> {
+  // Cart-level attributes flow to order.note_attributes (webhook) and
+  // checkout.customAttributes (pixel) for Mixpanel identity stitching.
   const attributes = [
     { key: 'Subscription Bag Size', value: `${subscription.bagWeight}kg` },
     { key: 'Subscription Frequency', value: `${subscription.frequencyWeeks} weeks` },
+    { key: '_mp_distinct_id', value: getDistinctId() },
   ];
   if (subscriptionPrice) {
     attributes.push({ key: 'Subscription Price', value: subscriptionPrice });
@@ -66,13 +69,6 @@ export async function createCartAndRedirect(
         }
         return line;
       }),
-  ];
-
-  // Cart-level attributes: the Mixpanel distinct_id is passed here so it
-  // surfaces as a checkout customAttribute (readable by the Shopify pixel)
-  // and as an order note_attribute (readable by the server-side webhook).
-  const attributes = [
-    { key: '_mp_distinct_id', value: getDistinctId() },
   ];
 
   const data = await storefrontQuery<CartCreateResponse>(CART_CREATE_MUTATION, {

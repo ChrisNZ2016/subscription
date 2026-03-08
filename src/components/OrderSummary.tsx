@@ -32,12 +32,20 @@ export function OrderSummary({
     ? sampleAllocation.priceAdjustments[0].perDeliveryPrice
     : sampleVariant?.price;
 
-  const sampleCompareMoney = sampleAllocation
-    ? sampleAllocation.priceAdjustments[0].compareAtPrice
-    : sampleVariant?.compareAtPrice ?? null;
+  // Compare-at for the sample: use the 2kg variant price from the full-price kibble-pack product
+  const kibblePack2kgVariant = subscriptionProduct?.variants.nodes.find(
+    (v) => v.title.toLowerCase().includes('2kg'),
+  );
+  const sampleCompareMoney =
+    kibblePack2kgVariant?.compareAtPrice ??
+    kibblePack2kgVariant?.price ??
+    (sampleAllocation
+      ? sampleAllocation.priceAdjustments[0].compareAtPrice
+      : sampleVariant?.compareAtPrice ?? null);
 
-  // Compute order total (sample + addons)
+  // Compute order totals (actual + compare-at)
   let orderTotal = samplePriceMoney ? parseFloat(samplePriceMoney.amount) : 0;
+  let orderCompareTotal = sampleCompareMoney ? parseFloat(sampleCompareMoney.amount) : orderTotal;
 
   const addonLines = selectedAddons.map((addon) => {
     const product = addonProducts.find((p) =>
@@ -49,14 +57,31 @@ export function OrderSummary({
     const priceMoney = allocation
       ? allocation.priceAdjustments[0].perDeliveryPrice
       : variant?.price;
+    // Compare-at: prefer variant.compareAtPrice, then fall back to the regular
+    // variant price (when a subscription discount is applied via selling plan)
+    const compareMoney =
+      variant?.compareAtPrice ??
+      (allocation && variant ? variant.price : null);
     const lineTotal = priceMoney ? parseFloat(priceMoney.amount) * addon.quantity : 0;
+    const lineCompare = compareMoney
+      ? parseFloat(compareMoney.amount) * addon.quantity
+      : lineTotal;
     orderTotal += lineTotal;
-    return { product, addon, priceMoney };
-  }).filter(Boolean) as { product: Product; addon: AddonSelection; priceMoney: typeof samplePriceMoney }[];
+    orderCompareTotal += lineCompare;
+    return { product, addon, priceMoney, compareMoney };
+  }).filter(Boolean) as {
+    product: Product;
+    addon: AddonSelection;
+    priceMoney: typeof samplePriceMoney;
+    compareMoney: { amount: string; currencyCode: string } | null;
+  }[];
 
   const subscriptionPricing = subscriptionProduct
     ? getSubscriptionPricing(subscriptionProduct, bagWeight)
     : null;
+
+  const fmt = (n: number) => '$' + (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2));
+  const showCompareTotal = orderCompareTotal > orderTotal;
 
   return (
     <section className="step" id="summary">
@@ -87,28 +112,43 @@ export function OrderSummary({
             </div>
           </div>
 
-          {addonLines.map(({ product, addon, priceMoney }) => (
-            <div key={addon.variantId} className="summary-line">
-              <div>
-                <strong>{product.title}</strong>
-                {addon.quantity > 1 && (
-                  <span className="summary-detail">x{addon.quantity}</span>
-                )}
-                <span className="summary-detail">Added to your order</span>
+          {addonLines.map(({ product, addon, priceMoney, compareMoney }) => {
+            const hasDiscount = compareMoney && priceMoney &&
+              parseFloat(compareMoney.amount) > parseFloat(priceMoney.amount);
+            return (
+              <div key={addon.variantId} className="summary-line">
+                <div>
+                  <strong>{product.title}</strong>
+                  {addon.quantity > 1 && (
+                    <span className="summary-detail">x{addon.quantity}</span>
+                  )}
+                  <span className="summary-detail">Added to your order</span>
+                </div>
+                <div className="summary-price">
+                  {priceMoney && (
+                    <span className="price-current">{formatMoney(priceMoney)}</span>
+                  )}
+                  {hasDiscount && (
+                    <span className="price-compare">{formatMoney(compareMoney!)}</span>
+                  )}
+                </div>
               </div>
-              <div className="summary-price">
-                {priceMoney && (
-                  <span className="price-current">{formatMoney(priceMoney)}</span>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
           <hr />
 
           <div className="summary-line summary-total">
-            <strong>Order total</strong>
-            <span className="price-current">${orderTotal % 1 === 0 ? orderTotal.toFixed(0) : orderTotal.toFixed(2)}</span>
+            <div>
+              <strong>Today's total</strong>
+              <span className="summary-detail">+ shipping calculated at checkout</span>
+            </div>
+            <div className="summary-price">
+              <span className="price-current">{fmt(orderTotal)}</span>
+              {showCompareTotal && (
+                <span className="price-compare">{fmt(orderCompareTotal)}</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -140,21 +180,28 @@ export function OrderSummary({
             </div>
           </div>
 
-          {addonLines.map(({ product, addon, priceMoney }) => (
-            <div key={addon.variantId} className="summary-line">
-              <div>
-                <strong>{product.title}</strong>
-                {addon.quantity > 1 && (
-                  <span className="summary-detail">x{addon.quantity}</span>
-                )}
+          {addonLines.map(({ product, addon, priceMoney, compareMoney }) => {
+            const hasDiscount = compareMoney && priceMoney &&
+              parseFloat(compareMoney.amount) > parseFloat(priceMoney.amount);
+            return (
+              <div key={addon.variantId} className="summary-line">
+                <div>
+                  <strong>{product.title}</strong>
+                  {addon.quantity > 1 && (
+                    <span className="summary-detail">x{addon.quantity}</span>
+                  )}
+                </div>
+                <div className="summary-price">
+                  {priceMoney && (
+                    <span className="price-current">{formatMoney(priceMoney)}</span>
+                  )}
+                  {hasDiscount && (
+                    <span className="price-compare">{formatMoney(compareMoney!)}</span>
+                  )}
+                </div>
               </div>
-              <div className="summary-price">
-                {priceMoney && (
-                  <span className="price-current">{formatMoney(priceMoney)}</span>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
           <p className="summary-shipping-note">+ shipping, calculated at checkout</p>
         </div>
@@ -166,7 +213,7 @@ export function OrderSummary({
           onClick={onCheckout}
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Redirecting to checkout...' : 'Order Now'}
+          {isSubmitting ? 'Redirecting to checkout...' : 'Checkout'}
         </button>
 
         <div className="checkout-trust">

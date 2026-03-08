@@ -10,7 +10,6 @@ import { ProductTabs } from './ProductTabs';
 import { TestimonialsSection } from './TestimonialsSection';
 import { DogSizeCalculator } from './DogSizeCalculator';
 import { AddonsStep } from './AddonsStep';
-import { HowItWorks } from './HowItWorks';
 import { SubscriptionExplainer } from './SubscriptionExplainer';
 import { OrderSummary } from './OrderSummary';
 import { FAQSection } from './FAQSection';
@@ -31,7 +30,7 @@ import {
 } from '../lib/analytics';
 
 type FunnelStep = 'hero' | 'size' | 'addons' | 'summary';
-type ProductTab = 'info' | 'benefits' | 'ingredients';
+type ProductTab = 'info' | 'ingredients';
 
 function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -80,11 +79,9 @@ export function LandingPage() {
     setSelectedSize(index);
     const preset = DOG_SIZE_PRESETS[index];
     setBagWeight(preset.bagWeight);
-    trackDogSizeSelected({
-      size: preset.label,
-      bagWeight: preset.bagWeight,
-      frequencyWeeks: 4,
-    });
+    // Advance step so the funnel progresses even without clicking the hero CTA first
+    setStep((prev) => (prev === 'hero' ? 'size' : prev));
+    trackDogSizeSelected({ size: preset.label, bagWeight: preset.bagWeight, frequencyWeeks: 4 });
   }, []);
 
   const handleBagWeightChange = useCallback(
@@ -117,14 +114,12 @@ export function LandingPage() {
         trackAddonRemoved({ productTitle: product.title });
         return prev.filter((a) => a.variantId !== variant.id);
       }
-
       const allocation = variant.sellingPlanAllocations.nodes[0];
       const priceObj = allocation ? allocation.priceAdjustments[0]?.perDeliveryPrice : variant.price;
       const price = priceObj
         ? new Intl.NumberFormat('en-AU', { style: 'currency', currency: priceObj.currencyCode }).format(parseFloat(priceObj.amount))
         : null;
       trackAddonAdded({ productTitle: product.title, price });
-
       return [...prev, { variantId: variant.id, sellingPlanId: allocation?.sellingPlan.id, quantity: 1 }];
     });
   }, []);
@@ -143,6 +138,23 @@ export function LandingPage() {
     trackOrderSummaryViewed({ bagWeight, frequencyWeeks, addonCount: selectedAddons.length });
     setTimeout(() => scrollToId('summary'), 100);
   }, [bagWeight, frequencyWeeks, selectedAddons.length]);
+
+  // Sample price for hero CTA and sticky CTA
+  const sampleVariant = sampleProduct?.variants.nodes[0];
+  const sampleAllocation = sampleVariant?.sellingPlanAllocations.nodes[0];
+  const samplePriceFormatted = sampleAllocation
+    ? formatMoney(sampleAllocation.priceAdjustments[0].perDeliveryPrice)
+    : sampleVariant?.price
+    ? formatMoney(sampleVariant.price)
+    : undefined;
+
+  // Compare-at price for sticky CTA (full price of 2kg kibble-pack)
+  const kibblePack2kgVariant = subscriptionProduct?.variants.nodes.find(
+    (v) => v.title.toLowerCase().includes('2kg'),
+  );
+  const comparePriceFormatted = kibblePack2kgVariant
+    ? formatMoney(kibblePack2kgVariant.compareAtPrice ?? kibblePack2kgVariant.price)
+    : undefined;
 
   const subscriptionPricing = subscriptionProduct
     ? getSubscriptionPricing(subscriptionProduct, bagWeight)
@@ -194,7 +206,7 @@ export function LandingPage() {
   return (
     <>
       <header className="announcement-bar">
-        <p><strong>50% Off</strong> Your First 2kg Sample Box — Limited Time</p>
+        <p><strong>Free shipping</strong> on your first 2kg sample box</p>
       </header>
 
       <nav className="site-nav">
@@ -222,18 +234,25 @@ export function LandingPage() {
       </nav>
 
       <main className="landing-page">
-        <HeroSection onGetStarted={handleGetStarted} />
+        <HeroSection
+          onGetStarted={handleGetStarted}
+          onViewIngredients={() => {
+            setActiveProductTab('ingredients');
+            setTimeout(() => scrollToId('product-tabs'), 50);
+          }}
+          samplePrice={samplePriceFormatted}
+        />
         <BenefitsBar />
-        <WhyYoullLoveIt />
+        <WhyYoullLoveIt onGetStarted={handleGetStarted} samplePrice={samplePriceFormatted} />
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />
         <TestimonialsSection />
         <SubscriptionExplainer />
-        <HowItWorks />
 
         <DogSizeCalculator
           selectedSize={selectedSize}
           bagWeight={bagWeight}
           frequencyWeeks={frequencyWeeks}
+          sampleProduct={sampleProduct}
           subscriptionProduct={subscriptionProduct}
           onSelectSize={handleSelectSize}
           onBagWeightChange={handleBagWeightChange}
@@ -266,13 +285,13 @@ export function LandingPage() {
           />
         )}
 
-        <FAQSection />
+        <FAQSection onGetStarted={handleGetStarted} samplePrice={samplePriceFormatted} />
       </main>
 
       <Footer />
 
       {/* Sticky bottom CTA */}
-      <StickyCTA onOrderNow={handleGetStarted} />
+      <StickyCTA onOrderNow={handleGetStarted} samplePrice={samplePriceFormatted} comparePrice={comparePriceFormatted} />
     </>
   );
 }

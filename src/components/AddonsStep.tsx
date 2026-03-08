@@ -141,11 +141,11 @@ export function AddonsStep({
         </div>
 
         <div className="step-actions">
-          <button className="btn btn-link" onClick={onSkip}>
-            Skip for now
-          </button>
           <button className="btn-order" onClick={onContinue}>
-            Order Now
+            Get my sample
+          </button>
+          <button className="btn-link-small" onClick={onSkip}>
+            Skip extras for now
           </button>
         </div>
       </div>
