@@ -9,6 +9,7 @@ interface DogSizeCalculatorProps {
   selectedSize: number | null;
   bagWeight: number;
   frequencyWeeks: number;
+  sampleProduct: Product | null;
   subscriptionProduct: Product | null;
   onSelectSize: (index: number) => void;
   onBagWeightChange: (weight: number) => void;
@@ -25,6 +26,7 @@ const SIZE_ICONS: Record<string, string> = {
 export function DogSizeCalculator({
   selectedSize,
   bagWeight,
+  sampleProduct,
   subscriptionProduct,
   onSelectSize,
   onBagWeightChange,
@@ -34,13 +36,20 @@ export function DogSizeCalculator({
     ? getSubscriptionPricing(subscriptionProduct, bagWeight)
     : null;
 
+  // Sample product price (discounted one-time trial price)
+  const sampleVariant = sampleProduct?.variants.nodes[0];
+  const sampleAllocation = sampleVariant?.sellingPlanAllocations.nodes[0];
+  const samplePrice = sampleAllocation
+    ? sampleAllocation.priceAdjustments[0].perDeliveryPrice
+    : sampleVariant?.price ?? null;
+
   return (
     <section className="step" id="dog-size">
       <div className="step-inner">
         <span className="section-label">Step 1</span>
         <h2>Build your perfect plan</h2>
         <p className="step-subtitle">
-          Pick your dog's size and we'll recommend the right bag. Delivered every 4 weeks.
+          Pick your dog's size to get started. Available in 2kg, 6kg, and 12kg bags — delivered every 4 weeks.
         </p>
 
         <div className="size-cards">
@@ -62,10 +71,11 @@ export function DogSizeCalculator({
         {selectedSize !== null && (
           <>
             <div className="customiser">
-              <div className="customiser-field">
-                <label htmlFor="bag-weight">Bag size</label>
+              <div className="customiser-row">
+                <label className="customiser-label" htmlFor="bag-weight">Bag size</label>
                 <select
                   id="bag-weight"
+                  className="customiser-select"
                   value={bagWeight}
                   onChange={(e) => onBagWeightChange(Number(e.target.value))}
                 >
@@ -75,28 +85,30 @@ export function DogSizeCalculator({
                     </option>
                   ))}
                 </select>
+
+                {(samplePrice || pricing) && (
+                  <span className="customiser-price-row">
+                    {samplePrice && (
+                      <span>{formatMoney(samplePrice)} today for your sample,</span>
+                    )}
+                    {pricing && (
+                      <>
+                        <span>{formatMoney(pricing.price)}</span>
+                        {pricing.retailPrice && pricing.savingsPercent > 0 && (
+                          <span className="customiser-retail">{formatMoney(pricing.retailPrice)}</span>
+                        )}
+                        <span>per delivery after that. Cancel anytime.</span>
+                      </>
+                    )}
+                  </span>
+                )}
               </div>
 
-              {pricing && (
-                <div className="customiser-pricing">
-                  <div className="customiser-price-row">
-                    <span className="customiser-price">{formatMoney(pricing.price)}</span>
-                    {pricing.retailPrice && pricing.savingsPercent > 0 && (
-                      <span className="customiser-retail">{formatMoney(pricing.retailPrice)}</span>
-                    )}
-                    <span className="customiser-price-label">per delivery</span>
-                    {pricing.savingsPercent > 0 && (
-                      <span className="savings-badge">Save {pricing.savingsPercent}%</span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <button className="btn-order" onClick={onContinue}>
-                Order Now
+              <button className="btn-order customiser-btn" onClick={onContinue}>
+                Get my sample
               </button>
             </div>
-            <p className="customiser-frequency-note">We'll deliver every 4 weeks</p>
+            <p className="customiser-frequency-note">Delivered every 4 weeks · Skip or cancel anytime</p>
           </>
         )}
       </div>

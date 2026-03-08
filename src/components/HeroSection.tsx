@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 interface HeroSectionProps {
   onGetStarted: () => void;
+  onViewIngredients: () => void;
+  samplePrice?: string;
 }
 
 // Edit these images to use your own product photos
@@ -33,29 +35,34 @@ const galleryImages = [
   },
 ];
 
-export function HeroSection({ onGetStarted }: HeroSectionProps) {
+export function HeroSection({ onGetStarted, onViewIngredients, samplePrice }: HeroSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
     <section className="hero">
       <div className="hero-copy">
         <span className="badge">Hypoallergenic Dog Food</span>
-        <h1>Formulated for sensitive stomachs. Loved by dogs.</h1>
+        <h1>Stop the scratching, stomach issues, and food guessing — for good.</h1>
         <p className="hero-subtitle">
           Vet-formulated, single-protein kibble with 20+ functional superfoods.
-          Free from common allergens like beef, dairy, gluten, wheat, grain, fillers, and colours.
-          Gentle digestion guaranteed or your money back.
+          Free from beef, dairy, gluten, wheat, grain, fillers, and colours.
+          Try risk-free with our Sensitivity Promise — full refund if it's not the right fit.
         </p>
         <div className="hero-actions">
           <button className="btn-order" onClick={onGetStarted}>
-            Order Now
+            {samplePrice ? `Get my sample — ${samplePrice}` : 'Get my sample'}
           </button>
           <button
             className="btn-text"
-            onClick={() => document.getElementById('product-tabs')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={onViewIngredients}
           >
             View Ingredients ↓
           </button>
+        </div>
+        <div className="hero-trust">
+          <span>✓ Delivered in 1–3 days</span>
+          <span>✓ 50% off your first box</span>
+          <span>✓ Cancel anytime</span>
         </div>
       </div>
 

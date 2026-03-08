@@ -173,56 +173,8 @@ const ingredients: { name: string; tooltip: string }[] = [
   },
 ];
 
-// ─── Category boxes for Benefits tab ─────────────────────────────────────────
-const benefitCategories = [
-  {
-    name: 'Grain-Free Carbohydrates',
-    why: 'Gentle, slow-release energy without common grain allergens',
-    what: 'Sweet potato, peas, tapioca',
-  },
-  {
-    name: 'Hypoallergenic Proteins',
-    why: 'Minimise allergic reactions with easy-to-digest hydrolysed sources',
-    what: 'Hydrolysed chicken meal, salmon oil',
-  },
-  {
-    name: 'Functional Fats & Omegas',
-    why: 'Support coat health, brain function, and reduce inflammation',
-    what: 'Salmon oil, flaxseed, chicken fat',
-  },
-  {
-    name: 'Digestive & Gut Health',
-    why: 'Promote healthy gut flora and smooth digestion',
-    what: 'FOS prebiotics, beet pulp, yucca extract',
-  },
-  {
-    name: 'Antioxidants & Superfoods',
-    why: 'Fight free radicals and support immune health',
-    what: 'Blueberries, carrots, apples, cabbage, cauliflower',
-  },
-  {
-    name: 'Amino Acids',
-    why: 'Building blocks for muscle repair and overall vitality',
-    what: 'Taurine, DL-methionine, L-lysine',
-  },
-  {
-    name: 'Essential Vitamins',
-    why: 'Complete daily nutrition with every meal',
-    what: 'Vitamins A, D3, E, full B-complex, biotin',
-  },
-  {
-    name: 'Vital Minerals',
-    why: 'Support bones, teeth, skin, and metabolic function',
-    what: 'Zinc, copper, iron, selenium, iodine, manganese',
-  },
-];
 
-// Split benefit categories 3 + 3 flanking the image, last 2 below
-const leftBenefits = benefitCategories.slice(0, 3);
-const rightBenefits = benefitCategories.slice(3, 6);
-const bottomBenefits = benefitCategories.slice(6, 8);
-
-type Tab = 'info' | 'benefits' | 'ingredients';
+type Tab = 'info' | 'ingredients';
 
 interface ProductTabsProps {
   activeTab?: Tab;
@@ -267,7 +219,7 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
       <div className="product-tabs-inner">
         {/* Tab bar */}
         <div className="tab-bar" role="tablist">
-          {(['info', 'benefits', 'ingredients'] as Tab[]).map((tab) => (
+          {(['info', 'ingredients'] as Tab[]).map((tab) => (
             <button
               key={tab}
               role="tab"
@@ -275,7 +227,7 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
               className={`tab-btn ${activeTab === tab ? 'tab-btn--active' : ''}`}
               onClick={() => handleTabChange(tab)}
             >
-              {tab === 'info' ? 'Product Info' : tab === 'benefits' ? 'Benefits' : 'Ingredients'}
+              {tab === 'info' ? 'Product Info' : 'Ingredients'}
             </button>
           ))}
         </div>
@@ -345,55 +297,6 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
                   is built from the ground up for sensitive stomachs.
                 </p>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Benefits tab ── */}
-        {activeTab === 'benefits' && (
-          <div className="tab-panel" role="tabpanel">
-            <div className="benefits-layout">
-              {/* Left column */}
-              <div className="benefits-col">
-                {leftBenefits.map((cat) => (
-                  <div className="benefit-box" key={cat.name}>
-                    <h3><span className="ing-dot">·</span> {cat.name}</h3>
-                    <p>{cat.why}</p>
-                    <span className="benefit-what">{cat.what}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Centre image */}
-              <div className="benefits-centre">
-                <img
-                  src="https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=500&q=80"
-                  alt="Bowl of Little Green Dog kibble"
-                  className="benefits-kibble-img"
-                />
-              </div>
-
-              {/* Right column */}
-              <div className="benefits-col">
-                {rightBenefits.map((cat) => (
-                  <div className="benefit-box" key={cat.name}>
-                    <h3><span className="ing-dot">·</span> {cat.name}</h3>
-                    <p>{cat.why}</p>
-                    <span className="benefit-what">{cat.what}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Bottom row */}
-            <div className="benefits-bottom-row">
-              {bottomBenefits.map((cat) => (
-                <div className="benefit-box" key={cat.name}>
-                  <h3><span className="ing-dot">·</span> {cat.name}</h3>
-                  <p>{cat.why}</p>
-                  <span className="benefit-what">{cat.what}</span>
-                </div>
-              ))}
             </div>
           </div>
         )}

@@ -10,7 +10,6 @@ import { ProductTabs } from './ProductTabs';
 import { TestimonialsSection } from './TestimonialsSection';
 import { DogSizeCalculator } from './DogSizeCalculator';
 import { AddonsStep } from './AddonsStep';
-import { HowItWorks } from './HowItWorks';
 import { SubscriptionExplainer } from './SubscriptionExplainer';
 import { OrderSummary } from './OrderSummary';
 import { FAQSection } from './FAQSection';
@@ -20,7 +19,7 @@ import type { Product } from '../types/shopify';
 import type { AddonSelection } from '../lib/cart';
 
 type FunnelStep = 'hero' | 'size' | 'addons' | 'summary';
-type ProductTab = 'info' | 'benefits' | 'ingredients';
+type ProductTab = 'info' | 'ingredients';
 
 function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -63,6 +62,8 @@ export function LandingPage() {
     setSelectedSize(index);
     const preset = DOG_SIZE_PRESETS[index];
     setBagWeight(preset.bagWeight);
+    // Advance step so the funnel can progress even without clicking the hero CTA first
+    setStep((prev) => (prev === 'hero' ? 'size' : prev));
   }, []);
 
   const handleSizeContinue = useCallback(() => {
@@ -100,6 +101,23 @@ export function LandingPage() {
     setStep('summary');
     setTimeout(() => scrollToId('summary'), 100);
   }, []);
+
+  // Sample price for hero CTA and sticky CTA
+  const sampleVariant = sampleProduct?.variants.nodes[0];
+  const sampleAllocation = sampleVariant?.sellingPlanAllocations.nodes[0];
+  const samplePriceFormatted = sampleAllocation
+    ? formatMoney(sampleAllocation.priceAdjustments[0].perDeliveryPrice)
+    : sampleVariant?.price
+    ? formatMoney(sampleVariant.price)
+    : undefined;
+
+  // Compare-at price for sticky CTA (full price of 2kg kibble-pack)
+  const kibblePack2kgVariant = subscriptionProduct?.variants.nodes.find(
+    (v) => v.title.toLowerCase().includes('2kg'),
+  );
+  const comparePriceFormatted = kibblePack2kgVariant
+    ? formatMoney(kibblePack2kgVariant.compareAtPrice ?? kibblePack2kgVariant.price)
+    : undefined;
 
   const subscriptionPricing = subscriptionProduct
     ? getSubscriptionPricing(subscriptionProduct, bagWeight)
@@ -143,7 +161,7 @@ export function LandingPage() {
   return (
     <>
       <header className="announcement-bar">
-        <p><strong>50% Off</strong> Your First 2kg Sample Box — Limited Time</p>
+        <p><strong>Free shipping</strong> on your first 2kg sample box</p>
       </header>
 
       <nav className="site-nav">
@@ -171,18 +189,25 @@ export function LandingPage() {
       </nav>
 
       <main className="landing-page">
-        <HeroSection onGetStarted={handleGetStarted} />
+        <HeroSection
+          onGetStarted={handleGetStarted}
+          onViewIngredients={() => {
+            setActiveProductTab('ingredients');
+            setTimeout(() => scrollToId('product-tabs'), 50);
+          }}
+          samplePrice={samplePriceFormatted}
+        />
         <BenefitsBar />
-        <WhyYoullLoveIt />
+        <WhyYoullLoveIt onGetStarted={handleGetStarted} samplePrice={samplePriceFormatted} />
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />
         <TestimonialsSection />
         <SubscriptionExplainer />
-        <HowItWorks />
 
         <DogSizeCalculator
           selectedSize={selectedSize}
           bagWeight={bagWeight}
           frequencyWeeks={frequencyWeeks}
+          sampleProduct={sampleProduct}
           subscriptionProduct={subscriptionProduct}
           onSelectSize={handleSelectSize}
           onBagWeightChange={setBagWeight}
@@ -215,13 +240,13 @@ export function LandingPage() {
           />
         )}
 
-        <FAQSection />
+        <FAQSection onGetStarted={handleGetStarted} samplePrice={samplePriceFormatted} />
       </main>
 
       <Footer />
 
       {/* Sticky bottom CTA */}
-      <StickyCTA onOrderNow={handleGetStarted} />
+      <StickyCTA onOrderNow={handleGetStarted} samplePrice={samplePriceFormatted} comparePrice={comparePriceFormatted} />
     </>
   );
 }
