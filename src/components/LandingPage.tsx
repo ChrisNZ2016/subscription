@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { useCart } from '../hooks/useCart';
 import { DOG_SIZE_PRESETS } from '../constants/dogSizes';
@@ -17,6 +17,17 @@ import { Footer } from './Footer';
 import { StickyCTA } from './StickyCTA';
 import type { Product } from '../types/shopify';
 import type { AddonSelection } from '../lib/cart';
+import {
+  trackPageViewed,
+  trackCtaClicked,
+  trackDogSizeSelected,
+  trackPlanCustomized,
+  trackAddonsStepViewed,
+  trackAddonAdded,
+  trackAddonRemoved,
+  trackOrderSummaryViewed,
+  trackCheckoutStarted,
+} from '../lib/analytics';
 
 type FunnelStep = 'hero' | 'size' | 'addons' | 'summary';
 type ProductTab = 'info' | 'ingredients';
@@ -53,7 +64,13 @@ export function LandingPage() {
   const [selectedAddons, setSelectedAddons] = useState<AddonSelection[]>([]);
   const [activeProductTab, setActiveProductTab] = useState<ProductTab>('info');
 
+  // Track page view once on mount
+  useEffect(() => {
+    trackPageViewed();
+  }, []);
+
   const handleGetStarted = useCallback(() => {
+    trackCtaClicked('hero');
     setStep('size');
     setTimeout(() => scrollToId('dog-size'), 100);
   }, []);
@@ -64,17 +81,28 @@ export function LandingPage() {
     setBagWeight(preset.bagWeight);
     // Advance step so the funnel can progress even without clicking the hero CTA first
     setStep((prev) => (prev === 'hero' ? 'size' : prev));
+    trackDogSizeSelected({ size: preset.label, bagWeight: preset.bagWeight, frequencyWeeks: 4 });
   }, []);
+
+  const handleBagWeightChange = useCallback(
+    (weight: number) => {
+      setBagWeight(weight);
+      trackPlanCustomized({ field: 'bagWeight', bagWeight: weight, frequencyWeeks });
+    },
+    [frequencyWeeks],
+  );
 
   const handleSizeContinue = useCallback(() => {
     if (addonProducts.length > 0) {
       setStep('addons');
+      trackAddonsStepViewed();
       setTimeout(() => scrollToId('addons'), 100);
     } else {
       setStep('summary');
+      trackOrderSummaryViewed({ bagWeight, frequencyWeeks, addonCount: 0 });
       setTimeout(() => scrollToId('summary'), 100);
     }
-  }, [addonProducts.length]);
+  }, [addonProducts.length, bagWeight, frequencyWeeks]);
 
   const handleToggleAddon = useCallback((product: Product) => {
     const variant = product.variants.nodes[0];
@@ -82,8 +110,16 @@ export function LandingPage() {
 
     setSelectedAddons((prev) => {
       const exists = prev.find((a) => a.variantId === variant.id);
-      if (exists) return prev.filter((a) => a.variantId !== variant.id);
+      if (exists) {
+        trackAddonRemoved({ productTitle: product.title });
+        return prev.filter((a) => a.variantId !== variant.id);
+      }
       const allocation = variant.sellingPlanAllocations.nodes[0];
+      const priceObj = allocation ? allocation.priceAdjustments[0]?.perDeliveryPrice : variant.price;
+      const price = priceObj
+        ? new Intl.NumberFormat('en-AU', { style: 'currency', currency: priceObj.currencyCode }).format(parseFloat(priceObj.amount))
+        : null;
+      trackAddonAdded({ productTitle: product.title, price });
       return [...prev, { variantId: variant.id, sellingPlanId: allocation?.sellingPlan.id, quantity: 1 }];
     });
   }, []);
@@ -99,8 +135,9 @@ export function LandingPage() {
 
   const handleAddonsContinue = useCallback(() => {
     setStep('summary');
+    trackOrderSummaryViewed({ bagWeight, frequencyWeeks, addonCount: selectedAddons.length });
     setTimeout(() => scrollToId('summary'), 100);
-  }, []);
+  }, [bagWeight, frequencyWeeks, selectedAddons.length]);
 
   // Sample price for hero CTA and sticky CTA
   const sampleVariant = sampleProduct?.variants.nodes[0];
@@ -132,6 +169,14 @@ export function LandingPage() {
     if (!variant) return;
     const sellingPlanId = findSampleSellingPlan(sampleProduct);
     if (!sellingPlanId) return;
+
+    const allocation = variant.sellingPlanAllocations.nodes.find((a) => a.sellingPlan.id === sellingPlanId);
+    const priceObj = allocation ? allocation.priceAdjustments[0]?.perDeliveryPrice : variant.price;
+    const samplePrice = priceObj
+      ? new Intl.NumberFormat('en-AU', { style: 'currency', currency: priceObj.currencyCode }).format(parseFloat(priceObj.amount))
+      : '';
+
+    trackCheckoutStarted({ samplePrice, bagWeight, frequencyWeeks, addonCount: selectedAddons.length });
     submit(variant.id, sellingPlanId, { bagWeight, frequencyWeeks }, selectedAddons, subscriptionPriceFormatted);
   }, [sampleProduct, bagWeight, frequencyWeeks, selectedAddons, submit, subscriptionPriceFormatted]);
 
@@ -210,7 +255,7 @@ export function LandingPage() {
           sampleProduct={sampleProduct}
           subscriptionProduct={subscriptionProduct}
           onSelectSize={handleSelectSize}
-          onBagWeightChange={setBagWeight}
+          onBagWeightChange={handleBagWeightChange}
           onFrequencyChange={() => {}}
           onContinue={handleSizeContinue}
         />

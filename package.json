@@ -10,14 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "mixpanel": "^0.20.0",
+    "mixpanel-browser": "^2.75.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/mixpanel-browser": "^2.60.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@vercel/node": "^5.6.11",
     "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",

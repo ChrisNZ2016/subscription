@@ -1,9 +1,12 @@
 import { storefrontQuery } from './shopify';
+import { getDistinctId } from './analytics';
 import type { CartCreateResponse, CartLine } from '../types/shopify';
 
+// Cart-level attributes flow to order.note_attributes (webhook) and
+// checkout.customAttributes (pixel) for Mixpanel identity stitching.
 const CART_CREATE_MUTATION = `
-  mutation CartCreate($lines: [CartLineInput!]!) {
-    cartCreate(input: { lines: $lines }) {
+  mutation CartCreate($lines: [CartLineInput!]!, $attributes: [AttributeInput!]) {
+    cartCreate(input: { lines: $lines, attributes: $attributes }) {
       cart {
         id
         checkoutUrl
@@ -37,6 +40,7 @@ export async function createCartAndRedirect(
   const attributes = [
     { key: 'Subscription Bag Size', value: `${subscription.bagWeight}kg` },
     { key: 'Subscription Frequency', value: `${subscription.frequencyWeeks} weeks` },
+    { key: '_mp_distinct_id', value: getDistinctId() },
   ];
   if (subscriptionPrice) {
     attributes.push({ key: 'Subscription Price', value: subscriptionPrice });
@@ -63,7 +67,7 @@ export async function createCartAndRedirect(
       }),
   ];
 
-  const data = await storefrontQuery<CartCreateResponse>(CART_CREATE_MUTATION, { lines });
+  const data = await storefrontQuery<CartCreateResponse>(CART_CREATE_MUTATION, { lines, attributes });
 
   if (data.cartCreate.userErrors.length > 0) {
     throw new Error(
