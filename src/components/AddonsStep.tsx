@@ -16,23 +16,31 @@ interface AddonsStepProps {
   onSkip: () => void;
 }
 
-function getAddonPrice(product: Product): string | null {
+function getAddonPricing(product: Product) {
   const variant = product.variants.nodes[0];
   if (!variant) return null;
 
+  const normalPrice = parseFloat(variant.price.amount);
+
   const allocation = variant.sellingPlanAllocations.nodes[0];
   if (allocation) {
-    return formatMoney(allocation.priceAdjustments[0].perDeliveryPrice);
+    const subPrice = parseFloat(allocation.priceAdjustments[0].perDeliveryPrice.amount);
+    return {
+      normalPrice,
+      subPrice,
+      saving: normalPrice - subPrice,
+    };
   }
 
-  return formatMoney(variant.price);
+  return {
+    normalPrice,
+    subPrice: normalPrice,
+    saving: 0,
+  };
 }
 
-function formatMoney(money: { amount: string; currencyCode: string }): string {
-  return new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency: money.currencyCode,
-  }).format(parseFloat(money.amount));
+function formatMoney(amount: number): string {
+  return '$' + (amount % 1 === 0 ? amount.toFixed(0) : amount.toFixed(2));
 }
 
 export function AddonsStep({
@@ -62,7 +70,7 @@ export function AddonsStep({
               (a) => a.variantId === variant.id,
             );
             const isSelected = !!selected;
-            const price = getAddonPrice(product);
+            const pricing = getAddonPricing(product);
             const image = product.images.nodes[0];
 
             return (
@@ -84,8 +92,23 @@ export function AddonsStep({
                       {CUSTOM_DESCRIPTIONS[product.handle] || product.description}
                     </span>
                   )}
-                  {price && (
-                    <span className="addon-price">{price}/delivery</span>
+                  {pricing && (
+                    <div className="addon-pricing">
+                      {pricing.saving > 0 ? (
+                        <span className="addon-price-line">
+                          <span className="addon-price-compare">
+                            {formatMoney(pricing.normalPrice)}
+                          </span>
+                          <span className="addon-price-sub">
+                            {formatMoney(pricing.subPrice)}/delivery
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="addon-price-sub">
+                          {formatMoney(pricing.normalPrice)}/delivery
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
                 <div className="addon-actions">

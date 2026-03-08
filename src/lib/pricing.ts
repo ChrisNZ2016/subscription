@@ -59,10 +59,13 @@ export function getSubscriptionPricing(
   };
 }
 
-/** Format a MoneyV2 value for display */
+/**
+ * Format a MoneyV2 value for display.
+ * Outputs plain dollar format e.g. "$44" or "$63.36" — no currency code.
+ * Whole-number amounts drop the decimal; cents are shown when non-zero.
+ */
 export function formatMoney(money: MoneyV2): string {
-  return new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency: money.currencyCode,
-  }).format(parseFloat(money.amount));
+  const amount = parseFloat(money.amount);
+  const isWholeNumber = amount % 1 === 0;
+  return '$' + (isWholeNumber ? amount.toFixed(0) : amount.toFixed(2));
 }

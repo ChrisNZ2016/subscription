@@ -44,30 +44,19 @@ export function DogSizeCalculator({
         </p>
 
         <div className="size-cards">
-          {DOG_SIZE_PRESETS.map((preset, i) => {
-            const presetPricing = subscriptionProduct
-              ? getSubscriptionPricing(subscriptionProduct, preset.bagWeight)
-              : null;
-
-            return (
-              <button
-                key={preset.label}
-                className={`size-card ${selectedSize === i ? 'selected' : ''}`}
-                onClick={() => onSelectSize(i)}
-              >
-                <span className="size-icon" aria-hidden="true">
-                  {SIZE_ICONS[preset.label] ?? preset.label[0]}
-                </span>
-                <strong>{preset.label}</strong>
-                <span className="size-desc">{preset.description}</span>
-                {presetPricing && (
-                  <span className="size-price">
-                    {formatMoney(presetPricing.price)}/{preset.bagWeight}kg
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          {DOG_SIZE_PRESETS.map((preset, i) => (
+            <button
+              key={preset.label}
+              className={`size-card ${selectedSize === i ? 'selected' : ''}`}
+              onClick={() => onSelectSize(i)}
+            >
+              <span className="size-icon" aria-hidden="true">
+                {SIZE_ICONS[preset.label] ?? preset.label[0]}
+              </span>
+              <strong>{preset.label}</strong>
+              <span className="size-desc">{preset.description}</span>
+            </button>
+          ))}
         </div>
 
         {selectedSize !== null && (
@@ -92,14 +81,14 @@ export function DogSizeCalculator({
                 <div className="customiser-pricing">
                   <div className="customiser-price-row">
                     <span className="customiser-price">{formatMoney(pricing.price)}</span>
-                    <span className="customiser-price-label">every 4 weeks</span>
-                  </div>
-                  {pricing.retailPrice && pricing.savingsPercent > 0 && (
-                    <div className="customiser-savings">
+                    {pricing.retailPrice && pricing.savingsPercent > 0 && (
                       <span className="customiser-retail">{formatMoney(pricing.retailPrice)}</span>
+                    )}
+                    <span className="customiser-price-label">per delivery</span>
+                    {pricing.savingsPercent > 0 && (
                       <span className="savings-badge">Save {pricing.savingsPercent}%</span>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
 
