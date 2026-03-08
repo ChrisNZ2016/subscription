@@ -2,10 +2,8 @@ import { storefrontQuery } from './shopify';
 import { getDistinctId } from './analytics';
 import type { CartCreateResponse, CartLine } from '../types/shopify';
 
-// Cart-level attributes (distinct from per-line attributes).
-// These flow through to order.note_attributes in Shopify, which lets
-// the server-side webhook and the Shopify Custom Pixel both read the
-// Mixpanel distinct_id for identity stitching.
+// Cart-level attributes flow to order.note_attributes (webhook) and
+// checkout.customAttributes (pixel) for Mixpanel identity stitching.
 const CART_CREATE_MUTATION = `
   mutation CartCreate($lines: [CartLineInput!]!, $attributes: [AttributeInput!]) {
     cartCreate(input: { lines: $lines, attributes: $attributes }) {
@@ -39,8 +37,6 @@ export async function createCartAndRedirect(
   addons: AddonSelection[],
   subscriptionPrice?: string,
 ): Promise<void> {
-  // Cart-level attributes flow to order.note_attributes (webhook) and
-  // checkout.customAttributes (pixel) for Mixpanel identity stitching.
   const attributes = [
     { key: 'Subscription Bag Size', value: `${subscription.bagWeight}kg` },
     { key: 'Subscription Frequency', value: `${subscription.frequencyWeeks} weeks` },
@@ -71,10 +67,7 @@ export async function createCartAndRedirect(
       }),
   ];
 
-  const data = await storefrontQuery<CartCreateResponse>(CART_CREATE_MUTATION, {
-    lines,
-    attributes,
-  });
+  const data = await storefrontQuery<CartCreateResponse>(CART_CREATE_MUTATION, { lines, attributes });
 
   if (data.cartCreate.userErrors.length > 0) {
     throw new Error(

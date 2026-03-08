@@ -79,7 +79,7 @@ export function LandingPage() {
     setSelectedSize(index);
     const preset = DOG_SIZE_PRESETS[index];
     setBagWeight(preset.bagWeight);
-    // Advance step so the funnel progresses even without clicking the hero CTA first
+    // Advance step so the funnel can progress even without clicking the hero CTA first
     setStep((prev) => (prev === 'hero' ? 'size' : prev));
     trackDogSizeSelected({ size: preset.label, bagWeight: preset.bagWeight, frequencyWeeks: 4 });
   }, []);
