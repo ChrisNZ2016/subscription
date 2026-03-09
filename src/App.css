@@ -969,7 +969,7 @@ img {
   gap: 0.5rem;
   padding: 2rem 1.5rem;
   background: var(--color-bg);
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid var(--color-blue);
   border-radius: var(--radius);
   cursor: pointer;
   transition: all var(--transition);
@@ -999,12 +999,12 @@ img {
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
+  background: var(--color-blue);
+  border: 1px solid var(--color-blue);
   border-radius: 50%;
   font-family: var(--font-serif);
   font-size: 1.25rem;
-  color: var(--color-text-muted);
+  color: #fff;
 }
 
 .size-card.selected .size-icon {
