@@ -29,12 +29,12 @@ export function SubscriptionExplainer() {
   return (
     <section className="subscription-explainer">
       <div className="subscription-explainer-inner">
-        <span className="section-label">How subscriptions work</span>
-        <h2>Simple, flexible, and always yours to control</h2>
-        <p className="subscription-explainer-intro">
+        <span className="section-label animate-on-scroll" style={{ display: 'block' }}>How subscriptions work</span>
+        <h2 className="animate-on-scroll">Simple, flexible, and always yours to control</h2>
+        <p className="subscription-explainer-intro animate-on-scroll">
           We believe in earning your trust with every delivery — not locking you in from day one.
         </p>
-        <div className="sub-steps">
+        <div className="sub-steps animate-stagger">
           {steps.map((s) => (
             <div className="sub-step" key={s.number}>
               <div className="sub-step-number" aria-hidden="true">{s.number}</div>

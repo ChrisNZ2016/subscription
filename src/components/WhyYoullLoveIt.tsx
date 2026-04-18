@@ -93,9 +93,9 @@ export function WhyYoullLoveIt({ onGetStarted, samplePrice }: WhyYoullLoveItProp
   return (
     <section className="why-love-section">
       <div className="why-love-header">
-        <span className="section-label">Why You'll Love It</span>
-        <h2>We're transparent about everything that goes in — and why</h2>
-        <p className="why-love-subtitle">
+        <span className="section-label animate-on-scroll" style={{ display: 'block', textAlign: 'center' }}>Why You'll Love It</span>
+        <h2 className="animate-on-scroll">We're transparent about everything that goes in — and why</h2>
+        <p className="why-love-subtitle animate-on-scroll">
           Grain-free and hypoallergenic. Free from beef, dairy, gluten, wheat, fillers, and artificial colours.
         </p>
       </div>
@@ -105,7 +105,7 @@ export function WhyYoullLoveIt({ onGetStarted, samplePrice }: WhyYoullLoveItProp
           cell === 'image' ? (
             <div key="image" className="wl-cell wl-cell--image">
               <img
-                src="/kibble bowl benefits@0.5x.jpg"
+                src="/kibble/benefits.jpg"
                 alt="Little Green Dog kibble bowl showing key benefits"
                 className="why-love-bowl-img"
               />

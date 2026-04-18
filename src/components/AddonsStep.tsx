@@ -142,7 +142,7 @@ export function AddonsStep({
 
         <div className="step-actions">
           <button className="btn-order" onClick={onContinue}>
-            Get my sample
+            Continue
           </button>
           <button className="btn-link-small" onClick={onSkip}>
             Skip extras for now

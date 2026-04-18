@@ -250,30 +250,10 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
                 </p>
 
                 <div className="analysis-grid">
-                  <div className="analysis-item">
-                    <span className="analysis-value">27%</span>
-                    <span className="analysis-label">Crude Protein</span>
-                  </div>
-                  <div className="analysis-item">
-                    <span className="analysis-value">13%</span>
-                    <span className="analysis-label">Crude Fat</span>
-                  </div>
-                  <div className="analysis-item">
-                    <span className="analysis-value">5%</span>
-                    <span className="analysis-label">Crude Fibre</span>
-                  </div>
-                  <div className="analysis-item">
-                    <span className="analysis-value">3,383</span>
-                    <span className="analysis-label">kcal ME/kg</span>
-                  </div>
-                </div>
-
-                <div className="sensitivity-promise" style={{ marginTop: '2rem' }}>
-                  <strong>The Sensitivity Promise</strong>
-                  <p>
-                    If it's not the right fit for your dog, we'll refund you — just reach out.
-                    No hoops, no hassle.
-                  </p>
+                  <div className="analysis-item"><span className="analysis-value">27%</span><span className="analysis-label">Crude Protein</span></div>
+                  <div className="analysis-item"><span className="analysis-value">13%</span><span className="analysis-label">Crude Fat</span></div>
+                  <div className="analysis-item"><span className="analysis-value">5%</span><span className="analysis-label">Crude Fibre</span></div>
+                  <div className="analysis-item"><span className="analysis-value">3,383</span><span className="analysis-label">kcal ME/kg</span></div>
                 </div>
               </div>
 
@@ -285,17 +265,18 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
                   left her with itchy skin, digestive issues, and low energy. We spent years
                   searching for the right food — and when we couldn't find it, we made it.
                 </p>
-                <div
-                  className="story-image-placeholder"
-                  style={{ height: '220px', margin: '1.5rem 0' }}
-                  role="img"
-                  aria-label="Chloe the dog who inspired Little Green Dog"
-                />
                 <p>
                   Little Green Dog was born from a simple belief: every dog deserves food
                   that doesn't make them feel terrible. Our hypoallergenic, grain-free formula
                   is built from the ground up for sensitive stomachs.
                 </p>
+                <div className="sensitivity-promise">
+                  <strong>The Sensitivity Promise</strong>
+                  <p>
+                    If it's not the right fit for your dog, we'll refund you — just reach out.
+                    No hoops, no hassle.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

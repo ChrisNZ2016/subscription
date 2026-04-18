@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { useCart } from '../hooks/useCart';
 import { DOG_SIZE_PRESETS } from '../constants/dogSizes';
@@ -17,6 +17,7 @@ import { Footer } from './Footer';
 import { StickyCTA } from './StickyCTA';
 import type { Product } from '../types/shopify';
 import type { AddonSelection } from '../lib/cart';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import {
   trackPageViewed,
   trackCtaClicked,
@@ -31,6 +32,7 @@ import {
 
 type FunnelStep = 'hero' | 'size' | 'addons' | 'summary';
 type ProductTab = 'info' | 'ingredients';
+type Variant = 'default' | 'simple' | 'solo';
 
 function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -57,6 +59,13 @@ export function LandingPage() {
   const { sampleProduct, subscriptionProduct, addonProducts, loading, error: loadError } = useProducts();
   const { submit, isSubmitting, error: cartError } = useCart();
 
+  const variant = useMemo<Variant>(() => {
+    const p = new URLSearchParams(window.location.search).get('variant');
+    if (p === 'simple') return 'simple';
+    if (p === 'solo') return 'solo';
+    return 'default';
+  }, []);
+
   const [step, setStep] = useState<FunnelStep>('hero');
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
   const [bagWeight, setBagWeight] = useState(2);
@@ -64,15 +73,12 @@ export function LandingPage() {
   const [selectedAddons, setSelectedAddons] = useState<AddonSelection[]>([]);
   const [activeProductTab, setActiveProductTab] = useState<ProductTab>('info');
 
+  // Activate scroll-triggered animations
+  useScrollAnimation();
+
   // Track page view once on mount
   useEffect(() => {
     trackPageViewed();
-  }, []);
-
-  const handleGetStarted = useCallback((location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq' = 'hero') => {
-    trackCtaClicked(location);
-    setStep('size');
-    setTimeout(() => scrollToId('dog-size'), 100);
   }, []);
 
   const handleSelectSize = useCallback((index: number) => {
@@ -92,35 +98,23 @@ export function LandingPage() {
     [frequencyWeeks],
   );
 
-  const handleSizeContinue = useCallback(() => {
-    if (addonProducts.length > 0) {
-      setStep('addons');
-      trackAddonsStepViewed();
-      setTimeout(() => scrollToId('addons'), 100);
-    } else {
-      setStep('summary');
-      trackOrderSummaryViewed({ bagWeight, frequencyWeeks, addonCount: 0 });
-      setTimeout(() => scrollToId('summary'), 100);
-    }
-  }, [addonProducts.length, bagWeight, frequencyWeeks]);
-
   const handleToggleAddon = useCallback((product: Product) => {
-    const variant = product.variants.nodes[0];
-    if (!variant) return;
+    const productVariant = product.variants.nodes[0];
+    if (!productVariant) return;
 
     setSelectedAddons((prev) => {
-      const exists = prev.find((a) => a.variantId === variant.id);
+      const exists = prev.find((a) => a.variantId === productVariant.id);
       if (exists) {
         trackAddonRemoved({ productTitle: product.title });
-        return prev.filter((a) => a.variantId !== variant.id);
+        return prev.filter((a) => a.variantId !== productVariant.id);
       }
-      const allocation = variant.sellingPlanAllocations.nodes[0];
-      const priceObj = allocation ? allocation.priceAdjustments[0]?.perDeliveryPrice : variant.price;
+      const allocation = productVariant.sellingPlanAllocations.nodes[0];
+      const priceObj = allocation ? allocation.priceAdjustments[0]?.perDeliveryPrice : productVariant.price;
       const price = priceObj
         ? new Intl.NumberFormat('en-AU', { style: 'currency', currency: priceObj.currencyCode }).format(parseFloat(priceObj.amount))
         : null;
       trackAddonAdded({ productTitle: product.title, price });
-      return [...prev, { variantId: variant.id, sellingPlanId: allocation?.sellingPlan.id, quantity: 1 }];
+      return [...prev, { variantId: productVariant.id, sellingPlanId: allocation?.sellingPlan.id, quantity: 1 }];
     });
   }, []);
 
@@ -145,8 +139,8 @@ export function LandingPage() {
   const samplePriceFormatted = sampleAllocation
     ? formatMoney(sampleAllocation.priceAdjustments[0].perDeliveryPrice)
     : sampleVariant?.price
-    ? formatMoney(sampleVariant.price)
-    : undefined;
+      ? formatMoney(sampleVariant.price)
+      : undefined;
 
   // Compare-at price for sticky CTA (full price of 2kg kibble-pack)
   const kibblePack2kgVariant = subscriptionProduct?.variants.nodes.find(
@@ -163,22 +157,48 @@ export function LandingPage() {
     ? formatMoney(subscriptionPricing.price)
     : undefined;
 
-  const handleCheckout = useCallback(() => {
+  const handleCheckout = useCallback(({ oneTime = false }: { oneTime?: boolean } = {}) => {
     if (!sampleProduct) return;
-    const variant = sampleProduct.variants.nodes[0];
-    if (!variant) return;
-    const sellingPlanId = findSampleSellingPlan(sampleProduct);
-    if (!sellingPlanId) return;
+    const sampleVariant = sampleProduct.variants.nodes[0];
+    if (!sampleVariant) return;
+    const sellingPlanId = oneTime ? null : findSampleSellingPlan(sampleProduct);
+    if (!oneTime && !sellingPlanId) return;
 
-    const allocation = variant.sellingPlanAllocations.nodes.find((a) => a.sellingPlan.id === sellingPlanId);
-    const priceObj = allocation ? allocation.priceAdjustments[0]?.perDeliveryPrice : variant.price;
+    const allocation = sellingPlanId
+      ? sampleVariant.sellingPlanAllocations.nodes.find((a) => a.sellingPlan.id === sellingPlanId)
+      : null;
+    const priceObj = allocation ? allocation.priceAdjustments[0]?.perDeliveryPrice : sampleVariant.price;
     const samplePrice = priceObj
       ? new Intl.NumberFormat('en-AU', { style: 'currency', currency: priceObj.currencyCode }).format(parseFloat(priceObj.amount))
       : '';
 
     trackCheckoutStarted({ samplePrice, bagWeight, frequencyWeeks, addonCount: selectedAddons.length });
-    submit(variant.id, sellingPlanId, { bagWeight, frequencyWeeks }, selectedAddons, subscriptionPriceFormatted);
+    submit(sampleVariant.id, sellingPlanId, { bagWeight, frequencyWeeks }, selectedAddons, subscriptionPriceFormatted);
   }, [sampleProduct, bagWeight, frequencyWeeks, selectedAddons, submit, subscriptionPriceFormatted]);
+
+  const handleGetStarted = useCallback((location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq' = 'hero') => {
+    trackCtaClicked(location);
+    if (variant === 'solo') {
+      handleCheckout({ oneTime: true });
+      return;
+    }
+    setStep('size');
+    setTimeout(() => scrollToId('dog-size'), 100);
+  }, [variant, handleCheckout]);
+
+  const handleSizeContinue = useCallback(() => {
+    if (variant === 'solo') {
+      handleCheckout({ oneTime: true });
+    } else if (variant === 'simple' || addonProducts.length === 0) {
+      setStep('summary');
+      trackOrderSummaryViewed({ bagWeight, frequencyWeeks, addonCount: 0 });
+      setTimeout(() => scrollToId('summary'), 100);
+    } else {
+      setStep('addons');
+      trackAddonsStepViewed();
+      setTimeout(() => scrollToId('addons'), 100);
+    }
+  }, [variant, addonProducts.length, bagWeight, frequencyWeeks, handleCheckout]);
 
   if (loading) {
     return (
@@ -243,22 +263,25 @@ export function LandingPage() {
           samplePrice={samplePriceFormatted}
         />
         <BenefitsBar />
-        <WhyYoullLoveIt onGetStarted={() => handleGetStarted('why-you-love-it')} samplePrice={samplePriceFormatted} />
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />
+        <WhyYoullLoveIt onGetStarted={() => handleGetStarted('why-you-love-it')} samplePrice={samplePriceFormatted} />
         <TestimonialsSection />
         <SubscriptionExplainer />
 
-        <DogSizeCalculator
-          selectedSize={selectedSize}
-          bagWeight={bagWeight}
-          frequencyWeeks={frequencyWeeks}
-          sampleProduct={sampleProduct}
-          subscriptionProduct={subscriptionProduct}
-          onSelectSize={handleSelectSize}
-          onBagWeightChange={handleBagWeightChange}
-          onFrequencyChange={() => {}}
-          onContinue={handleSizeContinue}
-        />
+        {variant !== 'solo' && (
+          <DogSizeCalculator
+            selectedSize={selectedSize}
+            bagWeight={bagWeight}
+            frequencyWeeks={frequencyWeeks}
+            sampleProduct={sampleProduct}
+            subscriptionProduct={subscriptionProduct}
+            variant={variant}
+            onSelectSize={handleSelectSize}
+            onBagWeightChange={handleBagWeightChange}
+            onFrequencyChange={() => { }}
+            onContinue={handleSizeContinue}
+          />
+        )}
 
         {(step === 'addons' || step === 'summary') && addonProducts.length > 0 && (
           <AddonsStep
@@ -281,6 +304,7 @@ export function LandingPage() {
             addonProducts={addonProducts}
             isSubmitting={isSubmitting}
             error={cartError}
+            showSubscription={variant !== 'simple'}
             onCheckout={handleCheckout}
           />
         )}

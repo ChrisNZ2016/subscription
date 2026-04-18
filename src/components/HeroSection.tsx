@@ -9,29 +9,34 @@ interface HeroSectionProps {
 // Edit these images to use your own product photos
 const galleryImages = [
   {
-    src: 'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=800&q=80',
-    alt: 'Happy dog ready for meal time',
-    thumb: 'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=120&q=70',
+    src: '/kibble/1.jpg',
+    alt: 'Little Green Dog kibble',
+    thumb: '/kibble/1.jpg',
   },
   {
-    src: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80',
-    alt: 'Little Green Dog kibble close up',
-    thumb: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=120&q=70',
+    src: '/kibble/2.jpg',
+    alt: 'Little Green Dog kibble',
+    thumb: '/kibble/2.jpg',
   },
   {
-    src: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800&q=80',
-    alt: 'Dog enjoying hypoallergenic food',
-    thumb: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=120&q=70',
+    src: '/kibble/3.jpg',
+    alt: 'Little Green Dog kibble',
+    thumb: '/kibble/3.jpg',
   },
   {
-    src: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&q=80',
-    alt: 'Two dogs running happily',
-    thumb: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=120&q=70',
+    src: '/kibble/4.jpg',
+    alt: 'Little Green Dog kibble',
+    thumb: '/kibble/4.jpg',
   },
   {
-    src: 'https://images.unsplash.com/photo-1534361960057-19f4434a29d9?w=800&q=80',
-    alt: 'Dog with shiny healthy coat',
-    thumb: 'https://images.unsplash.com/photo-1534361960057-19f4434a29d9?w=120&q=70',
+    src: '/kibble/5.jpg',
+    alt: 'Little Green Dog kibble',
+    thumb: '/kibble/5.jpg',
+  },
+  {
+    src: '/kibble/6.jpg',
+    alt: 'Little Green Dog kibble',
+    thumb: '/kibble/6.jpg',
   },
 ];
 

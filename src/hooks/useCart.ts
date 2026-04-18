@@ -8,7 +8,7 @@ import {
 interface UseCartReturn {
   submit: (
     sampleVariantId: string,
-    sampleSellingPlanId: string,
+    sampleSellingPlanId: string | null | undefined,
     subscription: SubscriptionSelection,
     addons: AddonSelection[],
     subscriptionPrice?: string,
@@ -23,7 +23,7 @@ export function useCart(): UseCartReturn {
 
   async function submit(
     sampleVariantId: string,
-    sampleSellingPlanId: string,
+    sampleSellingPlanId: string | null | undefined,
     subscription: SubscriptionSelection,
     addons: AddonSelection[],
     subscriptionPrice?: string,

@@ -5,12 +5,15 @@ import {
 import type { Product } from '../types/shopify';
 import { getSubscriptionPricing, formatMoney } from '../lib/pricing';
 
+type Variant = 'default' | 'simple' | 'solo';
+
 interface DogSizeCalculatorProps {
   selectedSize: number | null;
   bagWeight: number;
   frequencyWeeks: number;
   sampleProduct: Product | null;
   subscriptionProduct: Product | null;
+  variant?: Variant;
   onSelectSize: (index: number) => void;
   onBagWeightChange: (weight: number) => void;
   onFrequencyChange: (weeks: number) => void;
@@ -28,6 +31,7 @@ export function DogSizeCalculator({
   bagWeight,
   sampleProduct,
   subscriptionProduct,
+  variant = 'default',
   onSelectSize,
   onBagWeightChange,
   onContinue,
@@ -46,13 +50,13 @@ export function DogSizeCalculator({
   return (
     <section className="step" id="dog-size">
       <div className="step-inner">
-        <span className="section-label">Step 1</span>
-        <h2>Build your perfect plan</h2>
-        <p className="step-subtitle">
+        <span className="section-label animate-on-scroll" style={{ display: 'block' }}>Step 1</span>
+        <h2 className="animate-on-scroll">Build your perfect plan</h2>
+        <p className="step-subtitle animate-on-scroll">
           Pick your dog's size to get started. Available in 2kg, 6kg, and 12kg bags — delivered every 4 weeks.
         </p>
 
-        <div className="size-cards">
+        <div className="size-cards animate-stagger">
           {DOG_SIZE_PRESETS.map((preset, i) => (
             <button
               key={preset.label}
@@ -86,18 +90,21 @@ export function DogSizeCalculator({
                   ))}
                 </select>
 
-                {(samplePrice || pricing) && (
+                {(samplePrice || (pricing && variant !== 'solo')) && (
                   <span className="customiser-price-row">
                     {samplePrice && (
-                      <span>{formatMoney(samplePrice)} today for your sample,</span>
+                      <span>{formatMoney(samplePrice)} today for your 2kg sample pack{variant !== 'solo' ? ',' : '.'}</span>
                     )}
-                    {pricing && (
+                    {pricing && variant !== 'solo' && (
                       <>
-                        <span>{formatMoney(pricing.price)}</span>
-                        {pricing.retailPrice && pricing.savingsPercent > 0 && (
-                          <span className="customiser-retail">{formatMoney(pricing.retailPrice)}</span>
-                        )}
-                        <span>per delivery after that. Cancel anytime.</span>
+                        <span>
+                          {pricing.savingsPercent > 0 && `then save ${pricing.savingsPercent}% and pay `}
+                          {formatMoney(pricing.price)}
+                          {pricing.retailPrice && pricing.savingsPercent > 0 && (
+                            <> <span className="customiser-retail">{formatMoney(pricing.retailPrice)}</span></>
+                          )}
+                          {' '}per delivery after that. Cancel anytime.
+                        </span>
                       </>
                     )}
                   </span>

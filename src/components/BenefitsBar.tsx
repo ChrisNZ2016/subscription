@@ -8,7 +8,7 @@ export function BenefitsBar() {
 
   return (
     <section className="benefits-bar" aria-label="Key metrics">
-      <div className="benefits-inner">
+      <div className="benefits-inner animate-stagger">
         {metrics.map((m) => (
           <div className="benefit-item" key={m.label}>
             <div className="benefit-icon">

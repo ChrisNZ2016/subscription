@@ -32,7 +32,7 @@ export interface AddonSelection {
 
 export async function createCartAndRedirect(
   sampleVariantId: string,
-  sampleSellingPlanId: string,
+  sampleSellingPlanId: string | null | undefined,
   subscription: SubscriptionSelection,
   addons: AddonSelection[],
   subscriptionPrice?: string,
@@ -46,13 +46,15 @@ export async function createCartAndRedirect(
     attributes.push({ key: 'Subscription Price', value: subscriptionPrice });
   }
 
+  const sampleLine: CartLine = {
+    merchandiseId: sampleVariantId,
+    quantity: 1,
+    attributes,
+    ...(sampleSellingPlanId ? { sellingPlanId: sampleSellingPlanId } : {}),
+  };
+
   const lines: CartLine[] = [
-    {
-      merchandiseId: sampleVariantId,
-      quantity: 1,
-      sellingPlanId: sampleSellingPlanId,
-      attributes,
-    },
+    sampleLine,
     ...addons
       .filter((a) => a.quantity > 0)
       .map((addon) => {
