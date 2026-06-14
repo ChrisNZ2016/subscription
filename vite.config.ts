@@ -5,6 +5,9 @@ import { readFileSync, existsSync } from 'fs'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    host: true,
+  },
   plugins: [
     // Serve /previews/* static HTML before SPA fallback kicks in
     {

@@ -12,6 +12,7 @@ interface UseCartReturn {
     subscription: SubscriptionSelection,
     addons: AddonSelection[],
     subscriptionPrice?: string,
+    dogSize?: string,
   ) => Promise<void>;
   isSubmitting: boolean;
   error: string | null;
@@ -27,11 +28,12 @@ export function useCart(): UseCartReturn {
     subscription: SubscriptionSelection,
     addons: AddonSelection[],
     subscriptionPrice?: string,
+    dogSize?: string,
   ) {
     setIsSubmitting(true);
     setError(null);
     try {
-      await createCartAndRedirect(sampleVariantId, sampleSellingPlanId, subscription, addons, subscriptionPrice);
+      await createCartAndRedirect(sampleVariantId, sampleSellingPlanId, subscription, addons, subscriptionPrice, dogSize);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create cart');
       setIsSubmitting(false);

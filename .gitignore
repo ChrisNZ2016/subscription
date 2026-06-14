@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.local
 .vercel
+
+# Claude Code internal
+.claude/worktrees/

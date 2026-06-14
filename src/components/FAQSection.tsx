@@ -45,9 +45,9 @@ export function FAQSection({ onGetStarted, samplePrice }: FAQSectionProps) {
   return (
     <section className="faq-section" id="faq">
       <div className="faq-inner">
-        <span className="section-label animate-on-scroll" style={{ display: 'block', textAlign: 'center' }}>Support</span>
-        <h2 className="animate-on-scroll">Frequently asked questions</h2>
-        <div className="faq-list animate-stagger">
+        <span className="section-label" style={{ display: 'block', textAlign: 'center' }}>Support</span>
+        <h2>Frequently asked questions</h2>
+        <div className="faq-list">
           {faqs.map((faq) => (
             <details className="faq-item" key={faq.question}>
               <summary>{faq.question}</summary>
@@ -57,12 +57,13 @@ export function FAQSection({ onGetStarted, samplePrice }: FAQSectionProps) {
         </div>
 
         {onGetStarted && (
-          <div className="faq-cta animate-on-scroll">
+          <div className="faq-cta">
             <p className="faq-cta-heading">Still on the fence? Try it risk-free.</p>
             <button className="btn-order" onClick={onGetStarted}>
               {samplePrice ? `Get my sample — ${samplePrice}` : 'Get my sample'}
             </button>
             <p className="faq-cta-note">50% off your first box · Full refund if it's not a fit</p>
+            <p className="cta-guarantee">🛡️ 100% money-back guarantee — no questions asked</p>
           </div>
         )}
       </div>

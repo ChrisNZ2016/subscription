@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // ─── Ingredient list with hover explanations ─────────────────────────────────
 // Edit the `tooltip` field to change the explanation shown on hover/tap.
@@ -181,15 +181,28 @@ interface ProductTabsProps {
   onTabChange?: (tab: Tab) => void;
 }
 
-function IngredientItem({ name, tooltip }: { name: string; tooltip: string }) {
-  const [open, setOpen] = useState(false);
+function IngredientItem({
+  name,
+  tooltip,
+  open,
+  onOpen,
+  onClose,
+}: {
+  name: string;
+  tooltip: string;
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}) {
+  const isTouchRef = useRef(false);
 
   return (
     <div
       className={`ing-item ${open ? 'ing-item--open' : ''}`}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onClick={() => setOpen((v) => !v)}
+      onMouseEnter={() => { if (!isTouchRef.current) onOpen(); }}
+      onMouseLeave={() => { if (!isTouchRef.current) onClose(); }}
+      onTouchStart={() => { isTouchRef.current = true; }}
+      onClick={onOpen}
     >
       <span className="ing-name">{name}</span>
       {open && (
@@ -203,6 +216,7 @@ function IngredientItem({ name, tooltip }: { name: string; tooltip: string }) {
 
 export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTabsProps = {}) {
   const [activeTab, setActiveTab] = useState<Tab>(controlledTab ?? 'info');
+  const [activeIngredient, setActiveIngredient] = useState<string | null>(null);
 
   // Sync when parent drives the active tab (e.g. nav link click)
   useEffect(() => {
@@ -287,7 +301,8 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
           <div className="tab-panel" role="tabpanel">
             <div className="ing-header">
               <p className="ing-intro">
-                Hover (or tap on mobile) any ingredient to learn exactly why it's included.
+                <span className="ing-intro-desktop">Hover any ingredient to learn exactly why it's included.</span>
+                <span className="ing-intro-mobile">Click each ingredient for more info</span>
               </p>
               <div className="excluded-list-large">
                 <span className="excluded-title">No:</span>
@@ -298,7 +313,14 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
             </div>
             <div className="ing-list">
               {ingredients.map((ing) => (
-                <IngredientItem key={ing.name} name={ing.name} tooltip={ing.tooltip} />
+                <IngredientItem
+                  key={ing.name}
+                  name={ing.name}
+                  tooltip={ing.tooltip}
+                  open={activeIngredient === ing.name}
+                  onOpen={() => setActiveIngredient((prev) => prev === ing.name ? null : ing.name)}
+                  onClose={() => setActiveIngredient(null)}
+                />
               ))}
             </div>
           </div>

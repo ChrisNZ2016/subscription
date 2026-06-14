@@ -36,11 +36,13 @@ export async function createCartAndRedirect(
   subscription: SubscriptionSelection,
   addons: AddonSelection[],
   subscriptionPrice?: string,
+  dogSize?: string,
 ): Promise<void> {
   const attributes = [
     { key: 'Subscription Bag Size', value: `${subscription.bagWeight}kg` },
     { key: 'Subscription Frequency', value: `${subscription.frequencyWeeks} weeks` },
     { key: '_mp_distinct_id', value: getDistinctId() },
+    ...(dogSize ? [{ key: 'Dog Size', value: dogSize }] : []),
   ];
   if (subscriptionPrice) {
     attributes.push({ key: 'Subscription Price', value: subscriptionPrice });

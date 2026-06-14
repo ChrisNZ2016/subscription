@@ -172,8 +172,9 @@ export function LandingPage() {
       ? new Intl.NumberFormat('en-AU', { style: 'currency', currency: priceObj.currencyCode }).format(parseFloat(priceObj.amount))
       : '';
 
+    const dogSizeLabel = selectedSize !== null ? DOG_SIZE_PRESETS[selectedSize].label : undefined;
     trackCheckoutStarted({ samplePrice, bagWeight, frequencyWeeks, addonCount: selectedAddons.length });
-    submit(sampleVariant.id, sellingPlanId, { bagWeight, frequencyWeeks }, selectedAddons, subscriptionPriceFormatted);
+    submit(sampleVariant.id, sellingPlanId, { bagWeight, frequencyWeeks }, selectedAddons, subscriptionPriceFormatted, dogSizeLabel);
   }, [sampleProduct, bagWeight, frequencyWeeks, selectedAddons, submit, subscriptionPriceFormatted]);
 
   const handleGetStarted = useCallback((location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq' = 'hero') => {
@@ -226,7 +227,10 @@ export function LandingPage() {
   return (
     <>
       <header className="announcement-bar">
-        <p><strong>Free shipping</strong> on your first 2kg sample box</p>
+        {variant === 'solo'
+          ? <p>🛡️ <strong>100% money-back guarantee</strong> — full refund if it's not right for your dog</p>
+          : <p><strong>Free shipping</strong> on your first 2kg sample box</p>
+        }
       </header>
 
       <nav className="site-nav">
@@ -266,7 +270,7 @@ export function LandingPage() {
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />
         <WhyYoullLoveIt onGetStarted={() => handleGetStarted('why-you-love-it')} samplePrice={samplePriceFormatted} />
         <TestimonialsSection />
-        <SubscriptionExplainer />
+        {variant !== 'solo' && <SubscriptionExplainer />}
 
         {variant !== 'solo' && (
           <DogSizeCalculator

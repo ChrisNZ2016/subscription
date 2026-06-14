@@ -1,0 +1,330 @@
+{% comment %}
+  ============================================================================
+  Mechanic task: Auto-add free LGD-60-NZ to reactivation subscription orders
+  Adapted from the published "Auto-add gift to orders, post-purchase" task.
+
+  Qualifies an order when ALL of:
+    (a) order carries the reactivation cart attribute (note_attributes
+        name=reactivation value=true) — the cohort / eligibility flag, set by
+        the Email 7 link: .../cart/{VARIANT}:1?selling_plan={PLAN}&attributes[reactivation]=true
+    (b) order contains a RecurPay subscription line (a line item with _PlanId)
+    (c) order does NOT already contain the gift SKU (LGD-60-NZ)
+    (d) order does NOT already carry the control tag (reactivation-gift-added)
+  Then:
+    - inventory check on LGD-60-NZ (halt + alert if out of stock)
+    - orderEditBegin -> AddVariant(qty 1) -> AddLineItemDiscount(100%) -> Commit
+    - tag the order `reactivation-gift-added` (idempotency)
+  ============================================================================
+{% endcomment %}
+
+{% assign gift_sku           = options.gift_sku__required %}
+{% assign flag_attribute_name  = options.reactivation_attribute_name__required %}
+{% assign flag_attribute_value = options.reactivation_attribute_value__required %}
+{% assign gift_quantity      = options.gift_quantity__number_required %}
+{% assign control_tag        = options.control_tag__required %}
+{% assign discount_message   = options.discount_message_to_display__required %}
+{% assign staff_note         = options.staff_note_for_the_order_edit %}
+{% assign customer_note      = options.customer_note_to_append %}
+{% assign alert_recipients   = options.alert_email_recipients__array %}
+
+{% if event.topic == "shopify/orders/paid" or event.topic == "mechanic/user/order" %}
+  {% if event.topic == "mechanic/user/order" %}
+    {% log "CAUTION: Manual send to a LIVE order. Uncheck 'Manual mode' once tested." %}
+  {% endif %}
+
+  {% if event.preview %}
+    {% capture order_json %}
+      {
+        "admin_graphql_api_id": "gid://shopify/Order/1234567890",
+        "tags": "",
+        "note_attributes": [{ "name": "reactivation", "value": "true" }],
+        "line_items": [
+          { "sku": "LGD-KBL-2", "quantity": 1, "properties": [{ "name": "_PlanId", "value": "11146938" }] }
+        ]
+      }
+    {% endcapture %}
+    {% assign order = order_json | parse_json %}
+  {% endif %}
+
+  {% assign order_skus = order.line_items | map: "sku" %}
+  {% assign order_tags = order.tags | split: ", " %}
+
+  {% comment %} -- (d) skip if control tag already present -- {% endcomment %}
+  {% if order_tags contains control_tag %}
+    {% log message: "Control tag already present; gift already added. Skipping.", order: order.admin_graphql_api_id %}
+    {% break %}
+  {% endif %}
+
+  {% comment %} -- (c) skip if gift SKU already on the order -- {% endcomment %}
+  {% if order_skus contains gift_sku %}
+    {% log message: "Gift SKU already on this order; not adding again.", gift_sku: gift_sku %}
+    {% break %}
+  {% endif %}
+
+  {% comment %} -- (a) require the reactivation cart attribute (note_attributes) -- {% endcomment %}
+  {% assign has_flag = false %}
+  {% assign flag_value_down = flag_attribute_value | downcase %}
+  {% for attr in order.note_attributes %}
+    {% if attr.name == flag_attribute_name %}
+      {% assign attr_value_down = attr.value | downcase %}
+      {% if attr_value_down == flag_value_down %}
+        {% assign has_flag = true %}
+        {% break %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% unless has_flag %}
+    {% log message: "Order is not flagged as a reactivation order; not eligible for gift.", attribute: flag_attribute_name %}
+    {% break %}
+  {% endunless %}
+
+  {% comment %} -- (b) require a subscription line (any line item with a _PlanId property) -- {% endcomment %}
+  {% assign has_subscription = false %}
+  {% for li in order.line_items %}
+    {% for prop in li.properties %}
+      {% if prop.name == "_PlanId" and prop.value != blank %}
+        {% assign has_subscription = true %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+    {% if has_subscription %}{% break %}{% endif %}
+  {% endfor %}
+  {% unless has_subscription %}
+    {% log message: "No subscription (_PlanId) line on this order; not adding gift.", order: order.admin_graphql_api_id %}
+    {% break %}
+  {% endunless %}
+
+  {% comment %}
+    -- look up the gift variant AND its available inventory in one query
+  {% endcomment %}
+  {% capture query %}
+    query {
+      productVariants(first: 2, query: {{ gift_sku | json | prepend: "sku:" | json }}) {
+        nodes {
+          id
+          legacyResourceId
+          sku
+          inventoryQuantity
+        }
+      }
+    }
+  {% endcapture %}
+  {% assign result = query | shopify %}
+
+  {% if event.preview %}
+    {% capture result_json %}
+      { "data": { "productVariants": { "nodes": [
+        { "id": "gid://shopify/ProductVariant/10597438849060", "legacyResourceId": "10597438849060", "sku": {{ gift_sku | json }}, "inventoryQuantity": 65 }
+      ] } } }
+    {% endcapture %}
+    {% assign result = result_json | parse_json %}
+  {% endif %}
+
+  {% assign variants = result.data.productVariants.nodes %}
+
+  {% if variants == blank %}
+    {% error message: "Gift SKU does not match a variant in this shop.", gift_sku: gift_sku %}
+  {% elsif variants.size > 1 %}
+    {% error message: "Gift SKU matches multiple variants in this shop.", gift_sku: gift_sku, variants: variants %}
+  {% endif %}
+
+  {% assign gift_variant = variants.first %}
+
+  {% comment %}
+    -- inventory guardrail: halt + alert if the gift is out of stock,
+    -- rather than committing an edit that can't be fulfilled.
+  {% endcomment %}
+  {% if gift_variant.inventoryQuantity < gift_quantity %}
+    {% capture oos_subject %}ALERT - Reactivation gift {{ gift_sku }} is out of stock{% endcapture %}
+    {% capture oos_body %}
+      Order {{ order.admin_graphql_api_id }} qualified for the free {{ gift_sku }} reactivation gift,
+      but available inventory ({{ gift_variant.inventoryQuantity }}) is below the {{ gift_quantity }} needed.
+      No gift was added. Restock {{ gift_sku }} and re-send this order manually via the admin action link.
+    {% endcapture %}
+    {% if alert_recipients != blank %}
+      {% action "email" %}
+        {
+          "to": {{ alert_recipients | json }},
+          "subject": {{ oos_subject | json }},
+          "body": {{ oos_body | newline_to_br | json }},
+          "reply_to": {{ shop.customer_email | json }},
+          "from_display_name": {{ shop.name | json }}
+        }
+      {% endaction %}
+    {% endif %}
+    {% log message: "Gift out of stock; alerted and halted.", gift_sku: gift_sku, on_hand: gift_variant.inventoryQuantity %}
+    {% break %}
+  {% endif %}
+
+  {% assign variant_to_add = hash %}
+  {% assign variant_to_add["id"] = gift_variant.id %}
+  {% assign variant_to_add["legacyResourceId"] = gift_variant.legacyResourceId %}
+  {% assign variant_to_add["quantity"] = gift_quantity %}
+
+  {% comment %} -- begin the order edit, carrying the variant + original order id forward -- {% endcomment %}
+  {% capture order_edit_begin_query %}
+    mutation {
+      orderEditBegin(id: {{ order.admin_graphql_api_id | json }}) {
+        calculatedOrder {
+          id
+          originalOrder { id name note }
+        }
+        userErrors { field message }
+      }
+    }
+  {% endcapture %}
+
+  {% action %}
+    {
+      "type": "shopify",
+      "options": { "query": {{ order_edit_begin_query | json }} },
+      "meta": {
+        "mutation_type": "orderEditBegin",
+        "variant_to_add": {{ variant_to_add | json }}
+      }
+    }
+  {% endaction %}
+
+{% elsif event.topic == "mechanic/actions/perform" %}
+
+  {% unless action.run.ok %}
+    {% if alert_recipients != blank %}
+      {% capture alert_email_subject -%}
+        ALERT - Error while running Mechanic task: {{ task.name }}
+      {%- endcapture %}
+      {% capture alert_email_body -%}
+        Review the <a href="https://{{ shop.myshopify_domain }}/admin/apps/mechanic/events/{{ event.id }}">task run log</a> to determine next steps.
+
+        <strong>Error summary (if any):</strong>
+        {{ action.run.error }}
+      {%- endcapture %}
+      {% action "email" %}
+        {
+          "to": {{ alert_recipients | json }},
+          "subject": {{ alert_email_subject | json }},
+          "body": {{ alert_email_body | newline_to_br | json }},
+          "reply_to": {{ shop.customer_email | json }},
+          "from_display_name": {{ shop.name | json }}
+        }
+      {% endaction %}
+    {% endif %}
+    {% break %}
+  {% endunless %}
+
+  {% if action.meta.mutation_type == "orderEditBegin" %}
+    {% assign calculated_order = action.run.result.data.orderEditBegin.calculatedOrder %}
+    {% assign variant_to_add = action.meta.variant_to_add %}
+
+    {% capture add_variant_query %}
+      mutation {
+        orderEditAddVariant(
+          id: {{ calculated_order.id | json }}
+          variantId: {{ variant_to_add.id | json }}
+          quantity: {{ variant_to_add.quantity }}
+          allowDuplicates: true
+        ) {
+          calculatedLineItem { id sku variant { legacyResourceId } }
+          userErrors { field message }
+        }
+      }
+    {% endcapture %}
+
+    {% action %}
+      {
+        "type": "shopify",
+        "options": { "query": {{ add_variant_query | json }} },
+        "meta": {
+          "mutation_type": "orderEditAddVariant",
+          "calculated_order": {{ calculated_order | json }}
+        }
+      }
+    {% endaction %}
+
+  {% elsif action.meta.mutation_type == "orderEditAddVariant" %}
+    {% assign calculated_order = action.meta.calculated_order %}
+    {% assign added_line_item = action.run.result.data.orderEditAddVariant.calculatedLineItem %}
+
+    {% capture add_line_item_discount_query %}
+      mutation {
+        orderEditAddLineItemDiscount(
+          id: {{ calculated_order.id | json }}
+          lineItemId: {{ added_line_item.id | json }}
+          discount: { description: {{ discount_message | json }} percentValue: 100 }
+        ) {
+          calculatedLineItem { id discountedUnitPriceSet { shopMoney { amount } } }
+          userErrors { field message }
+        }
+      }
+    {% endcapture %}
+
+    {% action %}
+      {
+        "type": "shopify",
+        "options": { "query": {{ add_line_item_discount_query | json }} },
+        "meta": {
+          "mutation_type": "orderEditAddLineItemDiscount",
+          "calculated_order": {{ calculated_order | json }}
+        }
+      }
+    {% endaction %}
+
+  {% elsif action.meta.mutation_type == "orderEditAddLineItemDiscount" %}
+    {% assign calculated_order = action.meta.calculated_order %}
+
+    {% capture order_edit_commit_query %}
+      mutation {
+        orderEditCommit(
+          id: {{ calculated_order.id | json }}
+          notifyCustomer: false
+          staffNote: {{ staff_note | json }}
+        ) {
+          order { id }
+          userErrors { field message }
+        }
+      }
+    {% endcapture %}
+
+    {% action %}
+      {
+        "type": "shopify",
+        "options": { "query": {{ order_edit_commit_query | json }} },
+        "meta": {
+          "mutation_type": "orderEditCommit",
+          "calculated_order": {{ calculated_order | json }}
+        }
+      }
+    {% endaction %}
+
+  {% elsif action.meta.mutation_type == "orderEditCommit" %}
+    {% comment %}
+      -- tag the order for idempotency, and optionally append a customer-facing note
+    {% endcomment %}
+    {% assign calculated_order = action.meta.calculated_order %}
+    {% assign original_order = calculated_order.originalOrder %}
+
+    {% assign note_mutation = "" %}
+    {% if customer_note != blank %}
+      {% if original_order.note == blank %}
+        {% assign new_note = customer_note %}
+      {% else %}
+        {% assign new_note = original_order.note | append: newline | append: newline | append: customer_note %}
+      {% endif %}
+      {% capture note_mutation %}
+        orderUpdate(input: { id: {{ original_order.id | json }} note: {{ new_note | json }} }) {
+          order { id }
+          userErrors { field message }
+        }
+      {% endcapture %}
+    {% endif %}
+
+    {% action "shopify" %}
+      mutation {
+        tagsAdd(id: {{ original_order.id | json }}, tags: [{{ control_tag | json }}]) {
+          node { id }
+          userErrors { field message }
+        }
+        {{ note_mutation }}
+      }
+    {% endaction %}
+  {% endif %}
+{% endif %}

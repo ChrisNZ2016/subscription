@@ -39,11 +39,11 @@ export function TestimonialsSection() {
   return (
     <section className="testimonials-section">
       <div className="testimonials-inner">
-        <span className="section-label animate-on-scroll" style={{ display: 'block', textAlign: 'center' }}>
+        <span className="section-label" style={{ display: 'block', textAlign: 'center' }}>
           Testimonials
         </span>
-        <h2 className="animate-on-scroll">Dogs (and their humans) love it</h2>
-        <div className="testimonial-cards animate-stagger">
+        <h2>Dogs (and their humans) love it</h2>
+        <div className="testimonial-cards">
           {testimonials.map((t) => (
             <div
               className="testimonial-card"

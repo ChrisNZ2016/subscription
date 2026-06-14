@@ -204,6 +204,9 @@ img {
   font-size: 0.8125rem;
   color: rgba(255,255,255,0.8);
   letter-spacing: 0.01em;
+  position: sticky;
+  top: 0;
+  z-index: 200;
 }
 
 .announcement-bar p { color: inherit; }
@@ -224,15 +227,10 @@ img {
   margin: 0 auto;
 }
 
-/* Sticky nav wrapper */
+/* Nav wrapper — not sticky, scrolls with page */
 header.site-nav-wrapper,
 nav.site-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
   background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -572,15 +570,20 @@ nav.site-nav {
   box-shadow: var(--shadow-lg);
 }
 
+.gallery-strip {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
 .gallery-primary-img {
   width: 100%;
   height: 100%;
+  flex: 0 0 100%;
   object-fit: cover;
-  transition: opacity 0.3s ease, transform 0.4s ease;
-}
-
-.gallery-primary-img:hover {
-  transform: scale(1.02);
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .gallery-thumbs {
@@ -1890,6 +1893,21 @@ nav.site-nav {
 
 .footer-links a:hover { color: #fff; }
 
+.footer-social {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.footer-social a {
+  color: rgba(255,255,255,0.5);
+  transition: color var(--transition);
+  display: flex;
+  align-items: center;
+}
+
+.footer-social a:hover { color: #fff; }
+
 /* ============================================
    Responsive
    ============================================ */
@@ -1910,6 +1928,8 @@ nav.site-nav {
 @media (max-width: 768px) {
   .site-nav { padding: 1rem 1.5rem; }
   .nav-links { display: none; }
+  .nav-order-btn { display: none; }
+  .site-nav { justify-content: center; }
 
   .hero {
     grid-template-columns: 1fr;
@@ -1992,7 +2012,7 @@ nav.site-nav {
   .faq-section { padding: 2.5rem 1.5rem; }
   .faq-cta { padding: 2.25rem 1.75rem; }
 
-  .site-footer { padding: 2rem 1.5rem; }
+  .site-footer { padding: 2rem 1.5rem 5.5rem; }
 
   .footer-inner {
     flex-direction: column;
@@ -2001,6 +2021,7 @@ nav.site-nav {
   }
 
   .footer-links { flex-wrap: wrap; justify-content: center; gap: 1rem 1.5rem; }
+  .footer-social { justify-content: center; }
 }
 
 @media (max-width: 480px) {
@@ -2563,4 +2584,159 @@ nav.site-nav {
   .sub-step-number { width: 40px; height: 40px; font-size: 1.125rem; }
 
   .ing-tooltip { width: 200px; left: 0; transform: none; }
+}
+
+/* ============================================
+   Money-back guarantee callouts
+   ============================================ */
+.hero-sensitivity-promise {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--color-blue);
+  font-weight: 600;
+}
+
+.hero-guarantee {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-blue);
+  letter-spacing: 0.01em;
+}
+
+.cta-guarantee {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-blue);
+  letter-spacing: 0.01em;
+}
+
+/* ============================================
+   Gallery swipe dots (mobile)
+   ============================================ */
+.gallery-dots {
+  display: none;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 0 4px;
+}
+
+.gallery-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-border);
+  transition: background 0.2s;
+}
+
+.gallery-dot.active {
+  background: var(--color-green);
+}
+
+/* ============================================
+   Ingredient intro text variants
+   ============================================ */
+.ing-intro-mobile { display: none; }
+.ing-intro-desktop { display: inline; }
+
+/* ============================================
+   Mobile solo-page tweaks
+   ============================================ */
+@media (max-width: 768px) {
+  /* Text copy above images on mobile */
+  .hero-image { order: 1; }
+  .hero-copy { order: -1; }
+
+  /* Show swipe dots, hide thumbs */
+  .gallery-dots { display: flex; }
+  .gallery-thumbs { display: none; }
+
+  /* Ingredient hint text */
+  .ing-intro-mobile { display: inline; }
+  .ing-intro-desktop { display: none; }
+}
+
+/* ===== Reactivation page (/welcome-back) ===== */
+.reactivation-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.reactivation-hero {
+  text-align: center;
+  padding: 2.5rem 0 1.5rem;
+}
+.reactivation-hero h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+.reactivation-sub {
+  font-size: 1.05rem;
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+}
+.reactivation-reasons {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem auto 0;
+  max-width: 520px;
+  text-align: left;
+  display: grid;
+  gap: 0.6rem;
+}
+.reactivation-reasons li {
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-alt);
+  border-radius: 8px;
+  border-left: 3px solid var(--color-green);
+  font-size: 0.95rem;
+}
+.reactivation-picker {
+  text-align: center;
+  padding: 1rem 0 2.5rem;
+}
+.reactivation-picker h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+.variant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.variant-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 1rem 0.5rem;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.variant-card:hover { border-color: var(--color-green-dark); }
+.variant-card--selected {
+  border-color: var(--color-green-dark);
+  box-shadow: 0 0 0 3px var(--color-green-light);
+}
+.variant-size { font-weight: 700; font-size: 1.1rem; }
+.variant-price { font-weight: 700; color: var(--color-green-dark); font-size: 1.15rem; }
+.variant-retail { font-size: 0.8rem; color: var(--color-text-muted); text-decoration: line-through; }
+.variant-cadence { font-size: 0.75rem; color: var(--color-text-muted); }
+.reactivation-cta {
+  width: 100%;
+  max-width: 480px;
+  font-size: 1.05rem;
+  padding: 1rem 1.5rem;
+}
+.reactivation-finefoot {
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
 }

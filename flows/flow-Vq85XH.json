@@ -1,0 +1,649 @@
+{
+    "type": "flow",
+    "id": "Vq85XH",
+    "attributes": {
+        "name": "Kibble - Post Sample Subscribe Sequence (8 emails)",
+        "status": "draft",
+        "archived": false,
+        "created": "2026-06-13T23:47:53.407642+00:00",
+        "trigger_type": "Metric",
+        "definition": {
+            "triggers": [
+                {
+                    "type": "metric",
+                    "id": "U2tJxd",
+                    "trigger_filter": {
+                        "condition_groups": [
+                            {
+                                "conditions": [
+                                    {
+                                        "type": "metric-property",
+                                        "metric_id": "U2tJxd",
+                                        "field": "Items",
+                                        "filter": {
+                                            "type": "list",
+                                            "operator": "contains",
+                                            "value": "LGD-KBL-SAM"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "profile_filter": {
+                "condition_groups": [
+                    {
+                        "conditions": [
+                            {
+                                "type": "profile-property",
+                                "property": "properties['Shopify Tags']",
+                                "filter": {
+                                    "type": "list",
+                                    "operator": "not-contains",
+                                    "value": "recurpay"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "actions": [
+                {
+                    "id": "109105805",
+                    "type": "send-email",
+                    "data": {
+                        "message": {
+                            "from_email": "hello@littlegreendog.co.nz",
+                            "from_label": "Chris at Little Green Dog",
+                            "reply_to_email": "chris@littlegreendog.co.nz",
+                            "cc_email": null,
+                            "bcc_email": null,
+                            "subject_line": "Welcome to Little Green Dog, {{ first_name|default:'there' }}",
+                            "preview_text": "Here's what happens next - and why we made this food.",
+                            "template_id": "Rcfgk8",
+                            "smart_sending_enabled": true,
+                            "transactional": false,
+                            "add_tracking_params": false,
+                            "custom_tracking_params": null,
+                            "additional_filters": null,
+                            "name": "Post-Sample 1 - Welcome",
+                            "id": "XcxXuc"
+                        },
+                        "status": "draft"
+                    },
+                    "links": {
+                        "next": "109105806"
+                    }
+                },
+                {
+                    "id": "109105806",
+                    "type": "time-delay",
+                    "data": {
+                        "unit": "days",
+                        "value": 2,
+                        "secondary_value": null,
+                        "timezone": "profile",
+                        "delay_until_weekdays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    },
+                    "links": {
+                        "next": "109105807"
+                    }
+                },
+                {
+                    "id": "109105807",
+                    "type": "send-email",
+                    "data": {
+                        "message": {
+                            "from_email": "hello@littlegreendog.co.nz",
+                            "from_label": "Chris at Little Green Dog",
+                            "reply_to_email": "chris@littlegreendog.co.nz",
+                            "cc_email": null,
+                            "bcc_email": null,
+                            "subject_line": "Don't pour the whole bowl just yet",
+                            "preview_text": "A 7-10 day swap keeps tummies happy.",
+                            "template_id": "UM73m6",
+                            "smart_sending_enabled": true,
+                            "transactional": false,
+                            "add_tracking_params": false,
+                            "custom_tracking_params": null,
+                            "additional_filters": null,
+                            "name": "Post-Sample 2 - How to transition",
+                            "id": "SYF9QB"
+                        },
+                        "status": "draft"
+                    },
+                    "links": {
+                        "next": "109105808"
+                    }
+                },
+                {
+                    "id": "109105808",
+                    "type": "time-delay",
+                    "data": {
+                        "unit": "days",
+                        "value": 5,
+                        "secondary_value": null,
+                        "timezone": "profile",
+                        "delay_until_weekdays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    },
+                    "links": {
+                        "next": "109105809"
+                    }
+                },
+                {
+                    "id": "109105809",
+                    "type": "send-email",
+                    "data": {
+                        "message": {
+                            "from_email": "hello@littlegreendog.co.nz",
+                            "from_label": "Chris at Little Green Dog",
+                            "reply_to_email": "chris@littlegreendog.co.nz",
+                            "cc_email": null,
+                            "bcc_email": null,
+                            "subject_line": "What to look for over the next two weeks",
+                            "preview_text": "Less scratching, firmer stools, more zoomies.",
+                            "template_id": "YmWNn4",
+                            "smart_sending_enabled": true,
+                            "transactional": false,
+                            "add_tracking_params": false,
+                            "custom_tracking_params": null,
+                            "additional_filters": null,
+                            "name": "Post-Sample 3 - What's in the bowl",
+                            "id": "WzwURz"
+                        },
+                        "status": "draft"
+                    },
+                    "links": {
+                        "next": "109105810"
+                    }
+                },
+                {
+                    "id": "109105810",
+                    "type": "time-delay",
+                    "data": {
+                        "unit": "days",
+                        "value": 7,
+                        "secondary_value": null,
+                        "timezone": "profile",
+                        "delay_until_weekdays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    },
+                    "links": {
+                        "next": "109105811"
+                    }
+                },
+                {
+                    "id": "109105811",
+                    "type": "conditional-split",
+                    "data": {
+                        "profile_filter": {
+                            "condition_groups": [
+                                {
+                                    "conditions": [
+                                        {
+                                            "type": "profile-metric",
+                                            "metric_id": "U2tJxd",
+                                            "measurement": "count",
+                                            "measurement_filter": {
+                                                "type": "numeric",
+                                                "operator": "greater-than",
+                                                "value": 0
+                                            },
+                                            "timeframe_filter": {
+                                                "type": "date",
+                                                "operator": "flow-start"
+                                            },
+                                            "metric_filters": [
+                                                {
+                                                    "property": "_PlanId",
+                                                    "filter": {
+                                                        "type": "existence",
+                                                        "operator": "is-set"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "links": {
+                        "next_if_true": null,
+                        "next_if_false": "109105812"
+                    }
+                },
+                {
+                    "id": "109105812",
+                    "type": "send-email",
+                    "data": {
+                        "message": {
+                            "from_email": "hello@littlegreendog.co.nz",
+                            "from_label": "Chris at Little Green Dog",
+                            "reply_to_email": "chris@littlegreendog.co.nz",
+                            "cc_email": null,
+                            "bcc_email": null,
+                            "subject_line": "Lock in 25% off before it drops to 20%",
+                            "preview_text": "Subscribe and keep 25% off every delivery, for good.",
+                            "template_id": "Ua5YJt",
+                            "smart_sending_enabled": true,
+                            "transactional": false,
+                            "add_tracking_params": false,
+                            "custom_tracking_params": null,
+                            "additional_filters": null,
+                            "name": "Post-Sample 4 - Running low + subscribe push",
+                            "id": "SmE7dY"
+                        },
+                        "status": "draft"
+                    },
+                    "links": {
+                        "next": "109105813"
+                    }
+                },
+                {
+                    "id": "109105813",
+                    "type": "time-delay",
+                    "data": {
+                        "unit": "days",
+                        "value": 5,
+                        "secondary_value": null,
+                        "timezone": "profile",
+                        "delay_until_weekdays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    },
+                    "links": {
+                        "next": "109105814"
+                    }
+                },
+                {
+                    "id": "109105814",
+                    "type": "conditional-split",
+                    "data": {
+                        "profile_filter": {
+                            "condition_groups": [
+                                {
+                                    "conditions": [
+                                        {
+                                            "type": "profile-metric",
+                                            "metric_id": "U2tJxd",
+                                            "measurement": "count",
+                                            "measurement_filter": {
+                                                "type": "numeric",
+                                                "operator": "greater-than",
+                                                "value": 0
+                                            },
+                                            "timeframe_filter": {
+                                                "type": "date",
+                                                "operator": "flow-start"
+                                            },
+                                            "metric_filters": [
+                                                {
+                                                    "property": "_PlanId",
+                                                    "filter": {
+                                                        "type": "existence",
+                                                        "operator": "is-set"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "links": {
+                        "next_if_true": null,
+                        "next_if_false": "109105815"
+                    }
+                },
+                {
+                    "id": "109105815",
+                    "type": "send-email",
+                    "data": {
+                        "message": {
+                            "from_email": "hello@littlegreendog.co.nz",
+                            "from_label": "Chris at Little Green Dog",
+                            "reply_to_email": "chris@littlegreendog.co.nz",
+                            "cc_email": null,
+                            "bcc_email": null,
+                            "subject_line": "Wait, I can cancel anytime? (yes, really)",
+                            "preview_text": "No lock-in, your best rate locked in, one less thing to remember.",
+                            "template_id": "XJVKKr",
+                            "smart_sending_enabled": true,
+                            "transactional": false,
+                            "add_tracking_params": false,
+                            "custom_tracking_params": null,
+                            "additional_filters": null,
+                            "name": "Post-Sample 5 - Objection killer + social proof",
+                            "id": "VWvSeW"
+                        },
+                        "status": "draft"
+                    },
+                    "links": {
+                        "next": "109105816"
+                    }
+                },
+                {
+                    "id": "109105816",
+                    "type": "time-delay",
+                    "data": {
+                        "unit": "days",
+                        "value": 7,
+                        "secondary_value": null,
+                        "timezone": "profile",
+                        "delay_until_weekdays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    },
+                    "links": {
+                        "next": "109105817"
+                    }
+                },
+                {
+                    "id": "109105817",
+                    "type": "conditional-split",
+                    "data": {
+                        "profile_filter": {
+                            "condition_groups": [
+                                {
+                                    "conditions": [
+                                        {
+                                            "type": "profile-metric",
+                                            "metric_id": "U2tJxd",
+                                            "measurement": "count",
+                                            "measurement_filter": {
+                                                "type": "numeric",
+                                                "operator": "greater-than",
+                                                "value": 0
+                                            },
+                                            "timeframe_filter": {
+                                                "type": "date",
+                                                "operator": "flow-start"
+                                            },
+                                            "metric_filters": [
+                                                {
+                                                    "property": "_PlanId",
+                                                    "filter": {
+                                                        "type": "existence",
+                                                        "operator": "is-set"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "links": {
+                        "next_if_true": null,
+                        "next_if_false": "109105818"
+                    }
+                },
+                {
+                    "id": "109105818",
+                    "type": "send-email",
+                    "data": {
+                        "message": {
+                            "from_email": "hello@littlegreendog.co.nz",
+                            "from_label": "Chris at Little Green Dog",
+                            "reply_to_email": "chris@littlegreendog.co.nz",
+                            "cc_email": null,
+                            "bcc_email": null,
+                            "subject_line": "Last chance: lock in 25% before it drops to 20%",
+                            "preview_text": "After the deadline, new subscriptions save the standard 20%.",
+                            "template_id": "Tx4W7Q",
+                            "smart_sending_enabled": true,
+                            "transactional": false,
+                            "add_tracking_params": false,
+                            "custom_tracking_params": null,
+                            "additional_filters": null,
+                            "name": "Post-Sample 6 - Last chance / deadline",
+                            "id": "RJD4Bm"
+                        },
+                        "status": "draft"
+                    },
+                    "links": {
+                        "next": "109105819"
+                    }
+                },
+                {
+                    "id": "109105819",
+                    "type": "time-delay",
+                    "data": {
+                        "unit": "days",
+                        "value": 7,
+                        "secondary_value": null,
+                        "timezone": "profile",
+                        "delay_until_weekdays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    },
+                    "links": {
+                        "next": "109105820"
+                    }
+                },
+                {
+                    "id": "109105820",
+                    "type": "conditional-split",
+                    "data": {
+                        "profile_filter": {
+                            "condition_groups": [
+                                {
+                                    "conditions": [
+                                        {
+                                            "type": "profile-metric",
+                                            "metric_id": "U2tJxd",
+                                            "measurement": "count",
+                                            "measurement_filter": {
+                                                "type": "numeric",
+                                                "operator": "greater-than",
+                                                "value": 0
+                                            },
+                                            "timeframe_filter": {
+                                                "type": "date",
+                                                "operator": "flow-start"
+                                            },
+                                            "metric_filters": [
+                                                {
+                                                    "property": "_PlanId",
+                                                    "filter": {
+                                                        "type": "existence",
+                                                        "operator": "is-set"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "links": {
+                        "next_if_true": null,
+                        "next_if_false": "109105821"
+                    }
+                },
+                {
+                    "id": "109105821",
+                    "type": "send-email",
+                    "data": {
+                        "message": {
+                            "from_email": "hello@littlegreendog.co.nz",
+                            "from_label": "Chris at Little Green Dog",
+                            "reply_to_email": "chris@littlegreendog.co.nz",
+                            "cc_email": null,
+                            "bcc_email": null,
+                            "subject_line": "We saved {{ person.dog_name|default:'your dog' }}'s spot - plus a little something",
+                            "preview_text": "Subscribe now and we'll add a free 60-pack of compostable poop bags.",
+                            "template_id": "X7UH8N",
+                            "smart_sending_enabled": true,
+                            "transactional": false,
+                            "add_tracking_params": false,
+                            "custom_tracking_params": null,
+                            "additional_filters": null,
+                            "name": "Post-Sample 7 - Reactivation (25% + free poop bags)",
+                            "id": "VjuPCj"
+                        },
+                        "status": "draft"
+                    },
+                    "links": {
+                        "next": "109105822"
+                    }
+                },
+                {
+                    "id": "109105822",
+                    "type": "time-delay",
+                    "data": {
+                        "unit": "days",
+                        "value": 7,
+                        "secondary_value": null,
+                        "timezone": "profile",
+                        "delay_until_weekdays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    },
+                    "links": {
+                        "next": "109105823"
+                    }
+                },
+                {
+                    "id": "109105823",
+                    "type": "conditional-split",
+                    "data": {
+                        "profile_filter": {
+                            "condition_groups": [
+                                {
+                                    "conditions": [
+                                        {
+                                            "type": "profile-metric",
+                                            "metric_id": "U2tJxd",
+                                            "measurement": "count",
+                                            "measurement_filter": {
+                                                "type": "numeric",
+                                                "operator": "greater-than",
+                                                "value": 0
+                                            },
+                                            "timeframe_filter": {
+                                                "type": "date",
+                                                "operator": "flow-start"
+                                            },
+                                            "metric_filters": [
+                                                {
+                                                    "property": "_PlanId",
+                                                    "filter": {
+                                                        "type": "existence",
+                                                        "operator": "is-set"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "links": {
+                        "next_if_true": null,
+                        "next_if_false": "109105824"
+                    }
+                },
+                {
+                    "id": "109105824",
+                    "type": "send-email",
+                    "data": {
+                        "message": {
+                            "from_email": "hello@littlegreendog.co.nz",
+                            "from_label": "Chris at Little Green Dog",
+                            "reply_to_email": "chris@littlegreendog.co.nz",
+                            "cc_email": null,
+                            "bcc_email": null,
+                            "subject_line": "Not into subscriptions? Here's 15% off anyway",
+                            "preview_text": "15% off a one-time bag - no subscription needed.",
+                            "template_id": "UGtLZG",
+                            "smart_sending_enabled": true,
+                            "transactional": false,
+                            "add_tracking_params": false,
+                            "custom_tracking_params": null,
+                            "additional_filters": null,
+                            "name": "Post-Sample 8 - Final fallback (15% one-time)",
+                            "id": "R7BZYJ"
+                        },
+                        "status": "draft"
+                    },
+                    "links": {
+                        "next": null
+                    }
+                }
+            ],
+            "entry_action_id": "109105805"
+        }
+    },
+    "relationships": {
+        "flow-actions": {
+            "links": {
+                "self": "https://a.klaviyo.com/api/flows/Vq85XH/relationships/flow-actions/",
+                "related": "https://a.klaviyo.com/api/flows/Vq85XH/flow-actions/"
+            }
+        },
+        "tags": {
+            "links": {
+                "self": "https://a.klaviyo.com/api/flows/Vq85XH/relationships/tags/",
+                "related": "https://a.klaviyo.com/api/flows/Vq85XH/tags/"
+            }
+        }
+    },
+    "links": {
+        "self": "https://a.klaviyo.com/api/flows/Vq85XH/"
+    }
+}

@@ -93,9 +93,9 @@ export function WhyYoullLoveIt({ onGetStarted, samplePrice }: WhyYoullLoveItProp
   return (
     <section className="why-love-section">
       <div className="why-love-header">
-        <span className="section-label animate-on-scroll" style={{ display: 'block', textAlign: 'center' }}>Why You'll Love It</span>
-        <h2 className="animate-on-scroll">We're transparent about everything that goes in — and why</h2>
-        <p className="why-love-subtitle animate-on-scroll">
+        <span className="section-label" style={{ display: 'block', textAlign: 'center' }}>Why You'll Love It</span>
+        <h2>We're transparent about everything that goes in — and why</h2>
+        <p className="why-love-subtitle">
           Grain-free and hypoallergenic. Free from beef, dairy, gluten, wheat, fillers, and artificial colours.
         </p>
       </div>
@@ -122,6 +122,7 @@ export function WhyYoullLoveIt({ onGetStarted, samplePrice }: WhyYoullLoveItProp
             {samplePrice ? `Get my sample — ${samplePrice}` : 'Get my sample'}
           </button>
           <p className="why-love-cta-note">50% off your first box · Delivered in 1–3 days · Cancel anytime</p>
+          <p className="cta-guarantee">🛡️ 100% money-back guarantee — no questions asked</p>
         </div>
       )}
     </section>
