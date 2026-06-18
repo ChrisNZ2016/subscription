@@ -1,73 +1,145 @@
-# React + TypeScript + Vite
+# Little Green Dog — Subscription Landing
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Headless Shopify storefront for Little Green Dog's NZ dog kibble subscription funnel. This app is **not** a full e-commerce site — it serves marketing landing pages that load product data from Shopify's Storefront API, build carts via GraphQL, and redirect visitors to Shopify checkout.
 
-Currently, two official plugins are available:
+**Stack:** React 19, TypeScript, Vite 7, plain CSS (no UI framework). Deployed on Vercel with a serverless webhook for purchase tracking.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Routes
 
-## React Compiler
+Routing is pathname-based in `src/App.tsx` (no React Router).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/` | `LandingPage` | Main funnel: hero → dog size → addons → order summary → checkout |
+| `/solo` | `SoloPage` | Sample-only purchase (2 kg sample, no subscription config) |
+| `/welcome-back` | `ReactivationPage` | Lapsed subscriber reactivation (25% off + free gift via Mechanic) |
+| `/subscribe-offer` | `SubscribePage` | Early-subscriber offer from email campaigns (25% off, no gift) |
 
-## Expanding the ESLint configuration
+The main landing page also accepts a `?variant=` query param:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Value | Behaviour |
+|-------|-----------|
+| `simple` | Skips addons step; simplified funnel |
+| `solo` | Sample-only checkout (same as `/solo` route behaviour) |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Prerequisites
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Node.js (LTS recommended)
+- A Shopify store with Storefront API access
+- Mixpanel project token
+- Vercel account (for production deploy + webhook)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Environment variables
+
+Copy `.env.example` to `.env.local` for local development.
+
+### Client (Vite — exposed to the browser)
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_SHOPIFY_STORE_DOMAIN` | Store domain, e.g. `your-store.myshopify.com` |
+| `VITE_SHOPIFY_STOREFRONT_TOKEN` | Storefront API access token |
+| `VITE_SHOPIFY_API_VERSION` | API version (default: `2025-01`) |
+| `VITE_SAMPLE_PRODUCT_HANDLE` | Sample product handle (default: `sample-2kg`) |
+| `VITE_SUBSCRIPTION_PRODUCT_HANDLE` | Subscription kibble product handle (default: `kibble-pack`) |
+| `VITE_ADDON_HANDLES` | Comma-separated addon product handles |
+| `VITE_MIXPANEL_TOKEN` | Mixpanel project token for client-side events |
+| `VITE_GA_MEASUREMENT_ID` | GA4 web stream Measurement ID (`G-…`) for property `326931496` |
+
+### Server (Vercel only — never use `VITE_` prefix)
+
+| Variable | Description |
+|----------|-------------|
+| `MIXPANEL_TOKEN` | Mixpanel token for the orders webhook |
+| `SHOPIFY_WEBHOOK_SECRET` | Signing secret from the Shopify `orders/create` webhook |
+
+See [shopify/README.md](./shopify/README.md) for Mixpanel pixel and webhook setup in Shopify Admin.
+
+## Development
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # typecheck + production build
+npm run preview    # serve production build locally
+npm run lint       # ESLint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Static design previews are available at `/previews/*.html` during dev (served from `public/previews/` via custom Vite middleware).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Deployment
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+The app deploys to **Vercel**. `vercel.json` configures SPA rewrites (all non-API routes → `index.html`) and passes through `/api/*` to serverless functions.
+
+There is no CI pipeline — deploys are triggered via Vercel (git push or manual).
+
+## Project structure
+
 ```
+src/
+  components/     Landing page sections and funnel pages
+  hooks/          Product fetching, cart state, scroll animations
+  lib/            Shopify client, cart builders, pricing, analytics
+  constants/      Dog size presets
+  types/          Shopify GraphQL types
+api/
+  webhooks/       Vercel serverless functions (orders/create → Mixpanel)
+shopify/          Mixpanel custom pixel + setup docs
+public/           Static assets and design previews
+```
+
+## How checkout works
+
+Each funnel has its own cart module in `src/lib/`:
+
+| Module | Used by |
+|--------|---------|
+| `cart.ts` | Main landing funnel |
+| `cart-solo.ts` | `/solo` and `?variant=solo` |
+| `cart-subscribe.ts` | `/subscribe-offer` |
+| `cart-reactivation.ts` | `/welcome-back` |
+
+Flow:
+
+```
+Landing page (Mixpanel browser SDK)
+  → cartCreate (Storefront API) + _mp_distinct_id cart attribute
+  → redirect to checkoutUrl
+  → Shopify checkout (Custom Pixel → Mixpanel)
+  → orders/create webhook (Vercel) → Purchase Completed (Server)
+```
+
+Cart attributes (bag size, frequency, `_mp_distinct_id`, etc.) flow to `order.note_attributes` and are used by the webhook and checkout pixel to stitch analytics identity across the funnel.
+
+Reactivation carts set `reactivation=true`, which the Mechanic task reads to add a free gift on the first delivery.
+
+## Shopify operations
+
+### Selling plan IDs
+
+Some funnels use hardcoded RecurPay selling plan GIDs that are store-specific:
+
+- `cart-subscribe.ts` — `EARLY_SUBSCRIBER_SELLING_PLAN_ID`
+- `cart-reactivation.ts` — `REACTIVATION_SELLING_PLAN_ID`
+
+Update these if selling plans are recreated in Shopify.
+
+### Mechanic reactivation gift
+
+`mechanic-reactivation-gift.liquid` is a Shopify Mechanic task that adds a free gift when an order has the `reactivation=true` note attribute. Install and configure it in Mechanic; keep attribute name/value in sync with `cart-reactivation.ts`.
+
+### Analytics
+
+Full setup instructions (Custom Pixel + webhook) are in [shopify/README.md](./shopify/README.md). The pixel source lives at `shopify/mixpanel-pixel.js` — update it in Shopify Admin if the Mixpanel token changes.
+
+## Other docs
+
+| File | Purpose |
+|------|---------|
+| [shopify/README.md](./shopify/README.md) | Mixpanel pixel + webhook setup runbook |
+| [page-copy.md](./page-copy.md) | Marketing copy reference |
+| [docs/rebuy.md](./docs/rebuy.md) | Rebuy API reference (not integrated into app code) |
+
+## Testing
+
+There are no automated tests or test script in this project.

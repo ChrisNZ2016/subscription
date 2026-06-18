@@ -1,6 +1,15 @@
 import mixpanel from 'mixpanel-browser';
+import { trackGaEvent, trackGaPageView } from './google-analytics';
 
 const TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN as string;
+
+function getPageLabel(): string {
+  const path = window.location.pathname;
+  if (path === '/solo' || path === '/solo/') return 'solo';
+  if (path === '/welcome-back' || path === '/welcome-back/') return 'reactivation';
+  if (path === '/subscribe-offer' || path === '/subscribe-offer/') return 'subscribe-offer';
+  return 'landing';
+}
 
 // Initialise once. persistence='localStorage' avoids third-party cookie issues.
 mixpanel.init(TOKEN, {
@@ -22,11 +31,14 @@ export function getDistinctId(): string {
 // ─── Landing-page funnel events ───────────────────────────────────────────────
 
 export function trackPageViewed(): void {
-  mixpanel.track('Page Viewed', { page: 'landing' });
+  const page = getPageLabel();
+  mixpanel.track('Page Viewed', { page });
+  trackGaPageView(window.location.pathname + window.location.search);
 }
 
 export function trackCtaClicked(location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq'): void {
   mixpanel.track('CTA Clicked', { location });
+  trackGaEvent('cta_clicked', { location, page: getPageLabel() });
 }
 
 export function trackDogSizeSelected(props: {
@@ -75,4 +87,5 @@ export function trackCheckoutStarted(props: {
   addonCount: number;
 }): void {
   mixpanel.track('Checkout Started', props);
+  trackGaEvent('begin_checkout', { ...props, page: getPageLabel(), currency: 'NZD' });
 }
