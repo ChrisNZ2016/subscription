@@ -6,9 +6,10 @@
  *
  * What it does:
  *  1. Loads the Mixpanel JS SDK from CDN (npm is not available in pixels).
- *  2. Reads the `_mp_distinct_id` cart attribute set by our landing page,
+ *  2. Reads the `mp_distinct_id` cart attribute set by our landing page,
  *     then calls mixpanel.identify() so checkout events are merged with the
- *     visitor's landing-page session in Mixpanel.
+ *     visitor's landing-page session in Mixpanel. (Legacy `_mp_distinct_id`
+ *     is still accepted for carts created before the rename.)
  *  3. Subscribes to Shopify's standard checkout events and forwards them to
  *     Mixpanel with rich properties.
  */
@@ -77,13 +78,22 @@ mixpanel.init(MIXPANEL_TOKEN, { persistence: 'localStorage' });
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
- * Reads _mp_distinct_id from the checkout's customAttributes and calls
- * mixpanel.identify() so this session merges with the landing-page profile.
+ * Reads the Mixpanel distinct_id cart attribute from the checkout object and
+ * calls mixpanel.identify() so this checkout session merges with the
+ * landing-page profile (otherwise the purchase lands on a fresh anonymous
+ * $device: id and the funnel can't join it to Page Viewed / Checkout Started).
+ *
+ * Looks under both `attributes` and `customAttributes` (the Web Pixel schema
+ * exposes cart attributes as `checkout.attributes`), and accepts both the new
+ * non-hidden key `mp_distinct_id` and the legacy hidden `_mp_distinct_id` for
+ * carts created before the rename.
  */
 function identifyFromCheckout(checkout) {
   if (!checkout) return;
-  const attrs = checkout.customAttributes || [];
-  const attr = attrs.find(function (a) { return a.key === '_mp_distinct_id'; });
+  var attrs = checkout.attributes || checkout.customAttributes || [];
+  var attr = attrs.find(function (a) {
+    return a.key === 'mp_distinct_id' || a.key === '_mp_distinct_id';
+  });
   if (attr && attr.value) {
     mixpanel.identify(attr.value);
   }

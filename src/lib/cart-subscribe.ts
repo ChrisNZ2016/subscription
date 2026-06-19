@@ -42,7 +42,7 @@ export async function createSubscribeCartAndRedirect(
   ];
 
   const attributes = [
-    { key: '_mp_distinct_id', value: getDistinctId() },
+    { key: 'mp_distinct_id', value: getDistinctId() },
     ...getMetaCartAttributes(),
     ...getUtmCartAttributes(),
   ];

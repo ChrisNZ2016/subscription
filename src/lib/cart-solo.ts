@@ -29,7 +29,7 @@ export async function createSoloCartAndRedirect(
 ): Promise<void> {
   const lines = [{ merchandiseId: sampleVariantId, quantity: 1 }];
   const attributes = [
-    { key: '_mp_distinct_id', value: getDistinctId() },
+    { key: 'mp_distinct_id', value: getDistinctId() },
     ...getMetaCartAttributes(),
     ...getUtmCartAttributes(),
   ];

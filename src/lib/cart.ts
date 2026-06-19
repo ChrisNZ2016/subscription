@@ -9,7 +9,10 @@ import { getUtmCartAttributes } from './utm';
 import type { CartCreateResponse, CartLine } from '../types/shopify';
 
 // Cart-level attributes flow to order.note_attributes (webhook) and
-// checkout.customAttributes (pixel) for Mixpanel identity stitching.
+// checkout.attributes (pixel) for Mixpanel identity stitching. The Mixpanel id
+// key must NOT start with an underscore — Shopify treats leading-underscore
+// cart attributes as hidden and does not expose them to the Web Pixel, which
+// previously broke identify() and the purchase funnel.
 const CART_CREATE_MUTATION = `
   mutation CartCreate($lines: [CartLineInput!]!, $attributes: [AttributeInput!]) {
     cartCreate(input: { lines: $lines, attributes: $attributes }) {
@@ -48,7 +51,7 @@ export async function createCartAndRedirect(
   const attributes = [
     { key: 'Subscription Bag Size', value: `${subscription.bagWeight}kg` },
     { key: 'Subscription Frequency', value: `${subscription.frequencyWeeks} weeks` },
-    { key: '_mp_distinct_id', value: getDistinctId() },
+    { key: 'mp_distinct_id', value: getDistinctId() },
     ...getMetaCartAttributes(),
     ...getUtmCartAttributes(),
     ...(dogSize ? [{ key: 'Dog Size', value: dogSize }] : []),

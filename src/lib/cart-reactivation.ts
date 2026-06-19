@@ -48,7 +48,7 @@ export async function createReactivationCartAndRedirect(
 
   const attributes = [
     REACTIVATION_FLAG,
-    { key: '_mp_distinct_id', value: getDistinctId() },
+    { key: 'mp_distinct_id', value: getDistinctId() },
     ...getMetaCartAttributes(),
     ...getUtmCartAttributes(),
   ];

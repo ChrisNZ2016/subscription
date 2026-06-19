@@ -123,8 +123,11 @@ export default async function handler(
   }
 
   // Extract the Mixpanel distinct_id we embedded as a cart attribute
-  // (cart attributes become note_attributes on the order)
-  const mpAttr = order.note_attributes.find((a) => a.name === '_mp_distinct_id');
+  // (cart attributes become note_attributes on the order). Accept both the new
+  // non-hidden key and the legacy underscore key for in-flight carts.
+  const mpAttr = order.note_attributes.find(
+    (a) => a.name === 'mp_distinct_id' || a.name === '_mp_distinct_id',
+  );
   const distinctId = mpAttr?.value ?? `shopify-order-${order.id}`;
 
   // Initialise Mixpanel server-side client
