@@ -1,5 +1,11 @@
 import { storefrontQuery } from './shopify';
 import { getDistinctId } from './analytics';
+import {
+  finishCheckoutRedirect,
+  getMetaCartAttributes,
+  shopifyGidToContentId,
+} from './meta-pixel';
+import { getUtmCartAttributes } from './utm';
 import type { CartCreateResponse, CartLine } from '../types/shopify';
 
 // Cart-level attributes flow to order.note_attributes (webhook) and
@@ -37,11 +43,14 @@ export async function createCartAndRedirect(
   addons: AddonSelection[],
   subscriptionPrice?: string,
   dogSize?: string,
+  checkoutValue?: number,
 ): Promise<void> {
   const attributes = [
     { key: 'Subscription Bag Size', value: `${subscription.bagWeight}kg` },
     { key: 'Subscription Frequency', value: `${subscription.frequencyWeeks} weeks` },
     { key: '_mp_distinct_id', value: getDistinctId() },
+    ...getMetaCartAttributes(),
+    ...getUtmCartAttributes(),
     ...(dogSize ? [{ key: 'Dog Size', value: dogSize }] : []),
   ];
   if (subscriptionPrice) {
@@ -79,5 +88,16 @@ export async function createCartAndRedirect(
     );
   }
 
-  window.location.href = data.cartCreate.cart.checkoutUrl;
+  const contentIds = [
+    shopifyGidToContentId(sampleVariantId),
+    ...addons
+      .filter((a) => a.quantity > 0)
+      .map((a) => shopifyGidToContentId(a.variantId)),
+  ];
+
+  finishCheckoutRedirect(data.cartCreate.cart.checkoutUrl, {
+    contentIds,
+    value: checkoutValue,
+    currency: 'NZD',
+  });
 }

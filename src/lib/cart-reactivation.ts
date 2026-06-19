@@ -1,5 +1,11 @@
 import { storefrontQuery } from './shopify';
 import { getDistinctId } from './analytics';
+import {
+  finishCheckoutRedirect,
+  getMetaCartAttributes,
+  shopifyGidToContentId,
+} from './meta-pixel';
+import { getUtmCartAttributes } from './utm';
 import type { CartCreateResponse, CartLine } from '../types/shopify';
 
 // The reactivation subscription plan (RecurPay "1 Month subscription (reactivation)").
@@ -30,6 +36,7 @@ const CART_CREATE_MUTATION = `
 
 export async function createReactivationCartAndRedirect(
   variantId: string,
+  checkoutValue?: number,
 ): Promise<void> {
   const lines: CartLine[] = [
     {
@@ -42,6 +49,8 @@ export async function createReactivationCartAndRedirect(
   const attributes = [
     REACTIVATION_FLAG,
     { key: '_mp_distinct_id', value: getDistinctId() },
+    ...getMetaCartAttributes(),
+    ...getUtmCartAttributes(),
   ];
 
   const data = await storefrontQuery<CartCreateResponse>(CART_CREATE_MUTATION, {
@@ -53,5 +62,9 @@ export async function createReactivationCartAndRedirect(
     throw new Error(data.cartCreate.userErrors.map((e) => e.message).join(', '));
   }
 
-  window.location.href = data.cartCreate.cart.checkoutUrl;
+  finishCheckoutRedirect(data.cartCreate.cart.checkoutUrl, {
+    contentIds: [shopifyGidToContentId(variantId)],
+    value: checkoutValue,
+    currency: 'NZD',
+  });
 }

@@ -1,0 +1,238 @@
+{% comment %}
+  Tag orders with UTM parameter values from:
+    1. Shopify customerJourneySummary (main storefront / checkout visits)
+    2. order note_attributes (headless subscription funnel cart attributes)
+
+  Replace your existing UTM tagging task with this version, or merge the
+  note_attributes block into your published task. Keep option booleans enabled
+  for the parameters you want tagged.
+
+  Headless funnel passes utm_* cart attributes from the subscription landing
+  pages; they land on order.note_attributes as utm_source, utm_campaign, etc.
+{% endcomment %}
+
+{% assign orders = array %}
+{% assign order_note_attributes_by_id = hash %}
+
+{% if event.topic contains "shopify/orders/" %}
+  {% assign order_note_attributes_by_id[order.admin_graphql_api_id] = order.note_attributes %}
+
+  {% capture query %}
+    query {
+      order(id: {{ order.admin_graphql_api_id | json }}) {
+        id
+        name
+        tags
+        customerJourneySummary {
+          moments(first: 250) {
+            edges {
+              node {
+                ... on CustomerVisit {
+                  utmParameters {
+                    campaign
+                    content
+                    medium
+                    source
+                    term
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  {% endcapture %}
+
+  {% assign result = query | shopify %}
+
+  {% if event.preview %}
+    {% capture result_json %}
+      {
+        "data": {
+          "order": {
+            "id": "gid://shopify/Order/1234567890",
+            "name": "#1234",
+            "tags": [],
+            "customerJourneySummary": {
+              "moments": {
+                "edges": [
+                  {
+                    "node": {
+                      "utmParameters": {
+                        "campaign": "Google Shopping",
+                        "content": "shoppingcontent",
+                        "medium": "cpc",
+                        "source": "google",
+                        "term": "shoppingterm"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    {% endcapture %}
+
+    {% assign result = result_json | parse_json %}
+    {% assign order_note_attributes_by_id["gid://shopify/Order/1234567890"] = array %}
+    {% assign order_note_attributes_by_id["gid://shopify/Order/1234567890"][0] = hash %}
+    {% assign order_note_attributes_by_id["gid://shopify/Order/1234567890"][0]["name"] = "utm_source" %}
+    {% assign order_note_attributes_by_id["gid://shopify/Order/1234567890"][0]["value"] = "facebook" %}
+    {% assign order_note_attributes_by_id["gid://shopify/Order/1234567890"][1] = hash %}
+    {% assign order_note_attributes_by_id["gid://shopify/Order/1234567890"][1]["name"] = "utm_campaign" %}
+    {% assign order_note_attributes_by_id["gid://shopify/Order/1234567890"][1]["value"] = "spring_sample" %}
+  {% endif %}
+
+  {% assign orders[orders.size] = result.data.order %}
+
+{% elsif event.topic == "mechanic/user/trigger" %}
+  {% capture bulk_operation_query %}
+    query {
+      orders {
+        edges {
+          node {
+            __typename
+            id
+            name
+            tags
+            customAttributes {
+              key
+              value
+            }
+            customerJourneySummary {
+              moments {
+                edges {
+                  node {
+                    __typename
+                    ... on CustomerVisit {
+                      utmParameters {
+                        campaign
+                        content
+                        medium
+                        source
+                        term
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  {% endcapture %}
+
+  {% action "shopify" %}
+    mutation {
+      bulkOperationRunQuery(
+        query: {{ bulk_operation_query | json }}
+      ) {
+        bulkOperation {
+          id
+          status
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  {% endaction %}
+
+{% elsif event.topic == "mechanic/shopify/bulk_operation" %}
+  {% if event.preview %}
+    {% capture bulkOperation_objects_jsonl %}
+      {"__typename":"Order","id":"gid:\/\/shopify\/Order/1234567890","name":"#1234","tags":[],"customAttributes":[{"key":"utm_source","value":"facebook"},{"key":"utm_campaign","value":"spring_sample"}],"customerJourneySummary":{}}
+      {"__typename":"CustomerVisit","utmParameters":{"campaign":"New Campaign 001","content":null,"medium":"email","source":"newsletter","term":null},"__parentId":"gid:\/\/shopify\/Order/1234567890"}
+    {% endcapture %}
+
+    {% assign bulkOperation = hash %}
+    {% assign bulkOperation["objects"] = bulkOperation_objects_jsonl | parse_jsonl %}
+  {% endif %}
+
+  {% assign orders = bulkOperation.objects | where: "__typename", "Order" %}
+{% endif %}
+
+{% assign parameter_names = "campaign,content,medium,source,term" | split: "," %}
+
+{% for order in orders %}
+  {% assign tags_to_add = array %}
+  {% assign parameter_sets = array %}
+
+  {% if event.topic contains "shopify/orders/" %}
+    {% assign journey_sets = order.customerJourneySummary.moments.edges | map: "node" | map: "utmParameters" %}
+    {% for journey_set in journey_sets %}
+      {% assign parameter_sets[parameter_sets.size] = journey_set %}
+    {% endfor %}
+
+    {% assign note_attributes = order_note_attributes_by_id[order.id] %}
+
+  {% elsif event.topic == "mechanic/shopify/bulk_operation" %}
+    {% assign journey_sets = bulkOperation.objects | where: "__typename", "CustomerVisit" | where: "__parentId", order.id | map: "utmParameters" %}
+    {% for journey_set in journey_sets %}
+      {% assign parameter_sets[parameter_sets.size] = journey_set %}
+    {% endfor %}
+
+    {% assign note_attributes = array %}
+    {% for attr in order.customAttributes %}
+      {% assign mapped = hash %}
+      {% assign mapped["name"] = attr.key %}
+      {% assign mapped["value"] = attr.value %}
+      {% assign note_attributes[note_attributes.size] = mapped %}
+    {% endfor %}
+  {% endif %}
+
+  {% assign note_utm_set = hash %}
+  {% for attr in note_attributes %}
+    {% if attr.name == "utm_campaign" and attr.value != blank %}
+      {% assign note_utm_set["campaign"] = attr.value %}
+    {% elsif attr.name == "utm_content" and attr.value != blank %}
+      {% assign note_utm_set["content"] = attr.value %}
+    {% elsif attr.name == "utm_medium" and attr.value != blank %}
+      {% assign note_utm_set["medium"] = attr.value %}
+    {% elsif attr.name == "utm_source" and attr.value != blank %}
+      {% assign note_utm_set["source"] = attr.value %}
+    {% elsif attr.name == "utm_term" and attr.value != blank %}
+      {% assign note_utm_set["term"] = attr.value %}
+    {% endif %}
+  {% endfor %}
+
+  {% if note_utm_set != blank %}
+    {% assign parameter_sets[parameter_sets.size] = note_utm_set %}
+  {% endif %}
+
+  {% for parameter_set in parameter_sets %}
+    {% for parameter_name in parameter_names %}
+      {% assign key = "tag_with_utm_" | append: parameter_name | append: "__boolean" %}
+
+      {% if options[key] == false or parameter_set[parameter_name] == blank %}
+        {% continue %}
+      {% elsif order.tags contains parameter_set[parameter_name] %}
+        {% log message: "Order already has this parameter value as a tag", order_id: order.id, order_name: order.name, order_tags: order.tags, parameter_name: parameter_name, parameter_value: parameter_set[parameter_name] %}
+        {% continue %}
+      {% endif %}
+
+      {% assign tags_to_add[tags_to_add.size] = parameter_set[parameter_name] %}
+    {% endfor %}
+  {% endfor %}
+
+  {% if tags_to_add != blank %}
+    {% action "shopify" %}
+      mutation {
+        tagsAdd(
+          id: {{ order.id | json }}
+          tags: {{ tags_to_add | uniq | json }}
+        ) {
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    {% endaction %}
+  {% endif %}
+{% endfor %}

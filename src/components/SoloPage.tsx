@@ -12,16 +12,13 @@ import { FAQCTA } from './FAQCTA';
 import { Footer } from './Footer';
 import { StickyCTA } from './StickyCTA';
 import { trackPageViewed, trackCtaClicked, trackCheckoutStarted } from '../lib/analytics';
+import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
 
 export function SoloPage() {
   const { product, loading, error } = useSampleProduct();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cartError, setCartError] = useState<string | null>(null);
   const [activeProductTab, setActiveProductTab] = useState<'info' | 'ingredients'>('info');
-
-  useEffect(() => {
-    trackPageViewed();
-  }, []);
 
   const sampleVariant = product?.variants.nodes[0];
   const sampleAllocation = sampleVariant?.sellingPlanAllocations.nodes[0];
@@ -30,6 +27,22 @@ export function SoloPage() {
     : sampleVariant?.price
       ? formatMoney(sampleVariant.price)
       : undefined;
+
+  useEffect(() => {
+    trackPageViewed();
+  }, []);
+
+  useEffect(() => {
+    if (!sampleVariant) return;
+    const priceObj = sampleAllocation
+      ? sampleAllocation.priceAdjustments[0].perDeliveryPrice
+      : sampleVariant.price;
+    trackMetaViewContent({
+      contentIds: [shopifyGidToContentId(sampleVariant.id)],
+      value: priceObj ? parseFloat(priceObj.amount) : undefined,
+      currency: priceObj?.currencyCode ?? 'NZD',
+    });
+  }, [sampleVariant, sampleAllocation]);
 
   const comparePrice = sampleVariant?.compareAtPrice
     ? formatMoney(sampleVariant.compareAtPrice)
@@ -40,8 +53,19 @@ export function SoloPage() {
     setIsSubmitting(true);
     setCartError(null);
     try {
-      trackCheckoutStarted({ samplePrice: samplePrice ?? '', bagWeight: 2, frequencyWeeks: 0, addonCount: 0 });
-      await createSoloCartAndRedirect(sampleVariant.id);
+      const priceObj = sampleAllocation
+        ? sampleAllocation.priceAdjustments[0].perDeliveryPrice
+        : sampleVariant.price;
+      const checkoutValue = priceObj ? parseFloat(priceObj.amount) : undefined;
+      trackCheckoutStarted({
+        samplePrice: samplePrice ?? '',
+        bagWeight: 2,
+        frequencyWeeks: 0,
+        addonCount: 0,
+        contentIds: [shopifyGidToContentId(sampleVariant.id)],
+        value: checkoutValue,
+      });
+      await createSoloCartAndRedirect(sampleVariant.id, checkoutValue);
     } catch (err) {
       setCartError(err instanceof Error ? err.message : 'Failed to create cart');
       setIsSubmitting(false);

@@ -45,6 +45,7 @@ Copy `.env.example` to `.env.local` for local development.
 | `VITE_ADDON_HANDLES` | Comma-separated addon product handles |
 | `VITE_MIXPANEL_TOKEN` | Mixpanel project token for client-side events |
 | `VITE_GA_MEASUREMENT_ID` | GA4 web stream Measurement ID (`G-…`) for property `326931496` |
+| `VITE_META_PIXEL_ID` | Meta pixel ID (same as main Shopify site) |
 
 ### Server (Vercel only — never use `VITE_` prefix)
 
@@ -52,6 +53,8 @@ Copy `.env.example` to `.env.local` for local development.
 |----------|-------------|
 | `MIXPANEL_TOKEN` | Mixpanel token for the orders webhook |
 | `SHOPIFY_WEBHOOK_SECRET` | Signing secret from the Shopify `orders/create` webhook |
+| `META_PIXEL_ID` | Meta pixel ID for Conversions API (same as `VITE_META_PIXEL_ID`) |
+| `META_CAPI_ACCESS_TOKEN` | Conversions API access token from Meta Events Manager |
 
 See [shopify/README.md](./shopify/README.md) for Mixpanel pixel and webhook setup in Shopify Admin.
 
@@ -102,14 +105,19 @@ Each funnel has its own cart module in `src/lib/`:
 Flow:
 
 ```
-Landing page (Mixpanel browser SDK)
-  → cartCreate (Storefront API) + _mp_distinct_id cart attribute
-  → redirect to checkoutUrl
-  → Shopify checkout (Custom Pixel → Mixpanel)
-  → orders/create webhook (Vercel) → Purchase Completed (Server)
+Landing page (Mixpanel + Meta pixel)
+  → cartCreate (Storefront API) + _mp_distinct_id + _fbp/_fbc/_meta_purchase_event_id + utm_*
+  → redirect to checkoutUrl (UTMs appended to query string)
+  → Shopify checkout (Facebook app pixel → Purchase)
+  → orders/create webhook (Vercel) → Mixpanel + Meta CAPI Purchase
+  → Mechanic UTM task → tags order from note_attributes + customerJourneySummary
 ```
 
-Cart attributes (bag size, frequency, `_mp_distinct_id`, etc.) flow to `order.note_attributes` and are used by the webhook and checkout pixel to stitch analytics identity across the funnel.
+Cart attributes (bag size, frequency, `_mp_distinct_id`, `utm_*`, etc.) flow to `order.note_attributes` and are used by the webhook, checkout pixel, and Mechanic tasks.
+
+### UTM order tags
+
+Meta ad UTMs are captured on landing (`src/lib/utm.ts`), stored in sessionStorage (first-touch), passed as cart attributes, and appended to the checkout URL. Install `mechanic-utm-tags.liquid` in Mechanic (replacing your existing UTM tagging task) so orders are tagged from both Shopify's customer journey and headless funnel `note_attributes`.
 
 Reactivation carts set `reactivation=true`, which the Mechanic task reads to add a free gift on the first delivery.
 

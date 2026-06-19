@@ -9,6 +9,7 @@ import { TestimonialsSection } from './TestimonialsSection';
 import { FAQSection } from './FAQSection';
 import { Footer } from './Footer';
 import { trackPageViewed, trackCtaClicked, trackCheckoutStarted } from '../lib/analytics';
+import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
 import type { ProductVariant } from '../types/shopify';
 
 /** Per-delivery reactivation price for a variant, or null if the plan isn't allocated. */
@@ -17,6 +18,14 @@ function reactivationPrice(variant: ProductVariant): string | undefined {
     (n) => n.sellingPlan.id === REACTIVATION_SELLING_PLAN_ID,
   );
   return alloc ? formatMoney(alloc.priceAdjustments[0].perDeliveryPrice) : undefined;
+}
+
+function reactivationPriceAmount(variant: ProductVariant): number | undefined {
+  const alloc = variant.sellingPlanAllocations.nodes.find(
+    (n) => n.sellingPlan.id === REACTIVATION_SELLING_PLAN_ID,
+  );
+  const price = alloc?.priceAdjustments[0]?.perDeliveryPrice;
+  return price ? parseFloat(price.amount) : undefined;
 }
 
 export function ReactivationPage() {
@@ -49,6 +58,15 @@ export function ReactivationPage() {
   const selectedVariant = variants.find((v) => v.id === selectedVariantId);
   const selectedPrice = selectedVariant ? reactivationPrice(selectedVariant) : undefined;
 
+  useEffect(() => {
+    if (!selectedVariant) return;
+    trackMetaViewContent({
+      contentIds: [shopifyGidToContentId(selectedVariant.id)],
+      value: reactivationPriceAmount(selectedVariant),
+      currency: 'NZD',
+    });
+  }, [selectedVariant]);
+
   const handleCheckout = useCallback(
     async (location: 'hero' | 'sticky' | 'faq') => {
       if (!selectedVariant) return;
@@ -56,13 +74,16 @@ export function ReactivationPage() {
       setIsSubmitting(true);
       setCartError(null);
       try {
+        const checkoutValue = reactivationPriceAmount(selectedVariant);
         trackCheckoutStarted({
           samplePrice: selectedPrice ?? '',
           bagWeight: parseInt(selectedVariant.title, 10) || 0,
           frequencyWeeks: 4,
           addonCount: 0,
+          contentIds: [shopifyGidToContentId(selectedVariant.id)],
+          value: checkoutValue,
         });
-        await createReactivationCartAndRedirect(selectedVariant.id);
+        await createReactivationCartAndRedirect(selectedVariant.id, checkoutValue);
       } catch (err) {
         setCartError(err instanceof Error ? err.message : 'Failed to create cart');
         setIsSubmitting(false);

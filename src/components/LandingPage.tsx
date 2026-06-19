@@ -30,6 +30,7 @@ import {
   trackOrderSummaryViewed,
   trackCheckoutStarted,
 } from '../lib/analytics';
+import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
 
 type FunnelStep = 'hero' | 'size' | 'addons' | 'summary';
 type ProductTab = 'info' | 'ingredients';
@@ -81,6 +82,20 @@ export function LandingPage() {
   useEffect(() => {
     trackPageViewed();
   }, []);
+
+  useEffect(() => {
+    const variant = sampleProduct?.variants.nodes[0];
+    if (!variant) return;
+    const allocation = variant.sellingPlanAllocations.nodes[0];
+    const priceObj = allocation
+      ? allocation.priceAdjustments[0]?.perDeliveryPrice
+      : variant.price;
+    trackMetaViewContent({
+      contentIds: [shopifyGidToContentId(variant.id)],
+      value: priceObj ? parseFloat(priceObj.amount) : undefined,
+      currency: priceObj?.currencyCode ?? 'NZD',
+    });
+  }, [sampleProduct]);
 
   const handleSelectSize = useCallback((index: number) => {
     setSelectedSize(index);
@@ -172,10 +187,30 @@ export function LandingPage() {
     const samplePrice = priceObj
       ? new Intl.NumberFormat('en-AU', { style: 'currency', currency: priceObj.currencyCode }).format(parseFloat(priceObj.amount))
       : '';
+    const checkoutValue = priceObj ? parseFloat(priceObj.amount) : undefined;
+    const contentIds = [
+      shopifyGidToContentId(sampleVariant.id),
+      ...selectedAddons.map((a) => shopifyGidToContentId(a.variantId)),
+    ];
 
     const dogSizeLabel = selectedSize !== null ? DOG_SIZE_PRESETS[selectedSize].label : undefined;
-    trackCheckoutStarted({ samplePrice, bagWeight, frequencyWeeks, addonCount: selectedAddons.length });
-    submit(sampleVariant.id, sellingPlanId, { bagWeight, frequencyWeeks }, selectedAddons, subscriptionPriceFormatted, dogSizeLabel);
+    trackCheckoutStarted({
+      samplePrice,
+      bagWeight,
+      frequencyWeeks,
+      addonCount: selectedAddons.length,
+      contentIds,
+      value: checkoutValue,
+    });
+    submit(
+      sampleVariant.id,
+      sellingPlanId,
+      { bagWeight, frequencyWeeks },
+      selectedAddons,
+      subscriptionPriceFormatted,
+      dogSizeLabel,
+      checkoutValue,
+    );
   }, [sampleProduct, bagWeight, frequencyWeeks, selectedAddons, submit, subscriptionPriceFormatted]);
 
   const handleGetStarted = useCallback((location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq' = 'hero') => {

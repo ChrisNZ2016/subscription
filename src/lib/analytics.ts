@@ -1,5 +1,10 @@
 import mixpanel from 'mixpanel-browser';
 import { trackGaEvent, trackGaPageView } from './google-analytics';
+import {
+  trackMetaInitiateCheckout,
+  trackMetaPageView,
+  trackMetaViewContent,
+} from './meta-pixel';
 
 const TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN as string;
 
@@ -30,10 +35,18 @@ export function getDistinctId(): string {
 
 // ─── Landing-page funnel events ───────────────────────────────────────────────
 
-export function trackPageViewed(): void {
+export function trackPageViewed(meta?: { contentIds?: string[]; value?: number }): void {
   const page = getPageLabel();
   mixpanel.track('Page Viewed', { page });
   trackGaPageView(window.location.pathname + window.location.search);
+  trackMetaPageView();
+  if (meta?.contentIds?.length) {
+    trackMetaViewContent({
+      contentIds: meta.contentIds,
+      value: meta.value,
+      currency: 'NZD',
+    });
+  }
 }
 
 export function trackCtaClicked(location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq'): void {
@@ -85,7 +98,17 @@ export function trackCheckoutStarted(props: {
   bagWeight: number;
   frequencyWeeks: number;
   addonCount: number;
+  contentIds?: string[];
+  value?: number;
 }): void {
   mixpanel.track('Checkout Started', props);
-  trackGaEvent('begin_checkout', { ...props, page: getPageLabel(), currency: 'NZD' });
+  const { contentIds, value, ...gaProps } = props;
+  trackGaEvent('begin_checkout', { ...gaProps, page: getPageLabel(), currency: 'NZD', value });
+  if (props.contentIds?.length) {
+    trackMetaInitiateCheckout({
+      contentIds: props.contentIds,
+      value: props.value,
+      currency: 'NZD',
+    });
+  }
 }

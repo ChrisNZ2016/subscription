@@ -1,5 +1,11 @@
 import { storefrontQuery } from './shopify';
 import { getDistinctId } from './analytics';
+import {
+  finishCheckoutRedirect,
+  getMetaCartAttributes,
+  shopifyGidToContentId,
+} from './meta-pixel';
+import { getUtmCartAttributes } from './utm';
 import type { CartCreateResponse } from '../types/shopify';
 
 const CART_CREATE_MUTATION = `
@@ -17,9 +23,16 @@ const CART_CREATE_MUTATION = `
   }
 `;
 
-export async function createSoloCartAndRedirect(sampleVariantId: string): Promise<void> {
+export async function createSoloCartAndRedirect(
+  sampleVariantId: string,
+  checkoutValue?: number,
+): Promise<void> {
   const lines = [{ merchandiseId: sampleVariantId, quantity: 1 }];
-  const attributes = [{ key: '_mp_distinct_id', value: getDistinctId() }];
+  const attributes = [
+    { key: '_mp_distinct_id', value: getDistinctId() },
+    ...getMetaCartAttributes(),
+    ...getUtmCartAttributes(),
+  ];
 
   const data = await storefrontQuery<CartCreateResponse>(CART_CREATE_MUTATION, { lines, attributes });
 
@@ -27,5 +40,9 @@ export async function createSoloCartAndRedirect(sampleVariantId: string): Promis
     throw new Error(data.cartCreate.userErrors.map((e) => e.message).join(', '));
   }
 
-  window.location.href = data.cartCreate.cart.checkoutUrl;
+  finishCheckoutRedirect(data.cartCreate.cart.checkoutUrl, {
+    contentIds: [shopifyGidToContentId(sampleVariantId)],
+    value: checkoutValue,
+    currency: 'NZD',
+  });
 }

@@ -8,11 +8,14 @@
  * Required environment variables (set in Vercel dashboard):
  *   MIXPANEL_TOKEN          — Mixpanel project token
  *   SHOPIFY_WEBHOOK_SECRET  — The signing secret from the Shopify webhook row
+ *   META_PIXEL_ID           — Meta pixel ID (same as VITE_META_PIXEL_ID)
+ *   META_CAPI_ACCESS_TOKEN  — Conversions API access token from Events Manager
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import Mixpanel from 'mixpanel';
+import { sendMetaPurchase } from '../lib/meta-capi.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -178,6 +181,12 @@ export default async function handler(
     'Last Order Date': new Date(order.created_at),
     'Last Order Value': revenue,
   });
+
+  try {
+    await sendMetaPurchase(order, order.note_attributes);
+  } catch (err) {
+    console.error('Meta CAPI Purchase failed:', err);
+  }
 
   res.status(200).json({ ok: true });
 }
