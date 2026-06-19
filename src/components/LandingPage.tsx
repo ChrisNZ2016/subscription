@@ -13,6 +13,7 @@ import { AddonsStep } from './AddonsStep';
 import { SubscriptionExplainer } from './SubscriptionExplainer';
 import { OrderSummary } from './OrderSummary';
 import { FAQSection } from './FAQSection';
+import { FAQCTA } from './FAQCTA';
 import { Footer } from './Footer';
 import { StickyCTA } from './StickyCTA';
 import type { Product } from '../types/shopify';
@@ -228,7 +229,7 @@ export function LandingPage() {
     <>
       <header className="announcement-bar">
         {variant === 'solo'
-          ? <p>🛡️ <strong>100% money-back guarantee</strong> — full refund if it's not right for your dog</p>
+          ? <p>🛡️ <strong>100% money-back guarantee</strong>, full refund if it's not right for your dog</p>
           : <p><strong>Free shipping</strong> on your first 2kg sample box</p>
         }
       </header>
@@ -313,7 +314,9 @@ export function LandingPage() {
           />
         )}
 
-        <FAQSection onGetStarted={() => handleGetStarted('faq')} samplePrice={samplePriceFormatted} />
+        <FAQSection>
+          <FAQCTA onGetStarted={() => handleGetStarted('faq')} samplePrice={samplePriceFormatted} />
+        </FAQSection>
       </main>
 
       <Footer />

@@ -1,7 +1,7 @@
 export function BenefitsBar() {
   const metrics = [
     { value: '2,000', accent: '+', label: 'Happy dogs' },
-    { value: '20', accent: '+', label: 'Superfoods per bag' },
+    { value: '6', accent: '+', label: 'Superfoods per bag' },
     { value: '50', accent: '%', label: 'Off first box' },
     { value: '100', accent: '%', label: 'Money-back guarantee' },
   ];

@@ -3,21 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Option 3 — Bold & Playful</title>
+<title>Option 3, Bold & Playful</title>
+<link rel="icon" href="../favicon.png" type="image/png" />
+<link rel="shortcut icon" href="../favicon.png" type="image/png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; background: #fff; line-height: 1.6; overflow-x: hidden; }
 
-/* — NAV — */
+/*, NAV, */
 .topbar { background: #ff1f00; color: #fff; text-align: center; padding: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 48px; background: #1a1a1a; position: sticky; top: 0; z-index: 100; }
 .nav-logo { font-size: 22px; font-weight: 900; color: #fff; }
 .nav-logo span { color: #ACD45C; }
 .nav-cta { background: #ACD45C; color: #1a1a1a; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.04em; }
 
-/* — HERO — */
+/*, HERO, */
 .hero { background: #ACD45C; position: relative; overflow: hidden; }
 .hero::after { content: ""; position: absolute; bottom: -2px; left: 0; right: 0; height: 80px; background: #fff; clip-path: polygon(0 100%, 100% 100%, 100% 0, 0 80px); }
 .hero-inner { max-width: 1200px; margin: 0 auto; padding: 80px 48px 120px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
@@ -31,13 +33,13 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
 .trust-row { display: flex; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
 .trust-pill { background: #1a1a1a; color: #fff; padding: 8px 16px; border-radius: 100px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 
-/* — TICKER — */
+/*, TICKER, */
 .ticker { background: #1a1a1a; color: #ACD45C; padding: 14px 0; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; overflow: hidden; position: relative; z-index: 1; }
 .ticker-inner { display: inline-block; animation: ticker 20s linear infinite; }
 @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 .ticker-inner span { margin-right: 48px; }
 
-/* — FEATURES — */
+/*, FEATURES, */
 .features { max-width: 1200px; margin: 0 auto; padding: 80px 48px; }
 .features h2 { font-size: 44px; font-weight: 900; text-align: center; margin-bottom: 48px; }
 .features h2 span { color: #ACD45C; }
@@ -54,7 +56,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
 .feat-card h4 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
 .feat-card p { font-size: 13px; opacity: 0.85; }
 
-/* — PRODUCT — */
+/*, PRODUCT, */
 .product { background: #f8f8f6; position: relative; }
 .product::before { content: ""; position: absolute; top: -2px; left: 0; right: 0; height: 80px; background: #fff; clip-path: polygon(0 0, 100% 0, 100% 80px, 0 0); }
 .product-inner { max-width: 1200px; margin: 0 auto; padding: 100px 48px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
@@ -72,7 +74,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
 .btn-cta { background: #ACD45C; color: #1a1a1a; border: none; padding: 18px 0; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 0.04em; transition: all 0.2s; }
 .btn-cta:hover { background: #9bc44d; }
 
-/* — REVIEWS — */
+/*, REVIEWS, */
 .reviews { max-width: 1200px; margin: 0 auto; padding: 80px 48px; }
 .reviews h2 { font-size: 44px; font-weight: 900; text-align: center; margin-bottom: 48px; }
 .review-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -82,7 +84,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
 .review-card p { font-size: 15px; color: #ccc; margin-bottom: 20px; font-style: italic; }
 .review-card .author { font-size: 13px; font-weight: 700; color: #ACD45C; }
 
-/* — HOW — */
+/*, HOW, */
 .how { background: #5465A3; color: #fff; padding: 80px 48px; text-align: center; }
 .how h2 { font-size: 44px; font-weight: 900; margin-bottom: 48px; }
 .how-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1000px; margin: 0 auto; }
@@ -90,7 +92,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
 .how-step h4 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
 .how-step p { font-size: 14px; opacity: 0.8; }
 
-/* — FAQ — */
+/*, FAQ, */
 .faq { max-width: 720px; margin: 0 auto; padding: 80px 48px; }
 .faq h2 { font-size: 44px; font-weight: 900; text-align: center; margin-bottom: 40px; }
 .faq-item { border: 2px solid #eee; border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
@@ -100,14 +102,14 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
 .faq-item[open] summary::after { content: "−"; }
 .faq-item p { padding: 0 24px 18px; font-size: 14px; color: #666; }
 
-/* — FINAL CTA — */
+/*, FINAL CTA, */
 .final-cta { background: #1a1a1a; padding: 80px 48px; text-align: center; }
 .final-cta h2 { color: #fff; font-size: 44px; font-weight: 900; margin-bottom: 12px; }
 .final-cta h2 span { color: #ACD45C; }
 .final-cta p { color: #888; font-size: 16px; margin-bottom: 32px; }
 .final-cta .btn-hero { background: #ACD45C; color: #1a1a1a; }
 
-/* — FOOTER — */
+/*, FOOTER, */
 .footer { background: #111; color: #555; padding: 32px 48px; text-align: center; font-size: 13px; }
 
 @media (max-width: 768px) {
@@ -122,7 +124,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
 </head>
 <body>
 
-<div class="topbar">🔥 50% OFF YOUR FIRST BOX — ENDS SOON 🔥</div>
+<div class="topbar">🔥 50% OFF YOUR FIRST BOX, ENDS SOON 🔥</div>
 
 <nav class="nav">
   <div class="nav-logo">little<span>green</span>dog</div>
@@ -177,7 +179,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
     </div>
     <div class="product-info">
       <h2>Hypoallergenic Kibble</h2>
-      <p class="subtitle">Sample Box — 2kg</p>
+      <p class="subtitle">Sample Box, 2kg</p>
       <div class="price-block">
         <span class="now">$24.99</span>
         <span class="was">$49.99</span>
@@ -190,7 +192,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
         <li><span>✓</span> No artificial colours, flavours, or fillers</li>
         <li><span>✓</span> Cancel or modify anytime</li>
       </ul>
-      <button class="btn-cta">Build Your Plan — Save 50% →</button>
+      <button class="btn-cta">Build Your Plan, Save 50% →</button>
     </div>
   </div>
 </section>
@@ -198,9 +200,9 @@ body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; backgrou
 <section class="reviews">
   <h2>2,000+ happy dogs 🐕</h2>
   <div class="review-grid">
-    <div class="review-card"><div class="stars">★★★★★</div><p>"My dog's skin issues cleared up within two weeks. Absolute game changer for us!"</p><div class="author">Sarah M. — Chloe the Border Collie</div></div>
-    <div class="review-card"><div class="stars">★★★★★</div><p>"Finally found food that doesn't upset Charlie's stomach. He LOVES the taste."</p><div class="author">James T. — Charlie the Lab</div></div>
-    <div class="review-card"><div class="stars">★★★★★</div><p>"The subscription is so easy. Great food, delivered right when we need it."</p><div class="author">Emily R. — Bella the Cavoodle</div></div>
+    <div class="review-card"><div class="stars">★★★★★</div><p>"One thing that's important to us is Hudson's joint health after his luxating patella surgeries. It's great knowing that there's things like salmon oil in there and that it's also supporting his joint mobility as well as his coat."</p><div class="author">Sam, Hudson the Huntaway</div></div>
+    <div class="review-card"><div class="stars">★★★★★</div><p>"Kronk & Yzma love the food, their tummies are so healthy and I can see the difference in their energy and poop."</p><div class="author">Pauli, Kronk & Yzma the Golden Doodles</div></div>
+    <div class="review-card"><div class="stars">★★★★★</div><p>"We were so happy to find a food that Max and Charlie loved and that was so good for them."</p><div class="author">Ryan, Max & Charlie</div></div>
   </div>
 </section>
 

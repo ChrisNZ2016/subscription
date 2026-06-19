@@ -8,6 +8,7 @@ import { WhyYoullLoveIt } from './WhyYoullLoveIt';
 import { ProductTabs } from './ProductTabs';
 import { TestimonialsSection } from './TestimonialsSection';
 import { FAQSection } from './FAQSection';
+import { FAQCTA } from './FAQCTA';
 import { Footer } from './Footer';
 import { StickyCTA } from './StickyCTA';
 import { trackPageViewed, trackCtaClicked, trackCheckoutStarted } from '../lib/analytics';
@@ -74,7 +75,7 @@ export function SoloPage() {
   return (
     <>
       <header className="announcement-bar">
-        <p>🛡️ <strong>100% money-back guarantee</strong> — full refund if it's not right for your dog</p>
+        <p>🛡️ <strong>100% money-back guarantee</strong>, full refund if it's not right for your dog</p>
       </header>
 
       <nav className="site-nav">
@@ -115,7 +116,9 @@ export function SoloPage() {
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />
         <WhyYoullLoveIt onGetStarted={() => handleGetStarted('why-you-love-it')} samplePrice={samplePrice} />
         <TestimonialsSection />
-        <FAQSection onGetStarted={() => handleGetStarted('faq')} samplePrice={samplePrice} />
+        <FAQSection>
+          <FAQCTA onGetStarted={() => handleGetStarted('faq')} samplePrice={samplePrice} />
+        </FAQSection>
       </main>
 
       <Footer />

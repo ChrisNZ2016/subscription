@@ -8,7 +8,7 @@ export function StorySection() {
           <p>
             Chloe had lifelong food sensitivities. Every commercial kibble we tried
             left her with itchy skin, digestive issues, and low energy. We spent years
-            searching for the right food — and when we couldn't find it, we made it.
+            searching for the right food, and when we couldn't find it, we made it.
           </p>
           <div
             className="story-image-placeholder"
@@ -18,7 +18,7 @@ export function StorySection() {
           <p>
             Little Green Dog was born from a simple belief: every dog deserves food
             that doesn't make them feel terrible. Our hypoallergenic, grain-free
-            formula is built from the ground up for sensitive stomachs — no beef,
+            formula is built from the ground up for sensitive stomachs: no beef,
             no dairy, no gluten, no wheat, no fillers.
           </p>
           <p>
@@ -29,7 +29,7 @@ export function StorySection() {
           <div className="sensitivity-promise">
             <strong>The Sensitivity Promise</strong>
             <p>
-              If it's not the right fit for your dog, we'll refund you — just reach out.
+              If it's not the right fit for your dog, we'll refund you, just reach out.
               No hoops, no hassle.
             </p>
           </div>

@@ -91,7 +91,7 @@ export function SubscribePage() {
   return (
     <>
       <header className="announcement-bar">
-        <p>🔒 <strong>Lock in 25% off</strong> every delivery — better than our standard 20% subscriber rate</p>
+        <p>🔒 <strong>Lock in 25% off</strong> every delivery, better than our standard 20% subscriber rate</p>
       </header>
 
       <nav className="site-nav">
@@ -111,17 +111,17 @@ export function SubscribePage() {
         {cartError && <p style={{ color: 'red', textAlign: 'center', padding: '1rem' }}>{cartError}</p>}
 
         <section className="reactivation-hero">
-          <h1>Keep it going — and lock in 25% off, for good</h1>
+          <h1>Keep it going, and lock in 25% off, for good</h1>
           <p className="reactivation-sub">
             Your dog's settling in. Subscribe before the offer ends and you'll
-            <strong> lock in 25% off every delivery</strong> for as long as you stay subscribed —
+            <strong> lock in 25% off every delivery</strong> for as long as you stay subscribed,
             that's better than our standard 20% subscriber rate, yours to keep.
           </p>
 
           <ul className="reactivation-reasons">
-            <li><strong>Your best rate, locked in.</strong> 25% beats the standard 20% — for every future delivery.</li>
+            <li><strong>Your best rate, locked in.</strong> 25% beats the standard 20%, for every future delivery.</li>
             <li><strong>No lock-in.</strong> Skip, pause or cancel anytime in a couple of taps.</li>
-            <li><strong>Never run out.</strong> The right amount, free shipping, delivered every 4 weeks.</li>
+            <li><strong>Never run out.</strong> The right amount, free shipping (over $55), delivered every 4 weeks.</li>
             <li><strong>Always covered.</strong> The Sensitivity Promise backs every delivery, not just the first.</li>
           </ul>
         </section>
@@ -158,7 +158,7 @@ export function SubscribePage() {
             {isSubmitting
               ? 'Working…'
               : selectedPrice
-                ? `Lock in 25% off — ${selectedPrice}/delivery`
+                ? `Lock in 25% off, ${selectedPrice}/delivery`
                 : 'Lock in 25% off'}
           </button>
           <p className="reactivation-finefoot">
@@ -167,7 +167,7 @@ export function SubscribePage() {
         </section>
 
         <TestimonialsSection />
-        <FAQSection onGetStarted={() => handleCheckout('faq')} samplePrice={selectedPrice} />
+        <FAQSection />
       </main>
 
       <Footer />

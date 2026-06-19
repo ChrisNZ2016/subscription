@@ -2,12 +2,12 @@ const faqs = [
   {
     question: 'What if my dog doesn\'t like it?',
     answer:
-      'We stand behind our Sensitivity Promise. If it\'s not the right fit for your dog, just reach out and we\'ll give you a full refund — no hoops, no hassle, no questions asked.',
+      'We stand behind our Sensitivity Promise. If it\'s not the right fit for your dog, just reach out and we\'ll give you a full refund, no hoops, no hassle, no questions asked.',
   },
   {
     question: 'How does the subscription work after the sample?',
     answer:
-      'Your 2kg sample ships first at 50% off. After that, your subscription automatically transitions to the bag size you chose — delivered every 4 weeks. You can skip, pause, or cancel anytime from your account.',
+      'Your 2kg sample ships first at 50% off. After that, your subscription automatically transitions to the bag size you chose, delivered every 4 weeks. You can skip, pause, or cancel anytime from your account.',
   },
   {
     question: 'Can I change my bag size later?',
@@ -20,7 +20,7 @@ const faqs = [
       'Orders are typically delivered within 1–3 business days across New Zealand. You\'ll receive a tracking notification as soon as your order ships.',
   },
   {
-    question: 'What\'s in the food — is it really hypoallergenic?',
+    question: 'What\'s in the food, and is it really hypoallergenic?',
     answer:
       'Yes. Our formula is specifically designed to exclude common allergens: no beef, dairy, gluten, wheat, grain, or fillers. We use hypoallergenic proteins alongside grain-free carbs and 20+ functional superfoods.',
   },
@@ -32,16 +32,15 @@ const faqs = [
   {
     question: 'Where is the food made?',
     answer:
-      'Little Green Dog is an NZ-owned company. Our kibble is manufactured by Bridge PetCare in Shanghai, using our proprietary formula with carefully sourced ingredients.',
+      'Our food is manufactured with Bridge PetCare, one of China\'s largest and most respected pet food makers who hold ISO 9001, 22000, 45001 and 14001 certified, plus GMP, BRC, HACCP and FDA registration. Eight internal laboratories, and never responsible for a product recall.\n\nEvery batch is independently verified by SGS Laboratories across 73 distinct nutritional, chemical and safety factors including nutrient profiles, fatty acids, minerals, vitamins, pathogens, heavy metals, contaminants and mycotoxins.',
   },
 ];
 
 interface FAQSectionProps {
-  onGetStarted?: () => void;
-  samplePrice?: string;
+  children?: React.ReactNode;
 }
 
-export function FAQSection({ onGetStarted, samplePrice }: FAQSectionProps) {
+export function FAQSection({ children }: FAQSectionProps) {
   return (
     <section className="faq-section" id="faq">
       <div className="faq-inner">
@@ -51,21 +50,14 @@ export function FAQSection({ onGetStarted, samplePrice }: FAQSectionProps) {
           {faqs.map((faq) => (
             <details className="faq-item" key={faq.question}>
               <summary>{faq.question}</summary>
-              <p>{faq.answer}</p>
+              {faq.answer.split('\n\n').map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
             </details>
           ))}
         </div>
 
-        {onGetStarted && (
-          <div className="faq-cta">
-            <p className="faq-cta-heading">Still on the fence? Try it risk-free.</p>
-            <button className="btn-order" onClick={onGetStarted}>
-              {samplePrice ? `Get my sample — ${samplePrice}` : 'Get my sample'}
-            </button>
-            <p className="faq-cta-note">50% off your first box · Full refund if it's not a fit</p>
-            <p className="cta-guarantee">🛡️ 100% money-back guarantee — no questions asked</p>
-          </div>
-        )}
+        {children}
       </div>
     </section>
   );

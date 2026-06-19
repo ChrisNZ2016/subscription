@@ -14,7 +14,7 @@ const steps = [
     number: '3',
     title: 'Delivered to your door',
     description:
-      'Fresh kibble arrives on schedule. Skip, pause, or cancel anytime — no lock-in.',
+      'Fresh kibble arrives on schedule. Skip, pause, or cancel anytime, no lock-in.',
   },
 ];
 

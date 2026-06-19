@@ -57,7 +57,7 @@ export function AddonsStep({
         <span className="section-label">Step 2</span>
         <h2>Save even more by adding extras to every delivery</h2>
         <p className="step-subtitle">
-          Poop bags and treats — delivered alongside your kibble.
+          Poop bags and treats, delivered alongside your kibble.
           You can always change these later.
         </p>
 

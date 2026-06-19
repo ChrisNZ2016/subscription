@@ -15,13 +15,13 @@ const steps = [
     number: '3',
     title: 'Love it? We\'ll keep it coming',
     description:
-      'If it\'s a hit, your next order ships automatically in 1 month — then every month after that. The perfect amount, on time, every time.',
+      'If it\'s a hit, your next order ships automatically in 1 month, then every month after that. The perfect amount, on time, every time.',
   },
   {
     number: '4',
     title: 'Cancel anytime',
     description:
-      'Your subscription is completely flexible. Pause, skip, or cancel anytime from your account — no hoops, no hassle.',
+      'Your subscription is completely flexible. Pause, skip, or cancel anytime from your account, no hoops, no hassle.',
   },
 ];
 
@@ -32,7 +32,7 @@ export function SubscriptionExplainer() {
         <span className="section-label animate-on-scroll" style={{ display: 'block' }}>How subscriptions work</span>
         <h2 className="animate-on-scroll">Simple, flexible, and always yours to control</h2>
         <p className="subscription-explainer-intro animate-on-scroll">
-          We believe in earning your trust with every delivery — not locking you in from day one.
+          We believe in earning your trust with every delivery, not locking you in from day one.
         </p>
         <div className="sub-steps animate-stagger">
           {steps.map((s) => (

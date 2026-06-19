@@ -92,7 +92,7 @@ export function OrderSummary({
 
         <div className="summary-promise">
           Not sure yet? Our Sensitivity Promise means you can get a full refund
-          if it's not the right fit — just reach out.
+          if it's not the right fit, just reach out.
         </div>
 
         {/* ── Today's order ── */}

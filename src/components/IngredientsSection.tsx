@@ -57,7 +57,7 @@ export function IngredientsSection() {
       <div className="ingredients-inner">
         <div className="ingredients-copy">
           <span className="section-label">Ingredients</span>
-          <h2>We're transparent about everything that goes in — and why</h2>
+          <h2>We're transparent about everything that goes in, and why</h2>
           <p className="ingredients-subtitle">
             Every ingredient earns its place. Here's what's inside and the role it
             plays in your dog's health.

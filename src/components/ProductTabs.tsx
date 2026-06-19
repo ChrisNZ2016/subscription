@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 const ingredients: { name: string; tooltip: string }[] = [
   {
     name: 'Hydrolysed Chicken Meal',
-    tooltip: 'A hypoallergenic protein source — the hydrolysis process breaks proteins into smaller fragments, dramatically reducing the risk of immune reactions in sensitive dogs.',
+    tooltip: 'A hypoallergenic protein source, the hydrolysis process breaks proteins into smaller fragments, dramatically reducing the risk of immune reactions in sensitive dogs.',
   },
   {
     name: 'Whole Peas',
@@ -25,7 +25,7 @@ const ingredients: { name: string; tooltip: string }[] = [
   },
   {
     name: 'Beet Pulp Granules',
-    tooltip: 'A prebiotic fibre that feeds beneficial gut bacteria. Promotes firm stools and healthy digestive transit — not a filler, a functional ingredient.',
+    tooltip: 'A prebiotic fibre that feeds beneficial gut bacteria. Promotes firm stools and healthy digestive transit, not a filler, a functional ingredient.',
   },
   {
     name: 'Hydrolysed Chicken Pulp',
@@ -49,7 +49,7 @@ const ingredients: { name: string; tooltip: string }[] = [
   },
   {
     name: 'Dried Apples',
-    tooltip: 'A natural source of quercetin and pectin — antioxidants that support immune health and gut motility.',
+    tooltip: 'A natural source of quercetin and pectin, antioxidants that support immune health and gut motility.',
   },
   {
     name: 'Dried Cabbage',
@@ -65,7 +65,7 @@ const ingredients: { name: string; tooltip: string }[] = [
   },
   {
     name: 'Taurine',
-    tooltip: 'An essential amino acid important for heart muscle function, eye health, and immune support — especially critical for dogs on non-beef diets.',
+    tooltip: 'An essential amino acid important for heart muscle function, eye health, and immune support, especially critical for dogs on non-beef diets.',
   },
   {
     name: 'Retinyl Acetate (Vitamin A)',
@@ -77,7 +77,7 @@ const ingredients: { name: string; tooltip: string }[] = [
   },
   {
     name: 'dI-α-tocopheryl Acetate',
-    tooltip: 'A stable form of vitamin E — a powerful antioxidant that protects cells from oxidative damage and supports immune function.',
+    tooltip: 'A stable form of vitamin E, a powerful antioxidant that protects cells from oxidative damage and supports immune function.',
   },
   {
     name: 'Thiamine Mononitrate (Vitamin B1)',
@@ -109,7 +109,7 @@ const ingredients: { name: string; tooltip: string }[] = [
   },
   {
     name: 'Calcium D-pantothenate',
-    tooltip: 'Vitamin B5 — involved in energy metabolism, hormone production, and the synthesis of coenzyme A. Supports adrenal function.',
+    tooltip: 'Vitamin B5, involved in energy metabolism, hormone production, and the synthesis of coenzyme A. Supports adrenal function.',
   },
   {
     name: 'Choline Chloride',
@@ -133,7 +133,7 @@ const ingredients: { name: string; tooltip: string }[] = [
   },
   {
     name: 'Sodium Selenite',
-    tooltip: 'A source of selenium — a trace mineral and antioxidant that works with vitamin E to protect cells from oxidative damage.',
+    tooltip: 'A source of selenium, a trace mineral and antioxidant that works with vitamin E to protect cells from oxidative damage.',
   },
   {
     name: 'Calcium Iodate',
@@ -165,7 +165,7 @@ const ingredients: { name: string; tooltip: string }[] = [
   },
   {
     name: 'Preservative (TBHQ)',
-    tooltip: 'Tert-Butylhydroquinone — a safe, approved antioxidant preservative that prevents fat oxidation (rancidity), keeping the kibble fresh and nutritionally stable.',
+    tooltip: 'Tert-Butylhydroquinone, a safe, approved antioxidant preservative that prevents fat oxidation (rancidity), keeping the kibble fresh and nutritionally stable.',
   },
   {
     name: 'Calcium Phosphate',
@@ -255,7 +255,7 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
                 <h2>Hypoallergenic with Superfoods</h2>
                 <p>
                   Complete premium food for adult dogs. Our 2kg kibble is vet-formulated
-                  with a single hydrolysed protein and 20+ functional superfoods —
+                  with a single hydrolysed protein and 20+ functional superfoods,
                   designed specifically for dogs with food sensitivities.
                 </p>
                 <p>
@@ -277,7 +277,7 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
                 <p>
                   Chloe had lifelong food sensitivities. Every commercial kibble we tried
                   left her with itchy skin, digestive issues, and low energy. We spent years
-                  searching for the right food — and when we couldn't find it, we made it.
+                  searching for the right food, and when we couldn't find it, we made it.
                 </p>
                 <p>
                   Little Green Dog was born from a simple belief: every dog deserves food
@@ -287,7 +287,7 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
                 <div className="sensitivity-promise">
                   <strong>The Sensitivity Promise</strong>
                   <p>
-                    If it's not the right fit for your dog, we'll refund you — just reach out.
+                    If it's not the right fit for your dog, we'll refund you, just reach out.
                     No hoops, no hassle.
                   </p>
                 </div>

@@ -5,7 +5,7 @@ const features = [
     number: 1,
     title: 'Grain-Free Carbohydrates',
     description:
-      'Provide easily digestible, sustained energy from slow-release sources — avoiding common allergenic proteins and supporting active lifestyles.',
+      'Provide easily digestible, sustained energy from slow-release sources, avoiding common allergenic proteins and supporting active lifestyles.',
     what: 'Peas, Tapioca Starch, Sweet Potato',
   },
   {
@@ -94,7 +94,7 @@ export function WhyYoullLoveIt({ onGetStarted, samplePrice }: WhyYoullLoveItProp
     <section className="why-love-section">
       <div className="why-love-header">
         <span className="section-label" style={{ display: 'block', textAlign: 'center' }}>Why You'll Love It</span>
-        <h2>We're transparent about everything that goes in — and why</h2>
+        <h2>We're transparent about everything that goes in, and why</h2>
         <p className="why-love-subtitle">
           Grain-free and hypoallergenic. Free from beef, dairy, gluten, wheat, fillers, and artificial colours.
         </p>
@@ -119,10 +119,10 @@ export function WhyYoullLoveIt({ onGetStarted, samplePrice }: WhyYoullLoveItProp
       {onGetStarted && (
         <div className="why-love-cta">
           <button className="btn-order" onClick={onGetStarted}>
-            {samplePrice ? `Get my sample — ${samplePrice}` : 'Get my sample'}
+            {samplePrice ? `Get my sample, ${samplePrice}` : 'Get my sample'}
           </button>
           <p className="why-love-cta-note">50% off your first box · Delivered in 1–3 days · Cancel anytime</p>
-          <p className="cta-guarantee">🛡️ 100% money-back guarantee — no questions asked</p>
+          <p className="cta-guarantee">🛡️ 100% money-back guarantee, no questions asked</p>
         </div>
       )}
     </section>

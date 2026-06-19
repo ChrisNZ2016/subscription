@@ -59,15 +59,15 @@ export function HeroSection({ onGetStarted, samplePrice }: HeroSectionProps) {
     <section className="hero">
       <div className="hero-copy">
         <span className="badge">Hypoallergenic Dog Food</span>
-        <h1>Stop the scratching, stomach issues, and food guessing — for good.</h1>
+        <h1>Stop the scratching, stomach issues, and food guessing, for good.</h1>
         <p className="hero-subtitle">
-          Vet-formulated, single-protein kibble with 20+ functional superfoods.
+          Vet-formulated, single-protein kibble with 6+ functional superfoods.
           Free from beef, dairy, gluten, wheat, grain, fillers, and colours.{' '}
-          <span className="hero-sensitivity-promise">Try risk-free with our Sensitivity Promise — full refund if it's not the right fit.</span>
+          <span className="hero-sensitivity-promise">Try risk-free with our Sensitivity Promise, full refund if it's not the right fit.</span>
         </p>
         <div className="hero-actions">
           <button className="btn-order" onClick={onGetStarted}>
-            {samplePrice ? `Get my sample — ${samplePrice}` : 'Get my sample'}
+            {samplePrice ? `Get my sample, ${samplePrice}` : 'Get my sample'}
           </button>
         </div>
         <div className="hero-trust">
@@ -75,7 +75,7 @@ export function HeroSection({ onGetStarted, samplePrice }: HeroSectionProps) {
           <span>✓ 50% off your first box</span>
           <span>✓ Cancel anytime</span>
         </div>
-        <p className="hero-guarantee">🛡️ 100% money-back guarantee — no questions asked</p>
+        <p className="hero-guarantee">🛡️ 100% money-back guarantee, no questions asked</p>
       </div>
 
       <div className="hero-image">
