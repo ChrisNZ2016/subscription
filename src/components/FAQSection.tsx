@@ -1,3 +1,5 @@
+import { trackFaqExpanded } from '../lib/analytics';
+
 const faqs = [
   {
     question: 'What if my dog doesn\'t like it?',
@@ -48,7 +50,15 @@ export function FAQSection({ children }: FAQSectionProps) {
         <h2>Frequently asked questions</h2>
         <div className="faq-list">
           {faqs.map((faq) => (
-            <details className="faq-item" key={faq.question}>
+            <details
+              className="faq-item"
+              key={faq.question}
+              onToggle={(e) => {
+                if ((e.currentTarget as HTMLDetailsElement).open) {
+                  trackFaqExpanded({ question: faq.question });
+                }
+              }}
+            >
               <summary>{faq.question}</summary>
               {faq.answer.split('\n\n').map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>

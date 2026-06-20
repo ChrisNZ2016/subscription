@@ -13,6 +13,7 @@ function getPageLabel(): string {
   if (path === '/solo' || path === '/solo/') return 'solo';
   if (path === '/welcome-back' || path === '/welcome-back/') return 'reactivation';
   if (path === '/subscribe-offer' || path === '/subscribe-offer/') return 'subscribe-offer';
+  if (path === '/subscribe-ingredients' || path === '/subscribe-ingredients/') return 'subscribe-ingredients';
   return 'landing';
 }
 
@@ -49,9 +50,52 @@ export function trackPageViewed(meta?: { contentIds?: string[]; value?: number }
   }
 }
 
-export function trackCtaClicked(location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq'): void {
-  mixpanel.track('CTA Clicked', { location });
-  trackGaEvent('cta_clicked', { location, page: getPageLabel() });
+export type CtaLocation =
+  | 'hero'
+  | 'nav'
+  | 'sticky'
+  | 'why-you-love-it'
+  | 'faq'
+  | 'picker'
+  | 'subscribe';
+
+export function trackCtaClicked(location: CtaLocation): void {
+  const page = getPageLabel();
+  mixpanel.track('CTA Clicked', { location, page });
+  trackGaEvent('cta_clicked', { location, page });
+}
+
+export function trackVariantSelected(props: {
+  bagWeight: number;
+  price: string;
+  frequencyWeeks: number;
+  source: 'default' | 'user';
+}): void {
+  mixpanel.track('Variant Selected', { ...props, page: getPageLabel() });
+}
+
+export function trackSectionViewed(props: { section: string }): void {
+  mixpanel.track('Section Viewed', { ...props, page: getPageLabel() });
+}
+
+export function trackProductTabChanged(props: { tab: 'info' | 'ingredients' }): void {
+  mixpanel.track('Product Tab Changed', { ...props, page: getPageLabel() });
+}
+
+export function trackBenefitExpanded(props: { title: string }): void {
+  mixpanel.track('Benefit Expanded', { ...props, page: getPageLabel() });
+}
+
+export function trackIngredientExpanded(props: { name: string }): void {
+  mixpanel.track('Ingredient Expanded', { ...props, page: getPageLabel() });
+}
+
+export function trackFaqExpanded(props: { question: string }): void {
+  mixpanel.track('FAQ Expanded', { ...props, page: getPageLabel() });
+}
+
+export function trackNavAnchorClicked(props: { target: string }): void {
+  mixpanel.track('Nav Anchor Clicked', { ...props, page: getPageLabel() });
 }
 
 export function trackDogSizeSelected(props: {

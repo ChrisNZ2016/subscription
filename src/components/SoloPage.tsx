@@ -11,8 +11,9 @@ import { FAQSection } from './FAQSection';
 import { FAQCTA } from './FAQCTA';
 import { Footer } from './Footer';
 import { StickyCTA } from './StickyCTA';
-import { trackPageViewed, trackCtaClicked, trackCheckoutStarted } from '../lib/analytics';
+import { trackPageViewed, trackCtaClicked, trackCheckoutStarted, trackNavAnchorClicked } from '../lib/analytics';
 import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
+import { useSectionViewed } from '../hooks/useSectionViewed';
 
 export function SoloPage() {
   const { product, loading, error } = useSampleProduct();
@@ -31,6 +32,10 @@ export function SoloPage() {
   useEffect(() => {
     trackPageViewed();
   }, []);
+
+  useSectionViewed('product-tabs', 'product-info');
+  useSectionViewed('testimonials', 'testimonials');
+  useSectionViewed('faq', 'faq');
 
   useEffect(() => {
     if (!sampleVariant) return;
@@ -111,6 +116,7 @@ export function SoloPage() {
             <button
               className="nav-link-btn"
               onClick={() => {
+                trackNavAnchorClicked({ target: 'ingredients' });
                 setActiveProductTab('ingredients');
                 document.getElementById('product-tabs')?.scrollIntoView({ behavior: 'smooth' });
               }}
@@ -131,6 +137,7 @@ export function SoloPage() {
         <HeroSection
           onGetStarted={() => handleGetStarted('hero')}
           onViewIngredients={() => {
+            trackNavAnchorClicked({ target: 'ingredients' });
             setActiveProductTab('ingredients');
             document.getElementById('product-tabs')?.scrollIntoView({ behavior: 'smooth' });
           }}

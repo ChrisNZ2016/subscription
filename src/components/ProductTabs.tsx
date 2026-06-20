@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { trackIngredientExpanded, trackProductTabChanged } from '../lib/analytics';
 
 // ─── Ingredient list with hover explanations ─────────────────────────────────
 // Edit the `tooltip` field to change the explanation shown on hover/tap.
@@ -187,19 +188,21 @@ function IngredientItem({
   open,
   onOpen,
   onClose,
+  onHoverOpen,
 }: {
   name: string;
   tooltip: string;
   open: boolean;
   onOpen: () => void;
   onClose: () => void;
+  onHoverOpen: () => void;
 }) {
   const isTouchRef = useRef(false);
 
   return (
     <div
       className={`ing-item ${open ? 'ing-item--open' : ''}`}
-      onMouseEnter={() => { if (!isTouchRef.current) onOpen(); }}
+      onMouseEnter={() => { if (!isTouchRef.current) onHoverOpen(); }}
       onMouseLeave={() => { if (!isTouchRef.current) onClose(); }}
       onTouchStart={() => { isTouchRef.current = true; }}
       onClick={onOpen}
@@ -220,12 +223,34 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
 
   // Sync when parent drives the active tab (e.g. nav link click)
   useEffect(() => {
-    if (controlledTab) setActiveTab(controlledTab);
+    if (!controlledTab) return;
+    setActiveTab((prev) => {
+      if (prev === controlledTab) return prev;
+      trackProductTabChanged({ tab: controlledTab });
+      return controlledTab;
+    });
   }, [controlledTab]);
 
   const handleTabChange = (tab: Tab) => {
+    if (tab !== activeTab) trackProductTabChanged({ tab });
     setActiveTab(tab);
     onTabChange?.(tab);
+  };
+
+  const openIngredient = (name: string) => {
+    setActiveIngredient((prev) => {
+      if (prev === name) return prev;
+      trackIngredientExpanded({ name });
+      return name;
+    });
+  };
+
+  const toggleIngredient = (name: string) => {
+    setActiveIngredient((prev) => {
+      if (prev === name) return null;
+      trackIngredientExpanded({ name });
+      return name;
+    });
   };
 
   return (
@@ -318,8 +343,9 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
                   name={ing.name}
                   tooltip={ing.tooltip}
                   open={activeIngredient === ing.name}
-                  onOpen={() => setActiveIngredient((prev) => prev === ing.name ? null : ing.name)}
+                  onOpen={() => toggleIngredient(ing.name)}
                   onClose={() => setActiveIngredient(null)}
+                  onHoverOpen={() => openIngredient(ing.name)}
                 />
               ))}
             </div>

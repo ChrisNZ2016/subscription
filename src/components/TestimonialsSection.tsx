@@ -37,7 +37,7 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="testimonials-section">
+    <section className="testimonials-section" id="testimonials">
       <div className="testimonials-inner">
         <span className="section-label" style={{ display: 'block', textAlign: 'center' }}>
           Testimonials

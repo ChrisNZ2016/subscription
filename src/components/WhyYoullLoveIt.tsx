@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { trackBenefitExpanded } from '../lib/analytics';
 
 const features = [
   {
@@ -70,7 +71,12 @@ function FeatureCell({ feature }: { feature: typeof features[number] }) {
     <div className="wl-cell wl-cell--feature">
       <button
         className="wl-cell-header"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          setOpen((v) => {
+            if (!v) trackBenefitExpanded({ title: feature.title });
+            return !v;
+          });
+        }}
         aria-expanded={open}
       >
         <h3>{feature.title}</h3>

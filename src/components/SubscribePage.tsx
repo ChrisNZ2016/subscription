@@ -8,8 +8,9 @@ import { formatMoney } from '../lib/pricing';
 import { TestimonialsSection } from './TestimonialsSection';
 import { FAQSection } from './FAQSection';
 import { Footer } from './Footer';
-import { trackPageViewed, trackCtaClicked, trackCheckoutStarted } from '../lib/analytics';
+import { trackPageViewed, trackCtaClicked, trackCheckoutStarted, trackVariantSelected, trackNavAnchorClicked } from '../lib/analytics';
 import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
+import { useSectionViewed } from '../hooks/useSectionViewed';
 import type { ProductVariant } from '../types/shopify';
 
 /** Per-delivery early-subscriber price for a variant, or undefined if not allocated. */
@@ -38,6 +39,10 @@ export function SubscribePage() {
     trackPageViewed();
   }, []);
 
+  useSectionViewed('subscribe', 'picker');
+  useSectionViewed('testimonials', 'testimonials');
+  useSectionViewed('faq', 'faq');
+
   const variants = useMemo(() => {
     if (!product) return [];
     const order = ['2kg', '4kg', '6kg', '8kg'];
@@ -50,8 +55,25 @@ export function SubscribePage() {
     if (!selectedVariantId && variants.length > 0) {
       const twoKg = variants.find((v) => v.title === '2kg') ?? variants[0];
       setSelectedVariantId(twoKg.id);
+      trackVariantSelected({
+        bagWeight: parseInt(twoKg.title, 10) || 0,
+        price: subscribePrice(twoKg) ?? '',
+        frequencyWeeks: 4,
+        source: 'default',
+      });
     }
   }, [variants, selectedVariantId]);
+
+  const handleVariantSelect = useCallback((variant: ProductVariant) => {
+    if (variant.id === selectedVariantId) return;
+    setSelectedVariantId(variant.id);
+    trackVariantSelected({
+      bagWeight: parseInt(variant.title, 10) || 0,
+      price: subscribePrice(variant) ?? '',
+      frequencyWeeks: 4,
+      source: 'user',
+    });
+  }, [selectedVariantId]);
 
   const selectedVariant = variants.find((v) => v.id === selectedVariantId);
   const selectedPrice = selectedVariant ? subscribePrice(selectedVariant) : undefined;
@@ -66,7 +88,7 @@ export function SubscribePage() {
   }, [selectedVariant]);
 
   const handleCheckout = useCallback(
-    async (location: 'hero' | 'sticky' | 'faq') => {
+    async (location: 'nav' | 'picker') => {
       if (!selectedVariant) return;
       trackCtaClicked(location);
       setIsSubmitting(true);
@@ -120,10 +142,10 @@ export function SubscribePage() {
           <img src="/logo.png" alt="Little Green Dog" className="nav-logo-img" />
         </a>
         <ul className="nav-links">
-          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#faq" onClick={() => trackNavAnchorClicked({ target: 'faq' })}>FAQ</a></li>
           <li><a href="https://www.littlegreendog.co.nz/pages/contact-us" target="_blank" rel="noopener noreferrer">Contact</a></li>
         </ul>
-        <button className="btn-order nav-order-btn" onClick={() => handleCheckout('hero')} disabled={isSubmitting}>
+        <button className="btn-order nav-order-btn" onClick={() => handleCheckout('nav')} disabled={isSubmitting}>
           {isSubmitting ? 'Working…' : 'Lock in 25%'}
         </button>
       </nav>
@@ -147,7 +169,7 @@ export function SubscribePage() {
           </ul>
         </section>
 
-        <section className="reactivation-picker">
+        <section className="reactivation-picker" id="subscribe">
           <h2>Choose your bag size</h2>
           <div className="variant-grid">
             {variants.map((v) => {
@@ -159,7 +181,7 @@ export function SubscribePage() {
                   key={v.id}
                   type="button"
                   className={`variant-card${selected ? ' variant-card--selected' : ''}`}
-                  onClick={() => setSelectedVariantId(v.id)}
+                  onClick={() => handleVariantSelect(v)}
                   aria-pressed={selected}
                 >
                   <span className="variant-size">{v.title}</span>
@@ -173,7 +195,7 @@ export function SubscribePage() {
 
           <button
             className="btn-order reactivation-cta"
-            onClick={() => handleCheckout('hero')}
+            onClick={() => handleCheckout('picker')}
             disabled={isSubmitting || !selectedVariant}
           >
             {isSubmitting

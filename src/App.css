@@ -2763,3 +2763,11 @@ nav.site-nav {
   font-size: 0.82rem;
   color: var(--color-text-muted);
 }
+
+.subscribe-ingredients-page .reactivation-hero .section-label {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+.subscribe-ingredients-page .why-love-section {
+  padding-top: 0;
+}
