@@ -30,3 +30,6 @@ dist-ssr
 
 # Claude Code internal
 .claude/worktrees/
+
+# Cursor hook state
+.cursor/.vercel-deploy-pending.json

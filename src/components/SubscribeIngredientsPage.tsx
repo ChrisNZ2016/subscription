@@ -14,6 +14,7 @@ import { trackPageViewed, trackCtaClicked, trackCheckoutStarted, trackVariantSel
 import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import { useSectionViewed } from '../hooks/useSectionViewed';
+import { useHashScroll } from '../hooks/useHashScroll';
 import type { ProductVariant } from '../types/shopify';
 
 function subscribePrice(variant: ProductVariant): string | undefined {
@@ -60,6 +61,8 @@ export function SubscribeIngredientsPage() {
       .filter((v) => subscribePrice(v) !== undefined)
       .sort((a, b) => order.indexOf(a.title) - order.indexOf(b.title));
   }, [product]);
+
+  useHashScroll(!loading && !error && !!product && variants.length > 0);
 
   useEffect(() => {
     if (!selectedVariantId && variants.length > 0) {

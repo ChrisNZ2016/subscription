@@ -11,6 +11,7 @@ import { Footer } from './Footer';
 import { trackPageViewed, trackCtaClicked, trackCheckoutStarted, trackVariantSelected, trackNavAnchorClicked } from '../lib/analytics';
 import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
 import { useSectionViewed } from '../hooks/useSectionViewed';
+import { useHashScroll } from '../hooks/useHashScroll';
 import type { ProductVariant } from '../types/shopify';
 
 /** Per-delivery early-subscriber price for a variant, or undefined if not allocated. */
@@ -50,6 +51,8 @@ export function SubscribePage() {
       .filter((v) => subscribePrice(v) !== undefined)
       .sort((a, b) => order.indexOf(a.title) - order.indexOf(b.title));
   }, [product]);
+
+  useHashScroll(!loading && !error && !!product && variants.length > 0);
 
   useEffect(() => {
     if (!selectedVariantId && variants.length > 0) {

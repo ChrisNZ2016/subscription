@@ -11,6 +11,7 @@ import { Footer } from './Footer';
 import { trackPageViewed, trackCtaClicked, trackCheckoutStarted, trackVariantSelected, trackNavAnchorClicked } from '../lib/analytics';
 import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
 import { useSectionViewed } from '../hooks/useSectionViewed';
+import { useHashScroll } from '../hooks/useHashScroll';
 import type { ProductVariant } from '../types/shopify';
 
 /** Per-delivery reactivation price for a variant, or null if the plan isn't allocated. */
@@ -51,6 +52,8 @@ export function ReactivationPage() {
       .filter((v) => reactivationPrice(v) !== undefined)
       .sort((a, b) => order.indexOf(a.title) - order.indexOf(b.title));
   }, [product]);
+
+  useHashScroll(!loading && !error && !!product && variants.length > 0);
 
   // Default to the 2kg (smallest / most common) once loaded.
   useEffect(() => {
