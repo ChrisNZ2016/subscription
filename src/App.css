@@ -5,12 +5,14 @@
   --color-green: #ACD45C;
   --color-green-light: #e8f5c8;
   --color-green-dark: #8ab83e;
+  /* Accessible (WCAG AA, >=4.5:1 on white) green for small text labels */
+  --color-green-text: #5a7d27;
   --color-blue: #5465A3;
   --color-blue-light: #eef0f9;
   --color-orange: #ff1f00;
   --color-text: #1a1a1a;
   --color-text-secondary: #555;
-  --color-text-muted: #888;
+  --color-text-muted: #6b6b6b;
   --color-bg: #fff;
   --color-bg-alt: #f7f9f4;
   --color-bg-warm: #fdfcf8;
@@ -189,7 +191,7 @@ img {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: var(--color-green-dark);
+  color: var(--color-green-text);
   margin-bottom: 0.875rem;
 }
 

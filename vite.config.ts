@@ -8,6 +8,11 @@ export default defineConfig({
   server: {
     host: true,
   },
+  build: {
+    // Target modern browsers so esbuild skips legacy down-level transforms
+    // (avoids shipping unnecessary helpers flagged by Lighthouse).
+    target: 'es2020',
+  },
   plugins: [
     // Serve /previews/* static HTML before SPA fallback kicks in
     {

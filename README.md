@@ -14,6 +14,7 @@ Routing is pathname-based in `src/App.tsx` (no React Router).
 | `/solo` | `SoloPage` | Sample-only purchase (2 kg sample, no subscription config) |
 | `/welcome-back` | `ReactivationPage` | Lapsed subscriber reactivation (25% off + free gift via Mechanic) |
 | `/subscribe-offer` | `SubscribePage` | Early-subscriber offer from email campaigns (25% off, no gift) |
+| `/subscribe-ingredients` | `SubscribeIngredientsPage` | Ingredients-led variant of the early-subscriber offer (same cart/selling plan as `/subscribe-offer`) |
 
 The main landing page also accepts a `?variant=` query param:
 
@@ -72,21 +73,25 @@ Static design previews are available at `/previews/*.html` during dev (served fr
 
 ## Deployment
 
-The app deploys to **Vercel**. `vercel.json` configures SPA rewrites (all non-API routes → `index.html`) and passes through `/api/*` to serverless functions.
+The app deploys to **Vercel**. `vercel.json` configures SPA rewrites (all non-API routes → `index.html`) and passes through `/api/*` to serverless functions. Route components are lazy-loaded (`React.lazy` in `src/App.tsx`) so each page ships its own JS chunk.
 
-There is no CI pipeline — deploys are triggered via Vercel (git push or manual).
+There is no CI pipeline — deploys are triggered via Vercel on push to `master` (or manually).
+
+**Last deployed:** `2026-06-20T21:23:25Z` (merge of `fix/mixpanel-purchase-funnel-identity` → `master`).
 
 ## Project structure
 
 ```
 src/
-  components/     Landing page sections and funnel pages
-  hooks/          Product fetching, cart state, scroll animations
-  lib/            Shopify client, cart builders, pricing, analytics
+  components/     Landing page sections and funnel pages (LandingPage, SoloPage,
+                  ReactivationPage, SubscribePage, SubscribeIngredientsPage)
+  hooks/          Product fetching, cart state, scroll/section-view tracking, hash scrolling
+  lib/            Shopify client, cart builders, pricing, analytics (Mixpanel/GA/Meta), UTM capture
   constants/      Dog size presets
   types/          Shopify GraphQL types
 api/
-  webhooks/       Vercel serverless functions (orders/create → Mixpanel)
+  webhooks/       Vercel serverless functions (orders/create → Mixpanel + Meta CAPI)
+  lib/            Shared serverless helpers (Meta Conversions API client)
 shopify/          Mixpanel custom pixel + setup docs
 public/           Static assets and design previews
 ```
@@ -99,7 +104,7 @@ Each funnel has its own cart module in `src/lib/`:
 |--------|---------|
 | `cart.ts` | Main landing funnel |
 | `cart-solo.ts` | `/solo` and `?variant=solo` |
-| `cart-subscribe.ts` | `/subscribe-offer` |
+| `cart-subscribe.ts` | `/subscribe-offer` and `/subscribe-ingredients` |
 | `cart-reactivation.ts` | `/welcome-back` |
 
 Flow:

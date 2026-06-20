@@ -100,6 +100,11 @@ export function HeroSection({ onGetStarted, samplePrice }: HeroSectionProps) {
                   src={img.src}
                   alt={img.alt}
                   className="gallery-primary-img"
+                  width={800}
+                  height={800}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={i === 0 ? 'high' : 'low'}
+                  decoding="async"
                   draggable={false}
                 />
               ))}
@@ -120,7 +125,7 @@ export function HeroSection({ onGetStarted, samplePrice }: HeroSectionProps) {
                 aria-label={img.alt}
                 aria-current={i === activeIndex}
               >
-                <img src={img.thumb} alt={img.alt} />
+                <img src={img.thumb} alt="" width={80} height={80} loading="lazy" decoding="async" />
               </button>
             ))}
           </div>

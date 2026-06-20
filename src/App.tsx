@@ -1,16 +1,22 @@
-import { LandingPage } from './components/LandingPage'
-import { SoloPage } from './components/SoloPage'
-import { ReactivationPage } from './components/ReactivationPage'
-import { SubscribePage } from './components/SubscribePage'
-import { SubscribeIngredientsPage } from './components/SubscribeIngredientsPage'
+import { lazy, Suspense } from 'react'
 
-function App() {
+const LandingPage = lazy(() => import('./components/LandingPage').then((m) => ({ default: m.LandingPage })))
+const SoloPage = lazy(() => import('./components/SoloPage').then((m) => ({ default: m.SoloPage })))
+const ReactivationPage = lazy(() => import('./components/ReactivationPage').then((m) => ({ default: m.ReactivationPage })))
+const SubscribePage = lazy(() => import('./components/SubscribePage').then((m) => ({ default: m.SubscribePage })))
+const SubscribeIngredientsPage = lazy(() => import('./components/SubscribeIngredientsPage').then((m) => ({ default: m.SubscribeIngredientsPage })))
+
+function resolvePage() {
   const path = window.location.pathname;
   if (path === '/solo' || path === '/solo/') return <SoloPage />;
   if (path === '/welcome-back' || path === '/welcome-back/') return <ReactivationPage />;
   if (path === '/subscribe-offer' || path === '/subscribe-offer/') return <SubscribePage />;
   if (path === '/subscribe-ingredients' || path === '/subscribe-ingredients/') return <SubscribeIngredientsPage />;
   return <LandingPage />;
+}
+
+function App() {
+  return <Suspense fallback={null}>{resolvePage()}</Suspense>;
 }
 
 export default App

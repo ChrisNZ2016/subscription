@@ -80,7 +80,7 @@ export function TestimonialsSection() {
                   )}
                 </div>
                 <div className="testimonial-meta">
-                  <div className="testimonial-stars" aria-label={`${t.stars} out of 5 stars`}>
+                  <div className="testimonial-stars" role="img" aria-label={`${t.stars} out of 5 stars`}>
                     {Array.from({ length: t.stars }, (_, i) => (
                       <span key={i} aria-hidden="true">★</span>
                     ))}
