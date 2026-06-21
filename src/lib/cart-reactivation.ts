@@ -34,10 +34,11 @@ const CART_CREATE_MUTATION = `
   }
 `;
 
-export async function createReactivationCartAndRedirect(
-  variantId: string,
-  checkoutValue?: number,
-): Promise<void> {
+/**
+ * Create the reactivation cart and return its checkout URL, WITHOUT redirecting.
+ * Lets the page warm the cart ahead of the click so checkout is instant.
+ */
+export async function createReactivationCart(variantId: string): Promise<string> {
   const lines: CartLine[] = [
     {
       merchandiseId: variantId,
@@ -62,7 +63,17 @@ export async function createReactivationCartAndRedirect(
     throw new Error(data.cartCreate.userErrors.map((e) => e.message).join(', '));
   }
 
-  finishCheckoutRedirect(data.cartCreate.cart.checkoutUrl, {
+  return data.cartCreate.cart.checkoutUrl;
+}
+
+export async function createReactivationCartAndRedirect(
+  variantId: string,
+  checkoutValue?: number,
+  prefetchedCheckoutUrl?: string,
+): Promise<void> {
+  const checkoutUrl = prefetchedCheckoutUrl ?? (await createReactivationCart(variantId));
+
+  finishCheckoutRedirect(checkoutUrl, {
     contentIds: [shopifyGidToContentId(variantId)],
     value: checkoutValue,
     currency: 'NZD',

@@ -1,5 +1,4 @@
 import type { OverridedMixpanel } from 'mixpanel-browser';
-import { trackGaEvent, trackGaPageView } from './google-analytics';
 import {
   trackMetaInitiateCheckout,
   trackMetaPageView,
@@ -67,11 +66,13 @@ function loadMixpanel(): Promise<void> {
 function scheduleLoad(): void {
   if (loadScheduled || loadPromise) return;
   loadScheduled = true;
+  // Load Mixpanel as soon as the page has finished loading, so it's ready
+  // quickly without competing with critical resources (LCP/FCP).
   const start = () => void loadMixpanel();
-  if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(start, { timeout: 3000 });
+  if (typeof document !== 'undefined' && document.readyState === 'complete') {
+    start();
   } else {
-    setTimeout(start, 1200);
+    window.addEventListener('load', start, { once: true });
   }
 }
 
@@ -101,7 +102,6 @@ export function getDistinctId(): string {
 export function trackPageViewed(meta?: { contentIds?: string[]; value?: number }): void {
   const page = getPageLabel();
   withMixpanel((m) => m.track('Page Viewed', { page }));
-  trackGaPageView(window.location.pathname + window.location.search);
   trackMetaPageView();
   if (meta?.contentIds?.length) {
     trackMetaViewContent({
@@ -124,7 +124,6 @@ export type CtaLocation =
 export function trackCtaClicked(location: CtaLocation): void {
   const page = getPageLabel();
   withMixpanel((m) => m.track('CTA Clicked', { location, page }));
-  trackGaEvent('cta_clicked', { location, page });
 }
 
 export function trackVariantSelected(props: {
@@ -208,8 +207,6 @@ export function trackCheckoutStarted(props: {
   value?: number;
 }): void {
   withMixpanel((m) => m.track('Checkout Started', props));
-  const { contentIds, value, ...gaProps } = props;
-  trackGaEvent('begin_checkout', { ...gaProps, page: getPageLabel(), currency: 'NZD', value });
   if (props.contentIds?.length) {
     trackMetaInitiateCheckout({
       contentIds: props.contentIds,

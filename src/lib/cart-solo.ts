@@ -23,10 +23,11 @@ const CART_CREATE_MUTATION = `
   }
 `;
 
-export async function createSoloCartAndRedirect(
-  sampleVariantId: string,
-  checkoutValue?: number,
-): Promise<void> {
+/**
+ * Create the Shopify cart and return its checkout URL, WITHOUT redirecting.
+ * Lets the page warm the cart ahead of the click so checkout is instant.
+ */
+export async function createSoloCart(sampleVariantId: string): Promise<string> {
   const lines = [{ merchandiseId: sampleVariantId, quantity: 1 }];
   const attributes = [
     { key: 'mp_distinct_id', value: getDistinctId() },
@@ -40,7 +41,17 @@ export async function createSoloCartAndRedirect(
     throw new Error(data.cartCreate.userErrors.map((e) => e.message).join(', '));
   }
 
-  finishCheckoutRedirect(data.cartCreate.cart.checkoutUrl, {
+  return data.cartCreate.cart.checkoutUrl;
+}
+
+export async function createSoloCartAndRedirect(
+  sampleVariantId: string,
+  checkoutValue?: number,
+  prefetchedCheckoutUrl?: string,
+): Promise<void> {
+  const checkoutUrl = prefetchedCheckoutUrl ?? (await createSoloCart(sampleVariantId));
+
+  finishCheckoutRedirect(checkoutUrl, {
     contentIds: [shopifyGidToContentId(sampleVariantId)],
     value: checkoutValue,
     currency: 'NZD',

@@ -237,16 +237,10 @@ export function LandingPage() {
     }
   }, [variant, addonProducts.length, bagWeight, frequencyWeeks, handleCheckout]);
 
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="spinner" />
-        <p>Loading your subscription options...</p>
-      </div>
-    );
-  }
-
-  if (loadError) {
+  // Render the static hero/content immediately; only block on a hard error once
+  // loading settles. Product-dependent funnel sections are guarded individually
+  // below so the hero (LCP element) never waits on the Storefront fetch.
+  if (!loading && loadError) {
     return (
       <div className="error">
         <h2>Something went wrong</h2>
@@ -257,8 +251,6 @@ export function LandingPage() {
       </div>
     );
   }
-
-  if (!sampleProduct) return null;
 
   return (
     <>
@@ -308,7 +300,7 @@ export function LandingPage() {
         <TestimonialsSection />
         {variant !== 'solo' && <SubscriptionExplainer />}
 
-        {variant !== 'solo' && (
+        {variant !== 'solo' && sampleProduct && (
           <DogSizeCalculator
             selectedSize={selectedSize}
             bagWeight={bagWeight}
@@ -334,7 +326,7 @@ export function LandingPage() {
           />
         )}
 
-        {step === 'summary' && (
+        {step === 'summary' && sampleProduct && (
           <OrderSummary
             sampleProduct={sampleProduct}
             subscriptionProduct={subscriptionProduct}

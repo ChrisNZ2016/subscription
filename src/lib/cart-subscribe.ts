@@ -29,10 +29,11 @@ const CART_CREATE_MUTATION = `
   }
 `;
 
-export async function createSubscribeCartAndRedirect(
-  variantId: string,
-  checkoutValue?: number,
-): Promise<void> {
+/**
+ * Create the early-subscriber cart and return its checkout URL, WITHOUT
+ * redirecting. Lets the page warm the cart ahead of the click for instant checkout.
+ */
+export async function createSubscribeCart(variantId: string): Promise<string> {
   const lines: CartLine[] = [
     {
       merchandiseId: variantId,
@@ -56,7 +57,17 @@ export async function createSubscribeCartAndRedirect(
     throw new Error(data.cartCreate.userErrors.map((e) => e.message).join(', '));
   }
 
-  finishCheckoutRedirect(data.cartCreate.cart.checkoutUrl, {
+  return data.cartCreate.cart.checkoutUrl;
+}
+
+export async function createSubscribeCartAndRedirect(
+  variantId: string,
+  checkoutValue?: number,
+  prefetchedCheckoutUrl?: string,
+): Promise<void> {
+  const checkoutUrl = prefetchedCheckoutUrl ?? (await createSubscribeCart(variantId));
+
+  finishCheckoutRedirect(checkoutUrl, {
     contentIds: [shopifyGidToContentId(variantId)],
     value: checkoutValue,
     currency: 'NZD',

@@ -1,6 +1,7 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSubscriptionProduct } from '../hooks/useSubscriptionProduct';
 import {
+  createSubscribeCart,
   createSubscribeCartAndRedirect,
   EARLY_SUBSCRIBER_SELLING_PLAN_ID,
 } from '../lib/cart-subscribe';
@@ -81,6 +82,16 @@ export function SubscribePage() {
   const selectedVariant = variants.find((v) => v.id === selectedVariantId);
   const selectedPrice = selectedVariant ? subscribePrice(selectedVariant) : undefined;
 
+  // Warm a cart per selected variant so the checkout redirect is instant.
+  const prefetchedUrls = useRef<Record<string, string>>({});
+  useEffect(() => {
+    if (!selectedVariant || prefetchedUrls.current[selectedVariant.id]) return;
+    const id = selectedVariant.id;
+    createSubscribeCart(id)
+      .then((url) => { prefetchedUrls.current[id] = url; })
+      .catch(() => { /* fall back to creating the cart at click time */ });
+  }, [selectedVariant]);
+
   useEffect(() => {
     if (!selectedVariant) return;
     trackMetaViewContent({
@@ -106,7 +117,7 @@ export function SubscribePage() {
           contentIds: [shopifyGidToContentId(selectedVariant.id)],
           value: checkoutValue,
         });
-        await createSubscribeCartAndRedirect(selectedVariant.id, checkoutValue);
+        await createSubscribeCartAndRedirect(selectedVariant.id, checkoutValue, prefetchedUrls.current[selectedVariant.id]);
       } catch (err) {
         setCartError(err instanceof Error ? err.message : 'Failed to create cart');
         setIsSubmitting(false);
@@ -115,16 +126,8 @@ export function SubscribePage() {
     [selectedVariant, selectedPrice],
   );
 
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="spinner" />
-        <p>Loading…</p>
-      </div>
-    );
-  }
-
-  if (error || !product || variants.length === 0) {
+  // Render the static hero immediately; only block on a hard error once loading settles.
+  if (!loading && (error || !product || variants.length === 0)) {
     return (
       <div className="error">
         <h2>Something went wrong</h2>

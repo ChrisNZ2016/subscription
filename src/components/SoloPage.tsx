@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSampleProduct } from '../hooks/useSampleProduct';
-import { createSoloCartAndRedirect } from '../lib/cart-solo';
+import { createSoloCart, createSoloCartAndRedirect } from '../lib/cart-solo';
 import { formatMoney } from '../lib/pricing';
 import { HeroSection } from './HeroSection';
 import { BenefitsBar } from './BenefitsBar';
@@ -20,6 +20,8 @@ export function SoloPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cartError, setCartError] = useState<string | null>(null);
   const [activeProductTab, setActiveProductTab] = useState<'info' | 'ingredients'>('info');
+  // Pre-created cart checkout URL so the CTA can redirect to Shopify instantly.
+  const prefetchedCheckoutUrl = useRef<string | null>(null);
 
   const sampleVariant = product?.variants.nodes[0];
   const sampleAllocation = sampleVariant?.sellingPlanAllocations.nodes[0];
@@ -49,6 +51,14 @@ export function SoloPage() {
     });
   }, [sampleVariant, sampleAllocation]);
 
+  // Warm the cart as soon as the variant is known so the checkout redirect is instant.
+  useEffect(() => {
+    if (!sampleVariant || prefetchedCheckoutUrl.current) return;
+    createSoloCart(sampleVariant.id)
+      .then((url) => { prefetchedCheckoutUrl.current = url; })
+      .catch(() => { /* fall back to creating the cart at click time */ });
+  }, [sampleVariant]);
+
   const comparePrice = sampleVariant?.compareAtPrice
     ? formatMoney(sampleVariant.compareAtPrice)
     : undefined;
@@ -70,7 +80,7 @@ export function SoloPage() {
         contentIds: [shopifyGidToContentId(sampleVariant.id)],
         value: checkoutValue,
       });
-      await createSoloCartAndRedirect(sampleVariant.id, checkoutValue);
+      await createSoloCartAndRedirect(sampleVariant.id, checkoutValue, prefetchedCheckoutUrl.current ?? undefined);
     } catch (err) {
       setCartError(err instanceof Error ? err.message : 'Failed to create cart');
       setIsSubmitting(false);
@@ -82,16 +92,11 @@ export function SoloPage() {
     handleCheckout();
   }, [handleCheckout]);
 
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="spinner" />
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
-  if (error || !product) {
+  // Only block the page on a hard error. While the product is still loading we
+  // render the full page (hero, copy, etc.) immediately — the static hero is the
+  // LCP element and must not wait on the Shopify Storefront fetch. Price-dependent
+  // bits (CTA price) fill in once the product resolves.
+  if (!loading && (error || !product)) {
     return (
       <div className="error">
         <h2>Something went wrong</h2>

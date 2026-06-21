@@ -45,7 +45,6 @@ Copy `.env.example` to `.env.local` for local development.
 | `VITE_SUBSCRIPTION_PRODUCT_HANDLE` | Subscription kibble product handle (default: `kibble-pack`) |
 | `VITE_ADDON_HANDLES` | Comma-separated addon product handles |
 | `VITE_MIXPANEL_TOKEN` | Mixpanel project token for client-side events |
-| `VITE_GA_MEASUREMENT_ID` | GA4 web stream Measurement ID (`G-…`) for property `326931496` |
 | `VITE_META_PIXEL_ID` | Meta pixel ID (same as main Shopify site) |
 
 ### Server (Vercel only — never use `VITE_` prefix)
@@ -75,9 +74,9 @@ Static design previews are available at `/previews/*.html` during dev (served fr
 
 The app deploys to **Vercel**. `vercel.json` configures SPA rewrites (all non-API routes → `index.html`) and passes through `/api/*` to serverless functions. Route components are lazy-loaded (`React.lazy` in `src/App.tsx`) so each page ships its own JS chunk.
 
-There is no CI pipeline — deploys are triggered via Vercel on push to `master` (or manually).
+There is no CI pipeline and no GitHub auto-deploy — production deploys are triggered manually with the Vercel CLI (`npx vercel --prod --yes`), which aliases to `https://lp.littlegreendog.co.nz`.
 
-**Last deployed:** `2026-06-20T21:23:25Z` (merge of `fix/mixpanel-purchase-funnel-identity` → `master`).
+**Last deployed:** `2026-06-20T22:29:18Z` — production URL `https://subscription-2fy33yj70-chris-oneills-projects.vercel.app` (aliased to `https://lp.littlegreendog.co.nz`).
 
 ## Project structure
 
