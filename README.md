@@ -74,9 +74,9 @@ Static design previews are available at `/previews/*.html` during dev (served fr
 
 The app deploys to **Vercel**. `vercel.json` configures SPA rewrites (all non-API routes → `index.html`) and passes through `/api/*` to serverless functions. Route components are lazy-loaded (`React.lazy` in `src/App.tsx`) so each page ships its own JS chunk.
 
-There is no CI pipeline and no GitHub auto-deploy — production deploys are triggered manually with the Vercel CLI (`npx vercel --prod --yes`), which aliases to `https://lp.littlegreendog.co.nz`.
+Vercel auto-deploys on push to `master` (Git integration); production is aliased to `https://lp.littlegreendog.co.nz`. Manual deploys are still possible with the Vercel CLI (`npx vercel --prod --yes`). There is no separate CI pipeline.
 
-**Last deployed:** `2026-06-20T22:29:18Z` — production URL `https://subscription-2fy33yj70-chris-oneills-projects.vercel.app` (aliased to `https://lp.littlegreendog.co.nz`).
+**Last deployed:** `2026-06-21T00:37:31Z` — push to `master` (Vercel auto-deploy), aliased to `https://lp.littlegreendog.co.nz`.
 
 ## Project structure
 
@@ -91,6 +91,7 @@ src/
 api/
   webhooks/       Vercel serverless functions (orders/create → Mixpanel + Meta CAPI)
   lib/            Shared serverless helpers (Meta Conversions API client)
+scripts/          One-off maintenance scripts (backfill-utm.mjs → recover lost UTM attribution)
 shopify/          Mixpanel custom pixel + setup docs
 public/           Static assets and design previews
 ```
