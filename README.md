@@ -123,6 +123,10 @@ Cart attributes (bag size, frequency, `_mp_distinct_id`, `utm_*`, etc.) flow to 
 
 Meta ad UTMs are captured on landing (`src/lib/utm.ts`), stored in sessionStorage (first-touch), passed as cart attributes, and appended to the checkout URL. Install `mechanic-utm-tags.liquid` in Mechanic (replacing your existing UTM tagging task) so orders are tagged from both Shopify's customer journey and headless funnel `note_attributes`.
 
+The Shopify checkout domain strips UTM params from the URL, so the purchase events lose attribution. Both post-purchase scripts recover it from the cart attributes: `api/webhooks/orders-create.ts` reads `utm_*` from `note_attributes`, and `shopify/mixpanel-pixel.js` reads them from `checkout.attributes`. Each attaches `utm_*` to the purchase event and persists `initial_utm_*` (first-touch) on the Mixpanel profile.
+
+For purchases recorded **before** this fix, run the one-off backfill in `scripts/backfill-utm.mjs`. It joins each `Purchase Completed` to that buyer's earliest UTM-bearing event by `distinct_id` and writes `initial_utm_*` to their profile via the Mixpanel `/engage` API (events are immutable, so attribution is recovered at the profile level). Defaults to a dry run; pass `--commit` to write. See the header comment for usage.
+
 Reactivation carts set `reactivation=true`, which the Mechanic task reads to add a free gift on the first delivery.
 
 ## Shopify operations
