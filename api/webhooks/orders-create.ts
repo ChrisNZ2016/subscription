@@ -130,6 +130,23 @@ export default async function handler(
   );
   const distinctId = mpAttr?.value ?? `shopify-order-${order.id}`;
 
+  // Recover UTM attribution lost on the Shopify checkout domain. The landing
+  // page captures utm_* into cart attributes, which arrive here as
+  // note_attributes — so the server event can carry attribution the client
+  // Purchase Completed (fired on the checkout domain) cannot.
+  const UTM_KEYS = [
+    'utm_source',
+    'utm_medium',
+    'utm_campaign',
+    'utm_content',
+    'utm_term',
+  ] as const;
+  const utmProps: Record<string, string> = {};
+  for (const key of UTM_KEYS) {
+    const value = order.note_attributes.find((a) => a.name === key)?.value;
+    if (value) utmProps[key] = value;
+  }
+
   // Initialise Mixpanel server-side client
   const mp = Mixpanel.init(mixpanelToken);
 
@@ -165,6 +182,7 @@ export default async function handler(
 
     // Attribution
     source: 'shopify_webhook',
+    ...utmProps,
 
     // Suppress the server's own IP from Mixpanel's geo-lookup
     $ip: 0,
@@ -184,6 +202,16 @@ export default async function handler(
     'Last Order Date': new Date(order.created_at),
     'Last Order Value': revenue,
   });
+
+  // Persist first-touch UTM attribution on the profile so revenue can be
+  // broken down by campaign even when the purchase event itself loses params.
+  if (Object.keys(utmProps).length > 0) {
+    const firstTouch: Record<string, string> = {};
+    for (const [key, value] of Object.entries(utmProps)) {
+      firstTouch[`initial_${key}`] = value;
+    }
+    mp.people.set_once(distinctId, firstTouch);
+  }
 
   try {
     await sendMetaPurchase(order, order.note_attributes);

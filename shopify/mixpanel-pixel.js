@@ -99,6 +99,24 @@ function identifyFromCheckout(checkout) {
   }
 }
 
+/**
+ * Reads utm_* cart attributes off the checkout so the purchase event can carry
+ * the campaign attribution that the Shopify checkout domain strips from the URL.
+ * Our landing page writes these as cart attributes (see src/lib/utm.ts).
+ */
+function readUtmFromCheckout(checkout) {
+  var utm = {};
+  if (!checkout) return utm;
+  var attrs = checkout.attributes || checkout.customAttributes || [];
+  var keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  attrs.forEach(function (a) {
+    if (a && keys.indexOf(a.key) !== -1 && a.value) {
+      utm[a.key] = a.value;
+    }
+  });
+  return utm;
+}
+
 /** Returns a flat array of line-item objects suitable for Mixpanel properties. */
 function serializeLineItems(lineItems) {
   if (!lineItems) return [];
@@ -178,7 +196,9 @@ analytics.subscribe('checkout_completed', function (event) {
   // Standard Mixpanel revenue tracking
   mixpanel.people.track_charge(orderTotal);
 
-  mixpanel.track('Purchase Completed', {
+  var utm = readUtmFromCheckout(checkout);
+
+  mixpanel.track('Purchase Completed', Object.assign({
     // Revenue
     revenue: orderTotal,
     currency: checkout.currencyCode,
@@ -195,5 +215,14 @@ analytics.subscribe('checkout_completed', function (event) {
 
     // Source attribution
     source: 'shopify_pixel',
+  }, utm));
+
+  // Persist first-touch UTM attribution on the profile for revenue breakdowns.
+  var firstTouch = {};
+  Object.keys(utm).forEach(function (k) {
+    firstTouch['initial_' + k] = utm[k];
   });
+  if (Object.keys(firstTouch).length) {
+    mixpanel.people.set_once(firstTouch);
+  }
 });
