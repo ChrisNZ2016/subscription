@@ -23,7 +23,7 @@
 
 ### Stop the scratching, stomach issues, and food guessing, for good.
 
-Vet-formulated, single-protein kibble with 20+ functional superfoods.
+Vet-formulated, single-protein kibble with 6+ functional superfoods.
 Free from beef, dairy, gluten, wheat, grain, fillers, and colours.
 Try risk-free with our Sensitivity Promise, full refund if it's not the right fit.
 
@@ -43,7 +43,7 @@ Try risk-free with our Sensitivity Promise, full refund if it's not the right fi
 | Value | Label |
 |-------|-------|
 | 2,000+ | Happy dogs |
-| 20+ | Superfoods per bag |
+| 6+ | Superfoods per bag |
 | 50% | Off first box |
 | 100% | Money-back guarantee |
 
@@ -57,7 +57,7 @@ Try risk-free with our Sensitivity Promise, full refund if it's not the right fi
 
 #### Hypoallergenic with Superfoods
 
-Complete premium food for adult dogs. Our 2kg kibble is vet-formulated with a single hydrolysed protein and 20+ functional superfoods, designed specifically for dogs with food sensitivities.
+Complete premium food for adult dogs. Our 2kg kibble is vet-formulated with a single hydrolysed protein and 6+ functional superfoods, designed specifically for dogs with food sensitivities.
 
 Free from beef, dairy, gluten, wheat, grain, fillers, and artificial colours. Gentle on digestion, great for joints, coat, and immune health.
 
@@ -311,7 +311,7 @@ Absolutely. You can update your bag size or add-ons at any time through your sub
 Orders are typically delivered within 1–3 business days across New Zealand. You'll receive a tracking notification as soon as your order ships.
 
 **What's in the food, and is it really hypoallergenic?**
-Yes. Our formula is specifically designed to exclude common allergens: no beef, dairy, gluten, wheat, grain, or fillers. We use hypoallergenic proteins alongside grain-free carbs and 20+ functional superfoods.
+Yes. Our formula is specifically designed to exclude common allergens: no beef, dairy, gluten, wheat, grain, or fillers. We use hypoallergenic proteins alongside grain-free carbs and 6+ functional superfoods.
 
 **How do I transition my dog to new food?**
 We recommend a gradual transition over 7–10 days. Start by mixing 25% Little Green Dog with 75% of your current food, then increase the ratio every few days until your dog is fully transitioned.

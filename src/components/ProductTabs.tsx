@@ -280,7 +280,7 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
                 <h2>Hypoallergenic with Superfoods</h2>
                 <p>
                   Complete premium food for adult dogs. Our 2kg kibble is vet-formulated
-                  with a single hydrolysed protein and 20+ functional superfoods,
+                  with a single hydrolysed protein and 6+ functional superfoods,
                   designed specifically for dogs with food sensitivities.
                 </p>
                 <p>

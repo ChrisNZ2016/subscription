@@ -24,7 +24,7 @@ const faqs = [
   {
     question: 'What\'s in the food, and is it really hypoallergenic?',
     answer:
-      'Yes. Our formula is specifically designed to exclude common allergens: no beef, dairy, gluten, wheat, grain, or fillers. We use hypoallergenic proteins alongside grain-free carbs and 20+ functional superfoods.',
+      'Yes. Our formula is specifically designed to exclude common allergens: no beef, dairy, gluten, wheat, grain, or fillers. We use hypoallergenic proteins alongside grain-free carbs and 6+ functional superfoods.',
   },
   {
     question: 'How do I transition my dog to new food?',
