@@ -7,6 +7,8 @@ import { BenefitsBar } from './BenefitsBar';
 import { WhyYoullLoveIt } from './WhyYoullLoveIt';
 import { ProductTabs } from './ProductTabs';
 import { TestimonialsSection } from './TestimonialsSection';
+import { SubscriptionPricingSection } from './SubscriptionPricingSection';
+import { SubscriptionPricingTable } from './SubscriptionPricingTable';
 import { FAQSection } from './FAQSection';
 import { FAQCTA } from './FAQCTA';
 import { Footer } from './Footer';
@@ -36,6 +38,7 @@ export function SoloPage() {
   }, []);
 
   useSectionViewed('product-tabs', 'product-info');
+  useSectionViewed('subscription-pricing', 'subscription-pricing');
   useSectionViewed('testimonials', 'testimonials');
   useSectionViewed('faq', 'faq');
 
@@ -151,8 +154,25 @@ export function SoloPage() {
         <BenefitsBar />
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />
         <WhyYoullLoveIt onGetStarted={() => handleGetStarted('why-you-love-it')} samplePrice={samplePrice} />
+        <SubscriptionPricingSection />
         <TestimonialsSection />
-        <FAQSection>
+        <FAQSection
+          additionalFaqs={[
+            {
+              question: 'What does the subscription cost after my sample?',
+              answer: (
+                <>
+                  <p>
+                    Your 2kg sample ships first at 50% off. After that, your subscription
+                    continues at the price for the bag size you choose, delivered every 4 weeks.
+                    You can change size, skip, pause, or cancel anytime.
+                  </p>
+                  <SubscriptionPricingTable className="subscription-pricing-table--faq" />
+                </>
+              ),
+            },
+          ]}
+        >
           <FAQCTA onGetStarted={() => handleGetStarted('faq')} samplePrice={samplePrice} />
         </FAQSection>
       </main>

@@ -1,6 +1,12 @@
+import type { ReactNode } from 'react';
 import { trackFaqExpanded } from '../lib/analytics';
 
-const faqs = [
+export interface FaqItem {
+  question: string;
+  answer: ReactNode;
+}
+
+const faqs: FaqItem[] = [
   {
     question: 'What if my dog doesn\'t like it?',
     answer:
@@ -38,18 +44,31 @@ const faqs = [
   },
 ];
 
-interface FAQSectionProps {
-  children?: React.ReactNode;
+function renderFaqAnswer(answer: ReactNode) {
+  if (typeof answer === 'string') {
+    return answer.split('\n\n').map((paragraph) => (
+      <p key={paragraph}>{paragraph}</p>
+    ));
+  }
+
+  return answer;
 }
 
-export function FAQSection({ children }: FAQSectionProps) {
+interface FAQSectionProps {
+  children?: React.ReactNode;
+  additionalFaqs?: FaqItem[];
+}
+
+export function FAQSection({ children, additionalFaqs = [] }: FAQSectionProps) {
+  const allFaqs = [...additionalFaqs, ...faqs];
+
   return (
     <section className="faq-section" id="faq">
       <div className="faq-inner">
         <span className="section-label" style={{ display: 'block', textAlign: 'center' }}>Support</span>
         <h2>Frequently asked questions</h2>
         <div className="faq-list">
-          {faqs.map((faq) => (
+          {allFaqs.map((faq) => (
             <details
               className="faq-item"
               key={faq.question}
@@ -60,9 +79,7 @@ export function FAQSection({ children }: FAQSectionProps) {
               }}
             >
               <summary>{faq.question}</summary>
-              {faq.answer.split('\n\n').map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
+              {renderFaqAnswer(faq.answer)}
             </details>
           ))}
         </div>
