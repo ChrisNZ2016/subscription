@@ -117,6 +117,21 @@ function readUtmFromCheckout(checkout) {
   return utm;
 }
 
+/**
+ * Reads page_name and page_version cart attributes set by the landing page
+ * (see src/lib/page-attribution.ts).
+ */
+function readPageAttributionFromCheckout(checkout) {
+  var props = {};
+  if (!checkout) return props;
+  var attrs = checkout.attributes || checkout.customAttributes || [];
+  attrs.forEach(function (a) {
+    if (a && a.key === 'page_name' && a.value) props.page_name = a.value;
+    if (a && a.key === 'page_version' && a.value) props.page_version = a.value;
+  });
+  return props;
+}
+
 /** Returns a flat array of line-item objects suitable for Mixpanel properties. */
 function serializeLineItems(lineItems) {
   if (!lineItems) return [];
@@ -197,6 +212,7 @@ analytics.subscribe('checkout_completed', function (event) {
   mixpanel.people.track_charge(orderTotal);
 
   var utm = readUtmFromCheckout(checkout);
+  var pageAttribution = readPageAttributionFromCheckout(checkout);
 
   mixpanel.track('Purchase Completed', Object.assign({
     // Revenue
@@ -215,13 +231,19 @@ analytics.subscribe('checkout_completed', function (event) {
 
     // Source attribution
     source: 'shopify_pixel',
-  }, utm));
+  }, utm, pageAttribution));
 
   // Persist first-touch UTM attribution on the profile for revenue breakdowns.
   var firstTouch = {};
   Object.keys(utm).forEach(function (k) {
     firstTouch['initial_' + k] = utm[k];
   });
+  if (pageAttribution.page_name) {
+    firstTouch.initial_page_name = pageAttribution.page_name;
+  }
+  if (pageAttribution.page_version) {
+    firstTouch.initial_page_version = pageAttribution.page_version;
+  }
   if (Object.keys(firstTouch).length) {
     mixpanel.people.set_once(firstTouch);
   }

@@ -2818,6 +2818,82 @@ nav.site-nav {
   font-size: 1.4rem;
   margin-bottom: 1rem;
 }
+
+/* Primary subscription picker — hero CTA on offer pages */
+.subscription-picker-primary {
+  padding: 2rem 1.5rem 3rem;
+  background: linear-gradient(180deg, var(--color-green-light) 0%, rgba(232, 245, 200, 0.35) 100%);
+}
+.subscription-picker-inner {
+  max-width: 540px;
+  margin: 0 auto;
+  background: #fff;
+  border: 2px solid var(--color-green);
+  border-radius: 16px;
+  padding: 2rem 1.75rem 1.75rem;
+  box-shadow:
+    0 4px 6px rgba(138, 184, 62, 0.08),
+    0 16px 40px rgba(138, 184, 62, 0.18);
+  text-align: left;
+}
+.subscription-picker-inner h2 {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.subscription-picker-inner .picker-subtitle {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+.picker-step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+.picker-step--cta {
+  margin-bottom: 0;
+  padding-top: 0.25rem;
+  border-top: 1px solid var(--color-border);
+}
+.picker-step-num {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-green);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  border-radius: 50%;
+  margin-top: 0.125rem;
+}
+.picker-step-content {
+  flex: 1;
+  min-width: 0;
+}
+.picker-step--cta .picker-recommendation {
+  max-width: none;
+  margin: 0 0 1.25rem;
+}
+.picker-step--cta .reactivation-cta {
+  width: 100%;
+  max-width: none;
+  font-size: 1.1rem;
+  padding: 1.1rem 1.5rem;
+}
+.picker-step--cta .reactivation-finefoot {
+  text-align: center;
+}
+.picker-adjust-note {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin: 0 0 1rem;
+  font-style: italic;
+}
 .variant-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -2855,6 +2931,130 @@ nav.site-nav {
   margin-top: 0.75rem;
   font-size: 0.82rem;
   color: var(--color-text-muted);
+}
+
+.picker-subtitle {
+  max-width: 520px;
+  margin: 0 auto 1.5rem;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+.picker-selectors {
+  max-width: 520px;
+  margin: 0 auto 1.5rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.picker-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.picker-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.picker-select {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--color-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 1rem center;
+  appearance: none;
+  cursor: pointer;
+}
+.picker-select:hover { border-color: var(--color-green-dark); }
+.picker-select:focus {
+  outline: none;
+  border-color: var(--color-green-dark);
+  box-shadow: 0 0 0 3px var(--color-green-light);
+}
+.activity-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.activity-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.activity-card:hover { border-color: var(--color-green-dark); }
+.activity-card--selected {
+  border-color: var(--color-green-dark);
+  box-shadow: 0 0 0 3px var(--color-green-light);
+}
+.activity-card strong { font-size: 0.9375rem; }
+.activity-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.picker-recommendation {
+  max-width: 320px;
+  margin: 0 auto 1.5rem;
+}
+.picker-rec-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+.picker-rec-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 1.25rem 1rem;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+}
+.picker-rec-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.picker-rec-price { font-weight: 700; color: var(--color-green-dark); font-size: 1.25rem; }
+.picker-rec-savings-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.picker-rec-retail { font-size: 1.2rem; color: var(--color-text-muted); text-decoration: line-through; }
+.picker-rec-save {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-green-dark);
+}
+.picker-error {
+  color: #c0392b;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .activity-cards { grid-template-columns: 1fr; }
+  .subscription-picker-primary { padding: 1.25rem 1rem 2rem; }
+  .subscription-picker-inner { padding: 1.5rem 1.25rem 1.25rem; }
+  .subscription-picker-inner h2 { font-size: 1.3rem; }
 }
 
 .subscribe-ingredients-page .reactivation-hero .section-label {

@@ -5,6 +5,7 @@ import {
   getMetaCartAttributes,
   shopifyGidToContentId,
 } from './meta-pixel';
+import { getPageAttributionCartAttributes } from './page-attribution';
 import { getUtmCartAttributes } from './utm';
 import type { CartCreateResponse, CartLine } from '../types/shopify';
 
@@ -44,6 +45,7 @@ export async function createSubscribeCart(variantId: string): Promise<string> {
 
   const attributes = [
     { key: 'mp_distinct_id', value: getDistinctId() },
+    ...getPageAttributionCartAttributes(),
     ...getMetaCartAttributes(),
     ...getUtmCartAttributes(),
   ];

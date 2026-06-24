@@ -5,6 +5,7 @@ import {
   getMetaCartAttributes,
   shopifyGidToContentId,
 } from './meta-pixel';
+import { getPageAttributionCartAttributes } from './page-attribution';
 import { getUtmCartAttributes } from './utm';
 import type { CartCreateResponse, CartLine } from '../types/shopify';
 
@@ -50,6 +51,7 @@ export async function createReactivationCart(variantId: string): Promise<string>
   const attributes = [
     REACTIVATION_FLAG,
     { key: 'mp_distinct_id', value: getDistinctId() },
+    ...getPageAttributionCartAttributes(),
     ...getMetaCartAttributes(),
     ...getUtmCartAttributes(),
   ];

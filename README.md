@@ -11,10 +11,12 @@ Routing is pathname-based in `src/App.tsx` (no React Router).
 | Route | Page | Purpose |
 |-------|------|---------|
 | `/` | `LandingPage` | Main funnel: hero → dog size → addons → order summary → checkout |
-| `/solo` | `SoloPage` | Sample-only purchase (2 kg sample, no subscription config) |
+| `/solo` | `SoloPage` | Sample-only purchase (2 kg sample, subscription pricing + FAQ, no config step) |
 | `/welcome-back` | `ReactivationPage` | Lapsed subscriber reactivation (25% off + free gift via Mechanic) |
 | `/subscribe-offer` | `SubscribePage` | Early-subscriber offer from email campaigns (25% off, no gift) |
 | `/subscribe-ingredients` | `SubscribeIngredientsPage` | Ingredients-led variant of the early-subscriber offer (same cart/selling plan as `/subscribe-offer`) |
+
+Each route also matches with an optional trailing slash (e.g. `/solo/`).
 
 The main landing page also accepts a `?variant=` query param:
 
@@ -43,9 +45,9 @@ Copy `.env.example` to `.env.local` for local development.
 | `VITE_SHOPIFY_API_VERSION` | API version (default: `2025-01`) |
 | `VITE_SAMPLE_PRODUCT_HANDLE` | Sample product handle (default: `sample-2kg`) |
 | `VITE_SUBSCRIPTION_PRODUCT_HANDLE` | Subscription kibble product handle (default: `kibble-pack`) |
-| `VITE_ADDON_HANDLES` | Comma-separated addon product handles |
+| `VITE_ADDON_HANDLES` | Comma-separated addon product handles (default: `poop-bags,dog-treats`) |
 | `VITE_MIXPANEL_TOKEN` | Mixpanel project token for client-side events |
-| `VITE_META_PIXEL_ID` | Meta pixel ID (same as main Shopify site) |
+| `VITE_META_PIXEL_ID` | Meta pixel ID — same as the Facebook & Instagram Shopify app |
 
 ### Server (Vercel only — never use `VITE_` prefix)
 
@@ -53,7 +55,7 @@ Copy `.env.example` to `.env.local` for local development.
 |----------|-------------|
 | `MIXPANEL_TOKEN` | Mixpanel token for the orders webhook |
 | `SHOPIFY_WEBHOOK_SECRET` | Signing secret from the Shopify `orders/create` webhook |
-| `META_PIXEL_ID` | Meta pixel ID for Conversions API (same as `VITE_META_PIXEL_ID`) |
+| `META_PIXEL_ID` | Meta pixel ID for Conversions API (same value as `VITE_META_PIXEL_ID`) |
 | `META_CAPI_ACCESS_TOKEN` | Conversions API access token from Meta Events Manager |
 
 See [shopify/README.md](./shopify/README.md) for Mixpanel pixel and webhook setup in Shopify Admin.
@@ -61,12 +63,26 @@ See [shopify/README.md](./shopify/README.md) for Mixpanel pixel and webhook setu
 ## Development
 
 ```bash
-npm install
+npm install        # also sets git hooksPath to .githooks via prepare script
 npm run dev        # http://localhost:5173
 npm run build      # typecheck + production build
 npm run preview    # serve production build locally
 npm run lint       # ESLint
 ```
+
+### Git hooks
+
+A **pre-commit** hook (`.githooks/pre-commit`) runs `scripts/sync-readme.mjs` before each commit. It:
+
+1. Refreshes the **Page versions** table in this README from `src/constants/page-versions.ts`
+2. Appends a dated changelog line listing staged `src/`, `api/`, or `shopify/` files when README was not already staged
+
+Enable hooks after clone: `npm install` (via `prepare`) or manually `git config core.hooksPath .githooks`.
+
+## Changelog
+
+<!-- CHANGELOG_START -->
+<!-- CHANGELOG_END -->
 
 Static design previews are available at `/previews/*.html` during dev (served from `public/previews/` via custom Vite middleware).
 
@@ -76,22 +92,28 @@ The app deploys to **Vercel**. `vercel.json` configures SPA rewrites (all non-AP
 
 Vercel auto-deploys on push to `master` (Git integration); production is aliased to `https://lp.littlegreendog.co.nz`. Manual deploys are still possible with the Vercel CLI (`npx vercel --prod --yes`). There is no separate CI pipeline.
 
-**Last deployed:** `2026-06-21T00:37:31Z` — push to `master` (Vercel auto-deploy), aliased to `https://lp.littlegreendog.co.nz`.
+**Last deployed:** `2026-06-23T02:47:34Z` — Vercel CLI deploy (`npx vercel --prod --yes`). Production: https://subscription-19oz4cat4-chris-oneills-projects.vercel.app. Aliased to `https://lp.littlegreendog.co.nz`. Inspect: https://vercel.com/chris-oneills-projects/subscription/B49WTMoHzXTBpvGyyVyiChiMhy8C.
 
 ## Project structure
 
 ```
 src/
-  components/     Landing page sections and funnel pages (LandingPage, SoloPage,
-                  ReactivationPage, SubscribePage, SubscribeIngredientsPage)
+  App.tsx         Pathname routing (lazy-loaded page components)
+  components/     Funnel pages (LandingPage, SoloPage, ReactivationPage, SubscribePage,
+                  SubscribeIngredientsPage) and shared sections (HeroSection, BenefitsBar,
+                  ProductTabs, SubscriptionPricingSection, SubscriptionPricingTable,
+                  TestimonialsSection, FAQSection, DogSizeCalculator, OrderSummary,
+                  StickyCTA, Footer, etc.)
   hooks/          Product fetching, cart state, scroll/section-view tracking, hash scrolling
-  lib/            Shopify client, cart builders, pricing, analytics (Mixpanel/GA/Meta), UTM capture
-  constants/      Dog size presets
+  lib/            Shopify client, cart builders, pricing, subscription-prices, analytics,
+                  meta-pixel, UTM capture, page-attribution
+  constants/      Dog size presets, page-versions (attribution semver)
   types/          Shopify GraphQL types
 api/
-  webhooks/       Vercel serverless functions (orders/create → Mixpanel + Meta CAPI)
-  lib/            Shared serverless helpers (Meta Conversions API client)
-scripts/          One-off maintenance scripts (backfill-utm.mjs → recover lost UTM attribution)
+  webhooks/       Vercel serverless functions (orders-create.ts → Mixpanel + Meta CAPI)
+  lib/            Shared serverless helpers (meta-capi.ts)
+scripts/          One-off maintenance scripts (backfill-utm.mjs, sync-readme.mjs)
+.githooks/        Git hooks (pre-commit → sync README page versions + changelog)
 shopify/          Mixpanel custom pixel + setup docs
 public/           Static assets and design previews
 ```
@@ -111,14 +133,53 @@ Flow:
 
 ```
 Landing page (Mixpanel + Meta pixel)
-  → cartCreate (Storefront API) + _mp_distinct_id + _fbp/_fbc/_meta_purchase_event_id + utm_*
+  → cartCreate (Storefront API) + mp_distinct_id + page_name + page_version + _fbp/_fbc/_meta_purchase_event_id + utm_*
   → redirect to checkoutUrl (UTMs appended to query string)
   → Shopify checkout (Facebook app pixel → Purchase)
   → orders/create webhook (Vercel) → Mixpanel + Meta CAPI Purchase
   → Mechanic UTM task → tags order from note_attributes + customerJourneySummary
 ```
 
-Cart attributes (bag size, frequency, `_mp_distinct_id`, `utm_*`, etc.) flow to `order.note_attributes` and are used by the webhook, checkout pixel, and Mechanic tasks.
+Cart attributes (bag size, frequency, `mp_distinct_id`, `page_name`, `page_version`, `utm_*`, etc.) flow to `order.note_attributes` and are used by the webhook, checkout pixel, and Mechanic tasks.
+
+### Landing page attribution
+
+Each funnel page has a **name** and **semver version** defined in `src/constants/page-versions.ts`. At checkout these are written as cart attributes (`page_name`, `page_version`) and included on Mixpanel events:
+
+| Surface | Properties |
+|---------|------------|
+| Client events (`src/lib/analytics.ts`) | `page_name`, `page_version` (and legacy `page` alias) |
+| Cart → order (`note_attributes`) | `page_name`, `page_version` |
+| Webhook (`Purchase Completed (Server)`) | `page_name`, `page_version`; `initial_page_*` on profile |
+| Checkout pixel (`Purchase Completed`) | `page_name`, `page_version`; `initial_page_*` on profile |
+
+Current versions (auto-synced on commit):
+
+<!-- PAGE_VERSIONS_START -->
+| Page name | Version |
+|-----------|---------|
+| `landing` | 1.0.0 |
+| `landing-simple` | 1.0.0 |
+| `landing-solo` | 1.0.0 |
+| `solo` | 1.0.0 |
+| `reactivation` | 1.0.0 |
+| `subscribe-offer` | 1.0.0 |
+| `subscribe-ingredients` | 1.0.0 |
+<!-- PAGE_VERSIONS_END -->
+
+#### Page versioning (when to bump)
+
+Versions use **semver** (`MAJOR.MINOR.PATCH`) per page name in `src/constants/page-versions.ts`:
+
+| Bump | When |
+|------|------|
+| **Major** (`x.0.0`) | New route, removed funnel step, different checkout flow, or pricing model change that makes prior conversion data incomparable |
+| **Minor** (`x.y.0`) | Meaningful funnel change — new section, copy/layout test, addon step change, or anything you want to segment in Mixpanel |
+| **Patch** (`x.y.z`) | Bug fixes, typos, CSS-only tweaks with no funnel or reporting impact |
+
+Bump the version **before** deploying the change so carts created after deploy carry the new label. After updating `page-versions.ts`, commit — the pre-commit hook refreshes the table above in this README.
+
+Re-copy `shopify/mixpanel-pixel.js` into Shopify Admin when the pixel changes (see [shopify/README.md](./shopify/README.md)).
 
 ### UTM order tags
 

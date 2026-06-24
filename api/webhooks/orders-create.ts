@@ -147,6 +147,13 @@ export default async function handler(
     if (value) utmProps[key] = value;
   }
 
+  const PAGE_ATTR_KEYS = ['page_name', 'page_version'] as const;
+  const pageProps: Record<string, string> = {};
+  for (const key of PAGE_ATTR_KEYS) {
+    const value = order.note_attributes.find((a) => a.name === key)?.value;
+    if (value) pageProps[key] = value;
+  }
+
   // Initialise Mixpanel server-side client
   const mp = Mixpanel.init(mixpanelToken);
 
@@ -183,6 +190,7 @@ export default async function handler(
     // Attribution
     source: 'shopify_webhook',
     ...utmProps,
+    ...pageProps,
 
     // Suppress the server's own IP from Mixpanel's geo-lookup
     $ip: 0,
@@ -211,6 +219,13 @@ export default async function handler(
       firstTouch[`initial_${key}`] = value;
     }
     mp.people.set_once(distinctId, firstTouch);
+  }
+
+  if (Object.keys(pageProps).length > 0) {
+    const firstPage: Record<string, string> = {};
+    if (pageProps.page_name) firstPage.initial_page_name = pageProps.page_name;
+    if (pageProps.page_version) firstPage.initial_page_version = pageProps.page_version;
+    mp.people.set_once(distinctId, firstPage);
   }
 
   try {

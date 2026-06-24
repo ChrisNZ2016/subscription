@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Sync README page versions and changelog before each commit.
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+node "$ROOT/scripts/sync-readme.mjs"

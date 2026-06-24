@@ -53,7 +53,7 @@ export function DogSizeCalculator({
         <span className="section-label animate-on-scroll" style={{ display: 'block' }}>Step 1</span>
         <h2 className="animate-on-scroll">Build your perfect plan</h2>
         <p className="step-subtitle animate-on-scroll">
-          Pick your dog's size to get started. Available in 2kg, 6kg, and 12kg bags, delivered every 4 weeks.
+          Pick your dog's size to get started. Available in 2kg, 4kg, 6kg, 8kg, 12kg, and 24kg bags, delivered every 4 weeks.
         </p>
 
         <div className="size-cards animate-stagger">

@@ -4,16 +4,13 @@ import {
   trackMetaPageView,
   trackMetaViewContent,
 } from './meta-pixel';
+import { getPageAttribution } from './page-attribution';
 
 const TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN as string;
 
-function getPageLabel(): string {
-  const path = window.location.pathname;
-  if (path === '/solo' || path === '/solo/') return 'solo';
-  if (path === '/welcome-back' || path === '/welcome-back/') return 'reactivation';
-  if (path === '/subscribe-offer' || path === '/subscribe-offer/') return 'subscribe-offer';
-  if (path === '/subscribe-ingredients' || path === '/subscribe-ingredients/') return 'subscribe-ingredients';
-  return 'landing';
+function pageProps() {
+  const { page_name, page_version } = getPageAttribution();
+  return { page: page_name, page_name, page_version };
 }
 
 // ─── Lazy Mixpanel loading ─────────────────────────────────────────────────────
@@ -100,8 +97,7 @@ export function getDistinctId(): string {
 // ─── Landing-page funnel events ───────────────────────────────────────────────
 
 export function trackPageViewed(meta?: { contentIds?: string[]; value?: number }): void {
-  const page = getPageLabel();
-  withMixpanel((m) => m.track('Page Viewed', { page }));
+  withMixpanel((m) => m.track('Page Viewed', pageProps()));
   trackMetaPageView();
   if (meta?.contentIds?.length) {
     trackMetaViewContent({
@@ -122,8 +118,7 @@ export type CtaLocation =
   | 'subscribe';
 
 export function trackCtaClicked(location: CtaLocation): void {
-  const page = getPageLabel();
-  withMixpanel((m) => m.track('CTA Clicked', { location, page }));
+  withMixpanel((m) => m.track('CTA Clicked', { location, ...pageProps() }));
 }
 
 export function trackVariantSelected(props: {
@@ -132,31 +127,31 @@ export function trackVariantSelected(props: {
   frequencyWeeks: number;
   source: 'default' | 'user';
 }): void {
-  withMixpanel((m) => m.track('Variant Selected', { ...props, page: getPageLabel() }));
+  withMixpanel((m) => m.track('Variant Selected', { ...props, ...pageProps() }));
 }
 
 export function trackSectionViewed(props: { section: string }): void {
-  withMixpanel((m) => m.track('Section Viewed', { ...props, page: getPageLabel() }));
+  withMixpanel((m) => m.track('Section Viewed', { ...props, ...pageProps() }));
 }
 
 export function trackProductTabChanged(props: { tab: 'info' | 'ingredients' }): void {
-  withMixpanel((m) => m.track('Product Tab Changed', { ...props, page: getPageLabel() }));
+  withMixpanel((m) => m.track('Product Tab Changed', { ...props, ...pageProps() }));
 }
 
 export function trackBenefitExpanded(props: { title: string }): void {
-  withMixpanel((m) => m.track('Benefit Expanded', { ...props, page: getPageLabel() }));
+  withMixpanel((m) => m.track('Benefit Expanded', { ...props, ...pageProps() }));
 }
 
 export function trackIngredientExpanded(props: { name: string }): void {
-  withMixpanel((m) => m.track('Ingredient Expanded', { ...props, page: getPageLabel() }));
+  withMixpanel((m) => m.track('Ingredient Expanded', { ...props, ...pageProps() }));
 }
 
 export function trackFaqExpanded(props: { question: string }): void {
-  withMixpanel((m) => m.track('FAQ Expanded', { ...props, page: getPageLabel() }));
+  withMixpanel((m) => m.track('FAQ Expanded', { ...props, ...pageProps() }));
 }
 
 export function trackNavAnchorClicked(props: { target: string }): void {
-  withMixpanel((m) => m.track('Nav Anchor Clicked', { ...props, page: getPageLabel() }));
+  withMixpanel((m) => m.track('Nav Anchor Clicked', { ...props, ...pageProps() }));
 }
 
 export function trackDogSizeSelected(props: {
@@ -206,7 +201,7 @@ export function trackCheckoutStarted(props: {
   contentIds?: string[];
   value?: number;
 }): void {
-  withMixpanel((m) => m.track('Checkout Started', props));
+  withMixpanel((m) => m.track('Checkout Started', { ...props, ...pageProps() }));
   if (props.contentIds?.length) {
     trackMetaInitiateCheckout({
       contentIds: props.contentIds,

@@ -20,7 +20,7 @@ const faqs: FaqItem[] = [
   {
     question: 'Can I change my bag size later?',
     answer:
-      'Absolutely. You can update your bag size or add-ons at any time through your subscription portal. We offer 2kg, 6kg, and 12kg bags to suit all dog sizes. Changes take effect on your next delivery.',
+      'Absolutely. You can update your bag size or add-ons at any time through your subscription portal. We offer 2kg, 4kg, 6kg, 8kg, 12kg, and 24kg bags to suit all dog sizes. Changes take effect on your next delivery.',
   },
   {
     question: 'How long does delivery take?',

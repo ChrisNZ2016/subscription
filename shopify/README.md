@@ -29,7 +29,7 @@ visitor's landing-page Mixpanel profile via the `_mp_distinct_id` cart attribute
 | `checkout_address_info_submitted` | `Checkout Step Completed` | `step: 3` |
 | `checkout_shipping_info_submitted` | `Checkout Step Completed` | `step: 4`, `shipping_method` |
 | `payment_info_submitted` | `Checkout Step Completed` | `step: 5` |
-| `checkout_completed` | `Purchase Completed` | `revenue`, `order_id`, `line_items` |
+| `checkout_completed` | `Purchase Completed` | `revenue`, `order_id`, `line_items`, `page_name`, `page_version`, `utm_*` |
 
 > The `checkout_completed` event also calls `mixpanel.people.track_charge()` to
 > update the user's lifetime revenue in Mixpanel People.

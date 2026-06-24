@@ -1,21 +1,22 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSubscriptionProduct } from '../hooks/useSubscriptionProduct';
 import {
   createSubscribeCart,
   createSubscribeCartAndRedirect,
   EARLY_SUBSCRIBER_SELLING_PLAN_ID,
 } from '../lib/cart-subscribe';
-import { formatMoney } from '../lib/pricing';
 import { TestimonialsSection } from './TestimonialsSection';
 import { FAQSection } from './FAQSection';
 import { Footer } from './Footer';
-import { trackPageViewed, trackCtaClicked, trackCheckoutStarted, trackVariantSelected, trackNavAnchorClicked } from '../lib/analytics';
-import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
+import { SubscriptionBagPicker, useSubscriptionBagSelection } from './SubscriptionBagPicker';
+import { trackPageViewed, trackNavAnchorClicked, trackCtaClicked } from '../lib/analytics';
+import { scrollToSubscribe } from '../lib/scrollTo';
 import { useSectionViewed } from '../hooks/useSectionViewed';
 import { useHashScroll } from '../hooks/useHashScroll';
+import { VARIANT_SORT_ORDER } from '../lib/feedingGuide';
+import { formatMoney } from '../lib/pricing';
 import type { ProductVariant } from '../types/shopify';
 
-/** Per-delivery early-subscriber price for a variant, or undefined if not allocated. */
 function subscribePrice(variant: ProductVariant): string | undefined {
   const alloc = variant.sellingPlanAllocations.nodes.find(
     (n) => n.sellingPlan.id === EARLY_SUBSCRIBER_SELLING_PLAN_ID,
@@ -33,9 +34,6 @@ function subscribePriceAmount(variant: ProductVariant): number | undefined {
 
 export function SubscribePage() {
   const { product, loading, error } = useSubscriptionProduct();
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [cartError, setCartError] = useState<string | null>(null);
 
   useEffect(() => {
     trackPageViewed();
@@ -47,86 +45,26 @@ export function SubscribePage() {
 
   const variants = useMemo(() => {
     if (!product) return [];
-    const order = ['2kg', '4kg', '6kg', '8kg'];
     return product.variants.nodes
       .filter((v) => subscribePrice(v) !== undefined)
-      .sort((a, b) => order.indexOf(a.title) - order.indexOf(b.title));
+      .sort((a, b) => VARIANT_SORT_ORDER.indexOf(a.title) - VARIANT_SORT_ORDER.indexOf(b.title));
   }, [product]);
 
   useHashScroll(!loading && !error && !!product && variants.length > 0);
 
-  useEffect(() => {
-    if (!selectedVariantId && variants.length > 0) {
-      const twoKg = variants.find((v) => v.title === '2kg') ?? variants[0];
-      setSelectedVariantId(twoKg.id);
-      trackVariantSelected({
-        bagWeight: parseInt(twoKg.title, 10) || 0,
-        price: subscribePrice(twoKg) ?? '',
-        frequencyWeeks: 4,
-        source: 'default',
-      });
-    }
-  }, [variants, selectedVariantId]);
+  const bagSelection = useSubscriptionBagSelection({
+    variants,
+    getPrice: subscribePrice,
+    getPriceAmount: subscribePriceAmount,
+    createCart: createSubscribeCart,
+    createCartAndRedirect: createSubscribeCartAndRedirect,
+  });
 
-  const handleVariantSelect = useCallback((variant: ProductVariant) => {
-    if (variant.id === selectedVariantId) return;
-    setSelectedVariantId(variant.id);
-    trackVariantSelected({
-      bagWeight: parseInt(variant.title, 10) || 0,
-      price: subscribePrice(variant) ?? '',
-      frequencyWeeks: 4,
-      source: 'user',
-    });
-  }, [selectedVariantId]);
+  const handleNavScroll = () => {
+    trackCtaClicked('nav');
+    scrollToSubscribe();
+  };
 
-  const selectedVariant = variants.find((v) => v.id === selectedVariantId);
-  const selectedPrice = selectedVariant ? subscribePrice(selectedVariant) : undefined;
-
-  // Warm a cart per selected variant so the checkout redirect is instant.
-  const prefetchedUrls = useRef<Record<string, string>>({});
-  useEffect(() => {
-    if (!selectedVariant || prefetchedUrls.current[selectedVariant.id]) return;
-    const id = selectedVariant.id;
-    createSubscribeCart(id)
-      .then((url) => { prefetchedUrls.current[id] = url; })
-      .catch(() => { /* fall back to creating the cart at click time */ });
-  }, [selectedVariant]);
-
-  useEffect(() => {
-    if (!selectedVariant) return;
-    trackMetaViewContent({
-      contentIds: [shopifyGidToContentId(selectedVariant.id)],
-      value: subscribePriceAmount(selectedVariant),
-      currency: 'NZD',
-    });
-  }, [selectedVariant]);
-
-  const handleCheckout = useCallback(
-    async (location: 'nav' | 'picker') => {
-      if (!selectedVariant) return;
-      trackCtaClicked(location);
-      setIsSubmitting(true);
-      setCartError(null);
-      try {
-        const checkoutValue = subscribePriceAmount(selectedVariant);
-        trackCheckoutStarted({
-          samplePrice: selectedPrice ?? '',
-          bagWeight: parseInt(selectedVariant.title, 10) || 0,
-          frequencyWeeks: 4,
-          addonCount: 0,
-          contentIds: [shopifyGidToContentId(selectedVariant.id)],
-          value: checkoutValue,
-        });
-        await createSubscribeCartAndRedirect(selectedVariant.id, checkoutValue, prefetchedUrls.current[selectedVariant.id]);
-      } catch (err) {
-        setCartError(err instanceof Error ? err.message : 'Failed to create cart');
-        setIsSubmitting(false);
-      }
-    },
-    [selectedVariant, selectedPrice],
-  );
-
-  // Render the static hero immediately; only block on a hard error once loading settles.
   if (!loading && (error || !product || variants.length === 0)) {
     return (
       <div className="error">
@@ -151,14 +89,12 @@ export function SubscribePage() {
           <li><a href="#faq" onClick={() => trackNavAnchorClicked({ target: 'faq' })}>FAQ</a></li>
           <li><a href="https://www.littlegreendog.co.nz/pages/contact-us" target="_blank" rel="noopener noreferrer">Contact</a></li>
         </ul>
-        <button className="btn-order nav-order-btn" onClick={() => handleCheckout('nav')} disabled={isSubmitting}>
-          {isSubmitting ? 'Working…' : 'Lock in 25%'}
+        <button className="btn-order nav-order-btn" onClick={handleNavScroll}>
+          Lock in 25%
         </button>
       </nav>
 
       <main className="landing-page reactivation-page">
-        {cartError && <p style={{ color: 'red', textAlign: 'center', padding: '1rem' }}>{cartError}</p>}
-
         <section className="reactivation-hero">
           <h1>Keep it going, and lock in 25% off, for good</h1>
           <p className="reactivation-sub">
@@ -170,50 +106,16 @@ export function SubscribePage() {
           <ul className="reactivation-reasons">
             <li><strong>Your best rate, locked in.</strong> 25% beats the standard 20%, for every future delivery.</li>
             <li><strong>No lock-in.</strong> Skip, pause or cancel anytime in a couple of taps.</li>
-            <li><strong>Never run out.</strong> The right amount, free shipping (over $55), delivered every 4 weeks.</li>
+            <li><strong>Never run out.</strong> The right amount, Free Shipping (over $50), delivered every 4 weeks.</li>
             <li><strong>Always covered.</strong> The Sensitivity Promise backs every delivery, not just the first.</li>
           </ul>
         </section>
 
-        <section className="reactivation-picker" id="subscribe">
-          <h2>Choose your bag size</h2>
-          <div className="variant-grid">
-            {variants.map((v) => {
-              const price = subscribePrice(v);
-              const retail = formatMoney(v.price);
-              const selected = v.id === selectedVariantId;
-              return (
-                <button
-                  key={v.id}
-                  type="button"
-                  className={`variant-card${selected ? ' variant-card--selected' : ''}`}
-                  onClick={() => handleVariantSelect(v)}
-                  aria-pressed={selected}
-                >
-                  <span className="variant-size">{v.title}</span>
-                  <span className="variant-price">{price}</span>
-                  <span className="variant-retail">was {retail}</span>
-                  <span className="variant-cadence">every 4 weeks</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            className="btn-order reactivation-cta"
-            onClick={() => handleCheckout('picker')}
-            disabled={isSubmitting || !selectedVariant}
-          >
-            {isSubmitting
-              ? 'Working…'
-              : selectedPrice
-                ? `Lock in 25% off, ${selectedPrice}/delivery`
-                : 'Lock in 25% off'}
-          </button>
-          <p className="reactivation-finefoot">
-            25% off every delivery · free shipping · cancel anytime
-          </p>
-        </section>
+        <SubscriptionBagPicker
+          {...bagSelection}
+          onCheckout={bagSelection.handleCheckout}
+          finePrint="25% off every delivery · Free Shipping (over $50) · cancel anytime"
+        />
 
         <TestimonialsSection />
         <FAQSection />
