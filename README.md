@@ -82,15 +82,22 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-06-25** — src/constants/page-versions.ts, src/lib/subscription-prices.ts
 <!-- CHANGELOG_END -->
 
 Static design previews are available at `/previews/*.html` during dev (served from `public/previews/` via custom Vite middleware).
 
 ## Deployment
 
-The app deploys to **Vercel**. `vercel.json` configures SPA rewrites (all non-API routes → `index.html`) and passes through `/api/*` to serverless functions. Route components are lazy-loaded (`React.lazy` in `src/App.tsx`) so each page ships its own JS chunk.
+The app is hosted on **Vercel** (`vercel.json` configures SPA rewrites — all non-API routes → `index.html` — and passes through `/api/*` to serverless functions). Route components are lazy-loaded (`React.lazy` in `src/App.tsx`) so each page ships its own JS chunk.
 
-Vercel auto-deploys on push to `master` (Git integration); production is aliased to `https://lp.littlegreendog.co.nz`. Manual deploys are still possible with the Vercel CLI (`npx vercel --prod --yes`). There is no separate CI pipeline.
+**This repo does not auto-deploy from Git.** Commit and push to GitHub for version control, then publish to production with the Vercel CLI:
+
+```bash
+npx vercel --prod --yes
+```
+
+Production is aliased to `https://lp.littlegreendog.co.nz`. There is no CI pipeline — the CLI is the deploy path.
 
 **Last deployed:** `2026-06-23T02:47:34Z` — Vercel CLI deploy (`npx vercel --prod --yes`). Production: https://subscription-19oz4cat4-chris-oneills-projects.vercel.app. Aliased to `https://lp.littlegreendog.co.nz`. Inspect: https://vercel.com/chris-oneills-projects/subscription/B49WTMoHzXTBpvGyyVyiChiMhy8C.
 
@@ -161,7 +168,7 @@ Current versions (auto-synced on commit):
 | `landing` | 1.0.0 |
 | `landing-simple` | 1.0.0 |
 | `landing-solo` | 1.0.0 |
-| `solo` | 1.0.0 |
+| `solo` | 1.0.1 |
 | `reactivation` | 1.0.0 |
 | `subscribe-offer` | 1.0.0 |
 | `subscribe-ingredients` | 1.0.0 |
@@ -177,7 +184,7 @@ Versions use **semver** (`MAJOR.MINOR.PATCH`) per page name in `src/constants/pa
 | **Minor** (`x.y.0`) | Meaningful funnel change — new section, copy/layout test, addon step change, or anything you want to segment in Mixpanel |
 | **Patch** (`x.y.z`) | Bug fixes, typos, CSS-only tweaks with no funnel or reporting impact |
 
-Bump the version **before** deploying the change so carts created after deploy carry the new label. After updating `page-versions.ts`, commit — the pre-commit hook refreshes the table above in this README.
+Bump the version **before** running `npx vercel --prod --yes` so carts created after deploy carry the new label. After updating `page-versions.ts`, commit — the pre-commit hook refreshes the table above in this README.
 
 Re-copy `shopify/mixpanel-pixel.js` into Shopify Admin when the pixel changes (see [shopify/README.md](./shopify/README.md)).
 
