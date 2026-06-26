@@ -154,6 +154,23 @@ export function trackNavAnchorClicked(props: { target: string }): void {
   withMixpanel((m) => m.track('Nav Anchor Clicked', { ...props, ...pageProps() }));
 }
 
+export function trackInternalLinkClicked(props: {
+  destination: string;
+  location: string;
+  label?: string;
+}): void {
+  withMixpanel((m) => m.track('Internal Link Clicked', { ...props, ...pageProps() }));
+}
+
+export function trackExternalLinkClicked(props: {
+  destination: string;
+  location: string;
+  label?: string;
+  link_kind?: 'url' | 'email';
+}): void {
+  withMixpanel((m) => m.track('External Link Clicked', { ...props, ...pageProps() }));
+}
+
 export function trackDogSizeSelected(props: {
   size: string;
   bagWeight: number;

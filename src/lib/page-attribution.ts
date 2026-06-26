@@ -9,6 +9,7 @@ export function getPageName(): PageName {
   if (path === '/subscribe-ingredients' || path === '/subscribe-ingredients/') {
     return 'subscribe-ingredients';
   }
+  if (path === '/wholesale' || path === '/wholesale/') return 'wholesale';
 
   const variant = new URLSearchParams(window.location.search).get('variant');
   if (variant === 'simple') return 'landing-simple';

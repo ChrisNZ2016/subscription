@@ -1,5 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { useSectionViewed } from '../hooks/useSectionViewed';
+import {
+  trackPageViewed,
+  trackNavAnchorClicked,
+  trackInternalLinkClicked,
+  trackExternalLinkClicked,
+} from '../lib/analytics';
 import { Footer } from './Footer';
 import { TestimonialsSection } from './TestimonialsSection';
 import { IngredientList } from './IngredientList';
@@ -174,6 +181,18 @@ export function WholesalePage() {
 
   useScrollAnimation();
 
+  useEffect(() => {
+    trackPageViewed();
+  }, []);
+
+  useSectionViewed('hero', 'hero');
+  useSectionViewed('stats', 'stats');
+  useSectionViewed('product-info', 'product');
+  useSectionViewed('ingredients', 'ingredients');
+  useSectionViewed('science', 'science');
+  useSectionViewed('testimonials', 'testimonials');
+  useSectionViewed('order', 'order');
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     setDragOffset(0);
@@ -210,22 +229,40 @@ export function WholesalePage() {
       </header>
 
       <nav className="site-nav">
-        <a href="/" className="nav-logo">
+        <a
+          href="/"
+          className="nav-logo"
+          onClick={() =>
+            trackInternalLinkClicked({ destination: '/', location: 'nav', label: 'logo' })
+          }
+        >
           <img src="/logo.png" alt="Little Green Dog" className="nav-logo-img" />
         </a>
         <ul className="nav-links">
           <li>
-            <a href="#product-info" className="nav-link-btn-a">
+            <a
+              href="#product-info"
+              className="nav-link-btn-a"
+              onClick={() => trackNavAnchorClicked({ target: 'product-info' })}
+            >
               Product
             </a>
           </li>
           <li>
-            <a href="#ingredients" className="nav-link-btn-a">
+            <a
+              href="#ingredients"
+              className="nav-link-btn-a"
+              onClick={() => trackNavAnchorClicked({ target: 'ingredients' })}
+            >
               Ingredients
             </a>
           </li>
           <li>
-            <a href="#science" className="nav-link-btn-a">
+            <a
+              href="#science"
+              className="nav-link-btn-a"
+              onClick={() => trackNavAnchorClicked({ target: 'science' })}
+            >
               Science
             </a>
           </li>
@@ -235,6 +272,14 @@ export function WholesalePage() {
           className="btn-order nav-order-btn"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() =>
+            trackExternalLinkClicked({
+              destination: WHOLESALE_URL,
+              location: 'nav',
+              label: 'Order Now',
+              link_kind: 'url',
+            })
+          }
         >
           Order Now
         </a>
@@ -263,12 +308,32 @@ export function WholesalePage() {
                 className="btn-order"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackExternalLinkClicked({
+                    destination: WHOLESALE_URL,
+                    location: 'hero',
+                    label: 'Order through the wholesale portal',
+                    link_kind: 'url',
+                  })
+                }
               >
                 Order through the wholesale portal →
               </a>
               <p className="wh-cta-email">
                 Or email{' '}
-                <a href={`mailto:${ORDER_EMAIL}`}>{ORDER_EMAIL}</a>
+                <a
+                  href={`mailto:${ORDER_EMAIL}`}
+                  onClick={() =>
+                    trackExternalLinkClicked({
+                      destination: ORDER_EMAIL,
+                      location: 'hero',
+                      label: ORDER_EMAIL,
+                      link_kind: 'email',
+                    })
+                  }
+                >
+                  {ORDER_EMAIL}
+                </a>
               </p>
             </div>
 
@@ -344,7 +409,7 @@ export function WholesalePage() {
         </section>
 
         {/* ── Stats bar ── */}
-        <section className="benefits-bar" aria-label="Key numbers">
+        <section className="benefits-bar" id="stats" aria-label="Key numbers">
           <div className="benefits-inner animate-stagger">
             <div className="benefit-item">
               <div className="benefit-icon">
@@ -452,12 +517,32 @@ export function WholesalePage() {
                 className="btn-order"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackExternalLinkClicked({
+                    destination: WHOLESALE_URL,
+                    location: 'product',
+                    label: 'Order now',
+                    link_kind: 'url',
+                  })
+                }
               >
                 Order now →
               </a>
               <p className="wh-cta-email">
                 Or email{' '}
-                <a href={`mailto:${ORDER_EMAIL}`}>{ORDER_EMAIL}</a>
+                <a
+                  href={`mailto:${ORDER_EMAIL}`}
+                  onClick={() =>
+                    trackExternalLinkClicked({
+                      destination: ORDER_EMAIL,
+                      location: 'product',
+                      label: ORDER_EMAIL,
+                      link_kind: 'email',
+                    })
+                  }
+                >
+                  {ORDER_EMAIL}
+                </a>
               </p>
             </div>
           </div>
@@ -715,12 +800,32 @@ export function WholesalePage() {
                   className="btn-order"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackExternalLinkClicked({
+                      destination: WHOLESALE_URL,
+                      location: 'order',
+                      label: 'Order through the wholesale portal',
+                      link_kind: 'url',
+                    })
+                  }
                 >
                   Order through the wholesale portal →
                 </a>
                 <p className="wh-cta-email">
                   Or email{' '}
-                  <a href={`mailto:${ORDER_EMAIL}`}>{ORDER_EMAIL}</a>
+                  <a
+                    href={`mailto:${ORDER_EMAIL}`}
+                    onClick={() =>
+                      trackExternalLinkClicked({
+                        destination: ORDER_EMAIL,
+                        location: 'order',
+                        label: ORDER_EMAIL,
+                        link_kind: 'email',
+                      })
+                    }
+                  >
+                    {ORDER_EMAIL}
+                  </a>
                 </p>
               </div>
             </div>
