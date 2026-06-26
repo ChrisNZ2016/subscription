@@ -35,14 +35,18 @@ const testimonials = [
   },
 ];
 
-export function TestimonialsSection() {
+interface TestimonialsSectionProps {
+  headingOverride?: string;
+}
+
+export function TestimonialsSection({ headingOverride }: TestimonialsSectionProps = {}) {
   return (
     <section className="testimonials-section" id="testimonials">
       <div className="testimonials-inner">
         <span className="section-label" style={{ display: 'block', textAlign: 'center' }}>
           Testimonials
         </span>
-        <h2>Dogs (and their humans) love it</h2>
+        <h2>{headingOverride ?? 'Dogs (and their humans) love it'}</h2>
         <div className="testimonial-cards">
           {testimonials.map((t) => (
             <div

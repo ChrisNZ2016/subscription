@@ -312,6 +312,7 @@ nav.site-nav {
   padding: 0.875rem 2rem;
   background: linear-gradient(160deg, var(--color-cta) 0%, var(--color-green-dark) 100%);
   color: var(--color-cta-text);
+  text-decoration: none;
   border: none;
   border-radius: var(--radius);
   font-size: 0.9375rem;
@@ -3063,4 +3064,764 @@ nav.site-nav {
 }
 .subscribe-ingredients-page .why-love-section {
   padding-top: 0;
+}
+
+/* ============================================
+   Wholesale Page
+   ============================================ */
+
+.wh-page {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Nav anchor links (vs nav-link-btn which is a button) */
+.nav-link-btn-a {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.nav-link-btn-a:hover { color: var(--color-text); }
+
+/* Email nudge below CTA buttons */
+.wh-cta-email {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.wh-cta-email a {
+  color: var(--color-blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.wh-cta-email a:hover {
+  color: var(--color-text);
+}
+
+/* ── Product Info Section ─────────────────── */
+
+.wh-product-section {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 4rem;
+}
+
+.wh-product-inner {
+  display: grid;
+  grid-template-columns: 55fr 45fr;
+  gap: 5rem;
+  align-items: start;
+}
+
+.wh-product-copy .section-label { display: block; }
+
+.wh-product-copy h2 {
+  font-size: clamp(1.875rem, 3vw, 2.5rem);
+  margin-bottom: 1.25rem;
+  line-height: 1.1;
+}
+
+.wh-product-copy p {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.8;
+}
+
+.wh-product-copy strong { color: var(--color-text); }
+
+.wh-product-specs {
+  margin-top: 1.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.wh-spec-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 0.875rem;
+}
+
+.wh-spec-row:last-child { border-bottom: none; }
+
+.wh-spec-label {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-alt);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+}
+
+.wh-spec-value {
+  padding: 0.75rem 1rem;
+  color: var(--color-text);
+}
+
+.wh-product-image {
+  position: sticky;
+  top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.wh-product-full {
+  margin-top: 2.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.wh-product-full > p {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  max-width: 760px;
+}
+
+.wh-product-full strong { color: var(--color-text); }
+
+.wh-product-img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Ingredients (wholesale — single column) ─ */
+
+.wh-ingredients-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2.5rem 4rem;
+}
+
+.wh-ingredients-inner .section-label { display: block; }
+
+.wh-ingredients-inner h2 {
+  font-size: clamp(1.875rem, 3vw, 2.5rem);
+  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.wh-ingredient-grid {
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .wh-ingredients-inner { padding: 2.5rem 3rem; }
+  .wh-ingredient-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .wh-ingredients-inner { padding: 2.5rem 1.5rem; }
+  .wh-ingredient-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .wh-ingredients-inner { padding: 2.5rem 1rem; }
+}
+
+/* ── Clinical ingredient card variant ─────── */
+
+.ingredient-card--key {
+  border-color: rgba(84, 101, 163, 0.3);
+  background: var(--color-blue-light);
+}
+
+.ingredient-card--key:hover {
+  border-color: var(--color-blue);
+}
+
+.ing-key-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-blue);
+  background: rgba(84, 101, 163, 0.12);
+  border: 1px solid rgba(84, 101, 163, 0.25);
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+/* ── Full ingredient list accordion ───────── */
+
+.wh-ingredients-accordion {
+  display: block;
+  margin-top: 2rem;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+
+.wh-ingredients-summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.wh-ingredients-summary::-webkit-details-marker { display: none; }
+.wh-ingredients-summary::marker { display: none; }
+
+.wh-ingredients-summary strong {
+  display: block;
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  margin-bottom: 0.3rem;
+}
+
+.wh-ingredients-summary p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.wh-ingredients-toggle-label {
+  display: inline-block;
+  margin-top: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-green-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.wh-ingredients-accordion[open] .wh-ingredients-toggle-label::after {
+  content: ' −';
+}
+
+.wh-ingredients-accordion:not([open]) .wh-ingredients-toggle-label::after {
+  content: ' +';
+}
+
+.wh-ingredients-accordion-body {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ── Science Section ──────────────────────── */
+
+.wh-science-section {
+  background: var(--color-bg-alt);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  padding: 2.5rem 4rem;
+}
+
+.wh-science-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.wh-science-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.wh-science-header h2 {
+  font-size: clamp(1.875rem, 3vw, 2.5rem);
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.wh-science-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.75;
+}
+
+.wh-science-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.wh-science-mechanism h3,
+.wh-science-credentials h3 {
+  font-family: var(--font-sans);
+  font-size: var(--section-label-size);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-green-text);
+  margin-bottom: 1.25rem;
+}
+
+.wh-science-mechanism p {
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.wh-science-mechanism strong { color: var(--color-text); }
+
+.wh-hydrolysis-callout {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+
+.wh-hydrolysis-step {
+  display: flex;
+  gap: 0.875rem;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.wh-hydrolysis-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: var(--color-green);
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.1rem;
+}
+
+.wh-hydrolysis-step strong {
+  display: block;
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  margin-bottom: 0.3rem;
+}
+
+.wh-hydrolysis-step p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.wh-hydrolysis-arrow {
+  color: var(--color-green-dark);
+  font-size: 1.375rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.wh-manufacturer-block {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.wh-manufacturer-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text);
+  margin-bottom: 0.375rem;
+}
+
+.wh-manufacturer-desc {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+}
+
+.wh-cert-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.wh-cert-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.625rem;
+}
+
+.wh-cert-item strong {
+  font-size: 0.6875rem;
+  color: var(--color-green-text);
+  font-weight: 700;
+  font-family: var(--font-sans);
+}
+
+.wh-cert-item span {
+  font-size: 0.625rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.wh-sgs-block {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  background: var(--color-green-light);
+  border: 1px solid rgba(140, 184, 62, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.wh-sgs-icon {
+  flex-shrink: 0;
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  color: var(--color-green-text);
+  letter-spacing: 0.08em;
+  padding-top: 0.1rem;
+}
+
+.wh-sgs-block strong {
+  display: block;
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  margin-bottom: 0.3rem;
+}
+
+.wh-sgs-block p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* SGS accordion — block layout so the test grid stacks below the summary */
+.wh-sgs-accordion {
+  display: block;
+}
+
+.wh-sgs-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  list-style: none;
+  cursor: pointer;
+}
+
+.wh-sgs-summary::-webkit-details-marker { display: none; }
+.wh-sgs-summary::marker { display: none; }
+
+.wh-sgs-toggle-label {
+  display: inline-block;
+  margin-top: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-green-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.wh-sgs-accordion[open] .wh-sgs-toggle-label::after {
+  content: ' −';
+}
+
+.wh-sgs-accordion:not([open]) .wh-sgs-toggle-label::after {
+  content: ' +';
+}
+
+.wh-sgs-test-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(140, 184, 62, 0.25);
+}
+
+.wh-sgs-test-group-heading {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-green-text);
+  margin-bottom: 0.625rem;
+}
+
+.wh-sgs-test-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem 1rem;
+  width: 100%;
+}
+
+.wh-sgs-test-item {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  padding: 0.25rem 0;
+}
+
+@media (max-width: 768px) {
+  .wh-sgs-test-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .wh-sgs-test-grid { grid-template-columns: 1fr; }
+}
+
+.wh-lgd-block {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  background: var(--color-bg);
+}
+
+.wh-lgd-block p {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.wh-lgd-block strong { color: var(--color-text); }
+
+/* ── Commercial Section ───────────────────── */
+
+.wh-commercial-section {
+  background: var(--color-bg-alt);
+  border-top: 1px solid var(--color-border);
+  padding: 4rem;
+}
+
+.wh-commercial-inner {
+  max-width: var(--max-width-narrow);
+  margin: 0 auto;
+}
+
+.wh-commercial-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.wh-commercial-header .section-label { display: block; }
+
+.wh-commercial-header h2 {
+  font-size: clamp(1.875rem, 3vw, 2.5rem);
+  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.wh-commercial-header p {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.wh-commercial-body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2.5rem;
+  align-items: start;
+  margin-bottom: 3rem;
+}
+
+.wh-pricing-card {
+  min-width: 300px;
+  background: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-md);
+}
+
+.wh-pricing-header { margin-bottom: 1.5rem; }
+
+.wh-pricing-header h3 {
+  font-size: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.wh-pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 0.9375rem;
+}
+
+.wh-pricing-row span { color: var(--color-text-muted); }
+.wh-pricing-row strong { color: var(--color-text); font-size: 1.125rem; font-weight: 700; }
+.wh-pricing-row--rrp strong { font-size: 1.25rem; }
+
+.wh-pricing-margin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.25rem 1rem;
+  margin-top: 0.875rem;
+  background: var(--color-green-light);
+  border: 1.5px solid rgba(140, 184, 62, 0.3);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.wh-margin-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-green-text);
+}
+
+.wh-margin-value {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.wh-margin-amount {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.wh-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.wh-reason {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.wh-reason-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.wh-reason strong {
+  display: block;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+  font-family: var(--font-sans);
+}
+
+.wh-reason p {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.wh-order-block {
+  text-align: center;
+  background: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 3rem 2.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.wh-order-block h3 {
+  font-size: 1.75rem;
+  font-weight: 400;
+  margin-bottom: 0.75rem;
+}
+
+.wh-order-block p {
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+  font-size: 0.9375rem;
+}
+
+.wh-order-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Wholesale Responsive ─────────────────── */
+
+@media (max-width: 1024px) {
+  .wh-product-section { padding: 3rem; }
+  .wh-product-inner { gap: 3rem; }
+  .wh-science-section { padding: 2.5rem 3rem; }
+  .wh-commercial-section { padding: 3rem; }
+}
+
+@media (max-width: 768px) {
+  .wh-product-section { padding: 2.5rem 1.5rem; }
+  .wh-product-inner {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .wh-product-image { position: static; }
+  .wh-product-full { margin-top: 2rem; padding-top: 2rem; }
+
+  .wh-spec-row { grid-template-columns: 1fr; }
+  .wh-spec-label { border-bottom: 1px solid var(--color-border-light); padding-bottom: 0.375rem; }
+
+  .wh-science-section { padding: 2.5rem 1.5rem; }
+  .wh-cert-grid { grid-template-columns: repeat(4, 1fr); }
+
+  .wh-hydrolysis-callout { flex-direction: column; }
+  .wh-hydrolysis-arrow { transform: rotate(90deg); }
+
+  .wh-commercial-section { padding: 2.5rem 1.5rem; }
+  .wh-commercial-body { grid-template-columns: 1fr; }
+  .wh-pricing-card { min-width: unset; }
+}
+
+@media (max-width: 480px) {
+  .wh-product-section { padding: 2.5rem 1rem; }
+  .wh-science-section { padding: 2.5rem 1rem; }
+  .wh-cert-grid { grid-template-columns: repeat(2, 1fr); }
+  .wh-commercial-section { padding: 2.5rem 1rem; }
+  .wh-order-block { padding: 2rem 1.5rem; }
+  .wh-order-actions { flex-direction: column; align-items: stretch; }
+  .wh-order-actions a, .wh-order-actions .btn { text-align: center; justify-content: center; }
 }

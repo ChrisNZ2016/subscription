@@ -82,6 +82,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-06-26** — src/App.css, src/App.tsx, src/components/IngredientList.tsx, src/components/ProductTabs.tsx, src/components/TestimonialsSection.tsx, src/components/WholesalePage.tsx
 - **2026-06-25** — src/constants/page-versions.ts, src/lib/subscription-prices.ts
 <!-- CHANGELOG_END -->
 
