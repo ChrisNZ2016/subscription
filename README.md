@@ -101,7 +101,7 @@ npx vercel --prod --yes
 
 Production is aliased to `https://lp.littlegreendog.co.nz`. There is no CI pipeline — the CLI is the deploy path.
 
-**Last deployed:** `2026-06-26T17:36:24Z` — Vercel CLI deploy (`npx vercel --prod --yes`). Production: https://subscription-a779dyvmg-chris-oneills-projects.vercel.app. Aliased to `https://lp.littlegreendog.co.nz`. Inspect: https://vercel.com/chris-oneills-projects/subscription/584prS4R6dwxPCRT9cSc5xrCHr67.
+**Last deployed:** `2026-06-26T20:52:00Z` — Vercel CLI deploy (`npx vercel --prod --yes`). Production: https://subscription-83lvb8kx7-chris-oneills-projects.vercel.app. Aliased to `https://lp.littlegreendog.co.nz`. Inspect: https://vercel.com/chris-oneills-projects/subscription/DeafD9aTqxPiQ2W7G9pP18o8nPSi.
 
 ## Project structure
 
@@ -171,6 +171,7 @@ Current versions (auto-synced on commit):
 | `landing-simple` | 1.0.0 |
 | `landing-solo` | 1.0.0 |
 | `solo` | 1.0.1 |
+| `sample-subscribe` | 1.0.0 |
 | `reactivation` | 1.0.0 |
 | `subscribe-offer` | 1.0.0 |
 | `subscribe-ingredients` | 1.0.0 |

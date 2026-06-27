@@ -46,6 +46,34 @@ interface ShopifyOrder {
   line_items: ShopifyLineItem[];
   note_attributes: ShopifyNoteAttribute[];
   created_at: string;
+  customer?: {
+    id: number;
+    email: string;
+    first_name?: string | null;
+    last_name?: string | null;
+    phone?: string | null;
+  } | null;
+  shipping_address?: ShopifyAddress | null;
+  billing_address?: ShopifyAddress | null;
+  shipping_lines?: ShopifyShippingLine[];
+}
+
+interface ShopifyAddress {
+  first_name?: string | null;
+  last_name?: string | null;
+  address1?: string | null;
+  address2?: string | null;
+  company?: string | null;
+  city?: string | null;
+  province?: string | null;
+  country?: string | null;
+  zip?: string | null;
+  phone?: string | null;
+}
+
+interface ShopifyShippingLine {
+  title?: string;
+  price?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -233,6 +261,10 @@ export default async function handler(
   } catch (err) {
     console.error('Meta CAPI Purchase failed:', err);
   }
+
+  // Note: the sample-subscribe SKU swap is handled by the
+  // subscription_contracts/create webhook (api/webhooks/subscription-contracts-create.ts),
+  // which fires once the contract exists — no race with async contract creation.
 
   res.status(200).json({ ok: true });
 }

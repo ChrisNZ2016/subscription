@@ -5,7 +5,14 @@ interface HeroSectionProps {
   /** Accepted for API compatibility with callers; ingredients nav is handled elsewhere. */
   onViewIngredients?: () => void;
   samplePrice?: string;
+  trustBadges?: [string, string, string];
 }
+
+const DEFAULT_TRUST_BADGES: [string, string, string] = [
+  '✓ Delivered in 1–3 days',
+  '✓ 50% off your first box',
+  '✓ Cancel anytime',
+];
 
 const galleryImages = [
   { src: '/kibble/1.jpg', alt: 'Little Green Dog kibble', thumb: '/kibble/1.jpg' },
@@ -18,7 +25,7 @@ const galleryImages = [
 
 const COUNT = galleryImages.length;
 
-export function HeroSection({ onGetStarted, samplePrice }: HeroSectionProps) {
+export function HeroSection({ onGetStarted, samplePrice, trustBadges = DEFAULT_TRUST_BADGES }: HeroSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   // live drag offset in px (null = not dragging)
   const [dragOffset, setDragOffset] = useState<number | null>(null);
@@ -71,9 +78,9 @@ export function HeroSection({ onGetStarted, samplePrice }: HeroSectionProps) {
           </button>
         </div>
         <div className="hero-trust">
-          <span>✓ Delivered in 1–3 days</span>
-          <span>✓ 50% off your first box</span>
-          <span>✓ Cancel anytime</span>
+          <span>{trustBadges[0]}</span>
+          <span>{trustBadges[1]}</span>
+          <span>{trustBadges[2]}</span>
         </div>
         <p className="hero-guarantee">🛡️ 100% money-back guarantee, no questions asked</p>
       </div>
