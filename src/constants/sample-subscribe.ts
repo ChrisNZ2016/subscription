@@ -132,6 +132,10 @@ export function formatRetailPrice(sizeKg: number, tier: DiscountTier = DEFAULT_D
   return formatPrice(getRetailPrice(sizeKg, tier));
 }
 
+export function formatRecurringSavings(sizeKg: number, tier: DiscountTier = DEFAULT_DISCOUNT_TIER): string {
+  return formatPrice(getRetailPrice(sizeKg, tier) - getDiscountedPrice(sizeKg, tier));
+}
+
 export function formatCheckoutSummary(
   sizeKg: number,
   frequencyMonths: FrequencyMonths,

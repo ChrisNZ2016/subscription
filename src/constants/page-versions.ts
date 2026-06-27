@@ -18,7 +18,7 @@ export const PAGE_VERSIONS: Record<PageName, { name: PageName; version: string }
   'landing-simple': { name: 'landing-simple', version: '1.0.0' },
   'landing-solo': { name: 'landing-solo', version: '1.0.0' },
   solo: { name: 'solo', version: '1.0.1' },
-  'sample-subscribe': { name: 'sample-subscribe', version: '1.0.0' },
+  'sample-subscribe': { name: 'sample-subscribe', version: '1.1.0' },
   reactivation: { name: 'reactivation', version: '1.0.0' },
   'subscribe-offer': { name: 'subscribe-offer', version: '1.0.0' },
   'subscribe-ingredients': { name: 'subscribe-ingredients', version: '1.0.0' },

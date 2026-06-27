@@ -82,6 +82,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-06-27** — src/components/SampleSubscribePicker.tsx, src/constants/page-versions.ts, src/constants/sample-subscribe.ts
 - **2026-06-26** — src/components/WholesalePage.tsx, src/constants/page-versions.ts, src/lib/analytics.ts, src/lib/page-attribution.ts
 - **2026-06-26** — src/App.css, src/App.tsx, src/components/IngredientList.tsx, src/components/ProductTabs.tsx, src/components/TestimonialsSection.tsx, src/components/WholesalePage.tsx
 - **2026-06-25** — src/constants/page-versions.ts, src/lib/subscription-prices.ts
@@ -171,7 +172,7 @@ Current versions (auto-synced on commit):
 | `landing-simple` | 1.0.0 |
 | `landing-solo` | 1.0.0 |
 | `solo` | 1.0.1 |
-| `sample-subscribe` | 1.0.0 |
+| `sample-subscribe` | 1.1.0 |
 | `reactivation` | 1.0.0 |
 | `subscribe-offer` | 1.0.0 |
 | `subscribe-ingredients` | 1.0.0 |

@@ -15,6 +15,7 @@ import { shopifyGidToContentId } from '../lib/meta-pixel';
 import {
   DEFAULT_DISCOUNT_TIER,
   formatRecurringPrice,
+  formatRecurringSavings,
   formatRetailPrice,
   FREQUENCY_MONTHS_OPTIONS,
   getSampleVariantGid,
@@ -163,12 +164,13 @@ export function SampleSubscribePicker({
 }: SampleSubscribePickerProps) {
   const freqLabel = frequencyMonths === 1 ? 'month' : `${frequencyMonths} months`;
   const samplePriceLabel = `$${SAMPLE_PRICE.toFixed(2)}`;
-  const recurringFullPrice = formatRetailPrice(bagSizeKg);
+  const sampleRetailLabel = formatRetailPrice(2);
+  const recurringSavingsLabel = formatRecurringSavings(bagSizeKg);
 
   return (
     <section className="subscription-picker-primary" id="sample-subscribe">
       <div className="subscription-picker-inner">
-        <p className="picker-eyebrow">Start with a sample</p>
+        <p className="picker-eyebrow">Try it risk-free before you commit.</p>
         {/* How it works — process first, before any numbers are presumed */}
         <ol className="picker-how">
           <li className="picker-how-step">
@@ -178,21 +180,20 @@ export function SampleSubscribePicker({
             </span>
           </li>
           <li className="picker-how-step">
-            <span className="picker-how-icon" aria-hidden="true">🐶</span>
-            <span className="picker-how-text">
-              <strong>Your dog tries it.</strong> Not a fan? Cancel before your first full bag —
-              no charge beyond the sample.
-            </span>
-          </li>
-          <li className="picker-how-step">
             <span className="picker-how-icon" aria-hidden="true">🔁</span>
             <span className="picker-how-text">
-              <strong>They love it? Do nothing.</strong> Your subscription begins one cycle later
+              <strong>They love it? Do nothing.</strong> Your subscription begins on your chosen date
               at <strong>25% off</strong> — skip, pause, or cancel anytime.
             </span>
           </li>
+          <li className="picker-how-step">
+            <span className="picker-how-icon" aria-hidden="true">🐶</span>
+            <span className="picker-how-text">
+              <strong>Not a fan?</strong> Cancel before your first subscription bag —
+              no charge beyond the sample.
+            </span>
+          </li>
         </ol>
-
         {/* Build the subscription */}
         <div className="picker-build">
           <div className="picker-step">
@@ -218,8 +219,9 @@ export function SampleSubscribePicker({
             <p className="picker-summary-heading">What you&apos;ll pay</p>
             <div className="picker-summary-rows">
               <div className="picker-summary-row picker-summary-row--now">
-                <span className="picker-summary-label">2kg sample today</span>
-                <span className="picker-summary-value">{samplePriceLabel}</span>
+                <span className="picker-summary-label">
+                  2kg sample, normally {sampleRetailLabel} — yours for {samplePriceLabel}
+                </span>
               </div>
               <div className="picker-summary-row">
                 <span className="picker-summary-label">
@@ -227,8 +229,7 @@ export function SampleSubscribePicker({
                 </span>
                 <span className="picker-summary-value">
                   {recurringPrice}
-                  <span className="picker-summary-discount">{DEFAULT_DISCOUNT_TIER}% off</span>
-                  <span className="picker-summary-retail">{recurringFullPrice}</span>
+                  <span className="picker-summary-discount">save {recurringSavingsLabel}</span>
                 </span>
                 <p className="picker-summary-note">
                   Cancel before it ships and you won&apos;t be charged
@@ -274,10 +275,6 @@ export function SampleSubscribePicker({
               </div>
             </div>
           </div>
-
-          <p className="picker-adjust-note">
-            We&apos;ve matched the size and frequency to your dog — adjust to suit how much they eat.
-          </p>
         </div>
 
         {cartError && <p className="picker-error">{cartError}</p>}
@@ -289,6 +286,9 @@ export function SampleSubscribePicker({
         >
           {isSubmitting ? 'Working…' : `Send my 2kg sample — ${samplePriceLabel}`}
         </button>
+        <p className="reactivation-finefoot">
+          Then {bagSizeKg}kg every {freqLabel} at {DEFAULT_DISCOUNT_TIER}% off. We will email you 3 days before. Skip or cancel anytime.
+        </p>
       </div>
     </section>
   );
