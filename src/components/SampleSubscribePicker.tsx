@@ -13,7 +13,6 @@ import {
 import { trackCheckoutStarted, trackCtaClicked, trackPlanCustomized, type CtaLocation } from '../lib/analytics';
 import { shopifyGidToContentId } from '../lib/meta-pixel';
 import {
-  DEFAULT_DISCOUNT_TIER,
   formatRecurringPrice,
   formatRecurringSavings,
   formatRetailPrice,
