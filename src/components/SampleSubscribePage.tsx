@@ -10,7 +10,7 @@ import { Footer } from './Footer';
 import { StickyCTA } from './StickyCTA';
 import { SampleSubscribePicker, useSampleSubscribeSelection } from './SampleSubscribePicker';
 import { SubscriptionPricingTable } from './SubscriptionPricingTable';
-import { trackPageViewed, trackNavAnchorClicked } from '../lib/analytics';
+import { trackPageViewed, trackNavAnchorClicked, trackCtaClicked, type CtaLocation } from '../lib/analytics';
 import { useSectionViewed } from '../hooks/useSectionViewed';
 import { SAMPLE_PRICE } from '../constants/sample-subscribe';
 
@@ -29,13 +29,10 @@ export function SampleSubscribePage() {
   useSectionViewed('testimonials', 'testimonials');
   useSectionViewed('faq', 'faq');
 
-  const handleGetStarted = useCallback((location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq') => {
-    if (location === 'hero' || location === 'nav' || location === 'sticky') {
-      document.getElementById('sample-subscribe')?.scrollIntoView({ behavior: 'smooth' });
-      return;
-    }
-    picker.handleCheckout(location);
-  }, [picker]);
+  const handleGetStarted = useCallback((location: CtaLocation) => {
+    trackCtaClicked(location);
+    document.getElementById('sample-subscribe')?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   return (
     <>

@@ -182,8 +182,8 @@ export function SampleSubscribePicker({
           <li className="picker-how-step">
             <span className="picker-how-icon" aria-hidden="true">🔁</span>
             <span className="picker-how-text">
-              <strong>They love it? Do nothing.</strong> Your subscription begins on your chosen date
-              at <strong>25% off</strong> — skip, pause, or cancel anytime.
+              <strong>Dog loves it? Do nothing.</strong> Your subscription begins on your chosen date
+              at <strong>25% off</strong> our retail price — skip, pause, or cancel anytime.
             </span>
           </li>
           <li className="picker-how-step">
@@ -287,7 +287,7 @@ export function SampleSubscribePicker({
           {isSubmitting ? 'Working…' : `Send my 2kg sample — ${samplePriceLabel}`}
         </button>
         <p className="reactivation-finefoot">
-          Then {bagSizeKg}kg every {freqLabel} at {DEFAULT_DISCOUNT_TIER}% off. We will email you 3 days before. Skip or cancel anytime.
+          We will email you 3 days before your date. Skip or cancel anytime.
         </p>
       </div>
     </section>
