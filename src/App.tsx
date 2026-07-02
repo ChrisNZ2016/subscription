@@ -11,13 +11,7 @@ const WholesalePage = lazy(() => import('./components/WholesalePage').then((m) =
 function resolvePage() {
   const path = window.location.pathname;
   if (path === '/solo' || path === '/solo/') {
-    const AB_KEY = 'lgd_ab_solo_v1';
-    let variant = localStorage.getItem(AB_KEY);
-    if (!variant) {
-      variant = Math.random() < 0.5 ? 'solo' : 'sample-subscribe';
-      localStorage.setItem(AB_KEY, variant);
-    }
-    return variant === 'sample-subscribe' ? <SampleSubscribePage /> : <SoloPage />;
+    return <SoloPage />;
   }
   if (path === '/sample-subscribe' || path === '/sample-subscribe/') return <SampleSubscribePage />;
   if (path === '/welcome-back' || path === '/welcome-back/') return <ReactivationPage />;

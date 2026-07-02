@@ -82,6 +82,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-07-02** — src/App.tsx, src/lib/page-attribution.ts
 - **2026-06-29** — src/components/SampleSubscribePicker.tsx
 - **2026-06-29** — src/App.tsx, src/components/SampleSubscribePage.tsx, src/components/SampleSubscribePicker.tsx, src/lib/page-attribution.ts
 - **2026-06-27** — src/components/SampleSubscribePicker.tsx, src/constants/page-versions.ts, src/constants/sample-subscribe.ts

@@ -3,10 +3,7 @@ import { PAGE_VERSIONS, type PageName } from '../constants/page-versions';
 /** Resolve the funnel page name from the current URL (path + landing query variants). */
 export function getPageName(): PageName {
   const path = window.location.pathname;
-  if (path === '/solo' || path === '/solo/') {
-    const variant = localStorage.getItem('lgd_ab_solo_v1');
-    return variant === 'sample-subscribe' ? 'sample-subscribe' : 'solo';
-  }
+  if (path === '/solo' || path === '/solo/') return 'solo';
   if (path === '/sample-subscribe' || path === '/sample-subscribe/') return 'sample-subscribe';
   if (path === '/welcome-back' || path === '/welcome-back/') return 'reactivation';
   if (path === '/subscribe-offer' || path === '/subscribe-offer/') return 'subscribe-offer';
