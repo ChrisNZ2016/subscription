@@ -30,16 +30,23 @@ const CART_CREATE_MUTATION = `
   }
 `;
 
+export function subscribeOfferCartKey(variantId: string, sellingPlanId: string): string {
+  return `${variantId}:${sellingPlanId}`;
+}
+
 /**
  * Create the early-subscriber cart and return its checkout URL, WITHOUT
  * redirecting. Lets the page warm the cart ahead of the click for instant checkout.
  */
-export async function createSubscribeCart(variantId: string): Promise<string> {
+export async function createSubscribeCart(
+  variantId: string,
+  sellingPlanId: string = EARLY_SUBSCRIBER_SELLING_PLAN_ID,
+): Promise<string> {
   const lines: CartLine[] = [
     {
       merchandiseId: variantId,
       quantity: 1,
-      sellingPlanId: EARLY_SUBSCRIBER_SELLING_PLAN_ID,
+      sellingPlanId,
     },
   ];
 
@@ -66,8 +73,9 @@ export async function createSubscribeCartAndRedirect(
   variantId: string,
   checkoutValue?: number,
   prefetchedCheckoutUrl?: string,
+  sellingPlanId: string = EARLY_SUBSCRIBER_SELLING_PLAN_ID,
 ): Promise<void> {
-  const checkoutUrl = prefetchedCheckoutUrl ?? (await createSubscribeCart(variantId));
+  const checkoutUrl = prefetchedCheckoutUrl ?? (await createSubscribeCart(variantId, sellingPlanId));
 
   finishCheckoutRedirect(checkoutUrl, {
     contentIds: [shopifyGidToContentId(variantId)],

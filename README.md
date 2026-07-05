@@ -82,6 +82,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-07-05** — src/components/SubscribeOfferPicker.tsx, src/components/SubscribePage.tsx, src/constants/page-versions.ts, src/lib/cart-subscribe.ts, src/lib/subscribe-offer-plans.ts
 - **2026-07-02** — src/App.tsx, src/lib/page-attribution.ts
 - **2026-06-29** — src/components/SampleSubscribePicker.tsx
 - **2026-06-29** — src/App.tsx, src/components/SampleSubscribePage.tsx, src/components/SampleSubscribePicker.tsx, src/lib/page-attribution.ts
@@ -177,7 +178,7 @@ Current versions (auto-synced on commit):
 | `solo` | 1.0.1 |
 | `sample-subscribe` | 1.1.0 |
 | `reactivation` | 1.0.0 |
-| `subscribe-offer` | 1.0.0 |
+| `subscribe-offer` | 1.1.0 |
 | `subscribe-ingredients` | 1.0.0 |
 | `wholesale` | 1.0.0 |
 <!-- PAGE_VERSIONS_END -->

@@ -20,7 +20,7 @@ export const PAGE_VERSIONS: Record<PageName, { name: PageName; version: string }
   solo: { name: 'solo', version: '1.0.1' },
   'sample-subscribe': { name: 'sample-subscribe', version: '1.1.0' },
   reactivation: { name: 'reactivation', version: '1.0.0' },
-  'subscribe-offer': { name: 'subscribe-offer', version: '1.0.0' },
+  'subscribe-offer': { name: 'subscribe-offer', version: '1.1.0' },
   'subscribe-ingredients': { name: 'subscribe-ingredients', version: '1.0.0' },
   wholesale: { name: 'wholesale', version: '1.0.0' },
 };
