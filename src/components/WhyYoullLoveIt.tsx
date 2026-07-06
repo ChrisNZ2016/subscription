@@ -93,9 +93,11 @@ function FeatureCell({ feature }: { feature: typeof features[number] }) {
 interface WhyYoullLoveItProps {
   onGetStarted?: () => void;
   samplePrice?: string;
+  /** e.g. "50% off" — reflects the active price tier. */
+  discountLabel?: string;
 }
 
-export function WhyYoullLoveIt({ onGetStarted, samplePrice }: WhyYoullLoveItProps) {
+export function WhyYoullLoveIt({ onGetStarted, samplePrice, discountLabel = '50% off' }: WhyYoullLoveItProps) {
   return (
     <section className="why-love-section">
       <div className="why-love-header">
@@ -127,7 +129,7 @@ export function WhyYoullLoveIt({ onGetStarted, samplePrice }: WhyYoullLoveItProp
           <button className="btn-order" onClick={onGetStarted}>
             {samplePrice ? `Get my sample, ${samplePrice}` : 'Get my sample'}
           </button>
-          <p className="why-love-cta-note">50% off your first box · Delivered in 1–3 days · Cancel anytime</p>
+          <p className="why-love-cta-note">{discountLabel} your first box · Delivered in 1–3 days · Cancel anytime</p>
           <p className="cta-guarantee">🛡️ 100% money-back guarantee, no questions asked</p>
         </div>
       )}

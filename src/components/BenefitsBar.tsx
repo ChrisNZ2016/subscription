@@ -1,8 +1,13 @@
-export function BenefitsBar() {
+interface BenefitsBarProps {
+  /** Percentage off shown in the "Off first box" stat; reflects the active tier. */
+  discountPercent?: number;
+}
+
+export function BenefitsBar({ discountPercent = 50 }: BenefitsBarProps) {
   const metrics = [
     { value: '2,000', accent: '+', label: 'Happy dogs' },
     { value: '6', accent: '+', label: 'Superfoods per bag' },
-    { value: '50', accent: '%', label: 'Off first box' },
+    { value: String(discountPercent), accent: '%', label: 'Off first box' },
     { value: '100', accent: '%', label: 'Money-back guarantee' },
   ];
 

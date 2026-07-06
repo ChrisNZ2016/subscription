@@ -82,6 +82,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-07-06** — src/components/BenefitsBar.tsx, src/components/FAQCTA.tsx, src/components/SoloPage.tsx, src/components/SubscriptionPricingSection.tsx, src/components/WhyYoullLoveIt.tsx, src/lib/solo-pricing.ts
 - **2026-07-05** — src/components/SubscribeOfferPicker.tsx, src/components/SubscribePage.tsx, src/constants/page-versions.ts, src/lib/cart-subscribe.ts, src/lib/subscribe-offer-plans.ts
 - **2026-07-02** — src/App.tsx, src/lib/page-attribution.ts
 - **2026-06-29** — src/components/SampleSubscribePicker.tsx

@@ -1,6 +1,11 @@
 import { SubscriptionPricingTable } from './SubscriptionPricingTable';
 
-export function SubscriptionPricingSection() {
+interface SubscriptionPricingSectionProps {
+  /** e.g. "50% off" — reflects the active price tier. */
+  discountLabel?: string;
+}
+
+export function SubscriptionPricingSection({ discountLabel = '50% off' }: SubscriptionPricingSectionProps) {
   return (
     <section className="subscription-pricing-section" id="subscription-pricing">
       <div className="subscription-pricing-inner">
@@ -9,7 +14,7 @@ export function SubscriptionPricingSection() {
         </span>
         <h2>Know exactly what you&apos;ll pay if you subscribe</h2>
         <p className="subscription-pricing-intro">
-          Your 2kg sample ships first at 50% off. If your dog loves it, you can continue by subscribing
+          Your 2kg sample ships first at {discountLabel}. If your dog loves it, you can continue by subscribing
          at the price below, delivered every 4 weeks. Change size, skip, or cancel anytime.
         </p>
         <SubscriptionPricingTable />

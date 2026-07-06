@@ -1,7 +1,8 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useSampleProduct } from '../hooks/useSampleProduct';
 import { createSoloCart, createSoloCartAndRedirect } from '../lib/cart-solo';
 import { formatMoney } from '../lib/pricing';
+import { resolveSoloPriceTier } from '../lib/solo-pricing';
 import { HeroSection } from './HeroSection';
 import { BenefitsBar } from './BenefitsBar';
 import { WhyYoullLoveIt } from './WhyYoullLoveIt';
@@ -27,11 +28,34 @@ export function SoloPage() {
 
   const sampleVariant = product?.variants.nodes[0];
   const sampleAllocation = sampleVariant?.sellingPlanAllocations.nodes[0];
-  const samplePrice = sampleAllocation
-    ? formatMoney(sampleAllocation.priceAdjustments[0].perDeliveryPrice)
-    : sampleVariant?.price
-      ? formatMoney(sampleVariant.price)
-      : undefined;
+
+  // UTM-driven price tier. When set, both the displayed price and the variant
+  // added to the cart switch to the tier's dedicated variant, so checkout
+  // charges the tier price. Null → base sample variant / pricing.
+  const priceTier = useMemo(() => resolveSoloPriceTier(), []);
+
+  // The variant actually purchased: the tier's variant when active, else the
+  // default sample variant.
+  const cartVariantId = priceTier?.variantId ?? sampleVariant?.id;
+
+  // Money object the page charges/displays: tier price wins, else selling-plan
+  // allocation price, else the plain variant price.
+  const activePriceObj = priceTier
+    ? priceTier.price
+    : sampleAllocation
+      ? sampleAllocation.priceAdjustments[0].perDeliveryPrice
+      : sampleVariant?.price;
+
+  const samplePrice = activePriceObj ? formatMoney(activePriceObj) : undefined;
+
+  // Discount copy reflects the active tier (50% off / 30% off); base keeps the
+  // existing "50% off" messaging.
+  const discountLabel = priceTier ? `${priceTier.percentOff}% off` : '50% off';
+  const heroTrustBadges: [string, string, string] = [
+    '✓ Delivered in 1–3 days',
+    `✓ ${discountLabel} your first box`,
+    '✓ Cancel anytime',
+  ];
 
   useEffect(() => {
     trackPageViewed();
@@ -43,52 +67,52 @@ export function SoloPage() {
   useSectionViewed('faq', 'faq');
 
   useEffect(() => {
-    if (!sampleVariant) return;
-    const priceObj = sampleAllocation
-      ? sampleAllocation.priceAdjustments[0].perDeliveryPrice
-      : sampleVariant.price;
+    if (!cartVariantId) return;
     trackMetaViewContent({
-      contentIds: [shopifyGidToContentId(sampleVariant.id)],
-      value: priceObj ? parseFloat(priceObj.amount) : undefined,
-      currency: priceObj?.currencyCode ?? 'NZD',
+      contentIds: [shopifyGidToContentId(cartVariantId)],
+      value: activePriceObj ? parseFloat(activePriceObj.amount) : undefined,
+      currency: activePriceObj?.currencyCode ?? 'NZD',
     });
-  }, [sampleVariant, sampleAllocation]);
+  }, [cartVariantId, activePriceObj]);
 
   // Warm the cart as soon as the variant is known so the checkout redirect is instant.
   useEffect(() => {
-    if (!sampleVariant || prefetchedCheckoutUrl.current) return;
-    createSoloCart(sampleVariant.id)
+    if (!cartVariantId || prefetchedCheckoutUrl.current) return;
+    createSoloCart(cartVariantId)
       .then((url) => { prefetchedCheckoutUrl.current = url; })
       .catch(() => { /* fall back to creating the cart at click time */ });
-  }, [sampleVariant]);
+  }, [cartVariantId]);
 
-  const comparePrice = sampleVariant?.compareAtPrice
-    ? formatMoney(sampleVariant.compareAtPrice)
-    : undefined;
+  const comparePrice = priceTier?.compareAtPrice
+    ? formatMoney(priceTier.compareAtPrice)
+    : sampleVariant?.compareAtPrice
+      ? formatMoney(sampleVariant.compareAtPrice)
+      : undefined;
 
   const handleCheckout = useCallback(async () => {
-    if (!sampleVariant) return;
+    if (!cartVariantId) return;
     setIsSubmitting(true);
     setCartError(null);
     try {
-      const priceObj = sampleAllocation
-        ? sampleAllocation.priceAdjustments[0].perDeliveryPrice
-        : sampleVariant.price;
-      const checkoutValue = priceObj ? parseFloat(priceObj.amount) : undefined;
+      const checkoutValue = activePriceObj ? parseFloat(activePriceObj.amount) : undefined;
       trackCheckoutStarted({
         samplePrice: samplePrice ?? '',
         bagWeight: 2,
         frequencyWeeks: 0,
         addonCount: 0,
-        contentIds: [shopifyGidToContentId(sampleVariant.id)],
+        contentIds: [shopifyGidToContentId(cartVariantId)],
         value: checkoutValue,
       });
-      await createSoloCartAndRedirect(sampleVariant.id, checkoutValue, prefetchedCheckoutUrl.current ?? undefined);
+      await createSoloCartAndRedirect(
+        cartVariantId,
+        checkoutValue,
+        prefetchedCheckoutUrl.current ?? undefined,
+      );
     } catch (err) {
       setCartError(err instanceof Error ? err.message : 'Failed to create cart');
       setIsSubmitting(false);
     }
-  }, [sampleVariant, samplePrice]);
+  }, [cartVariantId, samplePrice, activePriceObj]);
 
   const handleGetStarted = useCallback((location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq' = 'hero') => {
     trackCtaClicked(location);
@@ -150,11 +174,12 @@ export function SoloPage() {
             document.getElementById('product-tabs')?.scrollIntoView({ behavior: 'smooth' });
           }}
           samplePrice={samplePrice}
+          trustBadges={heroTrustBadges}
         />
-        <BenefitsBar />
+        <BenefitsBar discountPercent={priceTier?.percentOff ?? 50} />
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />
-        <WhyYoullLoveIt onGetStarted={() => handleGetStarted('why-you-love-it')} samplePrice={samplePrice} />
-        <SubscriptionPricingSection />
+        <WhyYoullLoveIt onGetStarted={() => handleGetStarted('why-you-love-it')} samplePrice={samplePrice} discountLabel={discountLabel} />
+        <SubscriptionPricingSection discountLabel={discountLabel} />
         <TestimonialsSection />
         <FAQSection
           additionalFaqs={[
@@ -163,7 +188,7 @@ export function SoloPage() {
               answer: (
                 <>
                   <p>
-                    Your 2kg sample ships first at 50% off. After that, your subscription
+                    Your 2kg sample ships first at {discountLabel}. After that, your subscription
                     continues at the price for the bag size you choose, delivered every 4 weeks.
                     You can change size, skip, pause, or cancel anytime.
                   </p>
@@ -173,7 +198,7 @@ export function SoloPage() {
             },
           ]}
         >
-          <FAQCTA onGetStarted={() => handleGetStarted('faq')} samplePrice={samplePrice} />
+          <FAQCTA onGetStarted={() => handleGetStarted('faq')} samplePrice={samplePrice} discountLabel={discountLabel} />
         </FAQSection>
       </main>
 
