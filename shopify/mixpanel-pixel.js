@@ -118,8 +118,8 @@ function readUtmFromCheckout(checkout) {
 }
 
 /**
- * Reads page_name and page_version cart attributes set by the landing page
- * (see src/lib/page-attribution.ts).
+ * Reads page_name, page_version, and price_tier cart attributes set by the
+ * landing page (see src/lib/page-attribution.ts and src/lib/solo-pricing.ts).
  */
 function readPageAttributionFromCheckout(checkout) {
   var props = {};
@@ -128,6 +128,7 @@ function readPageAttributionFromCheckout(checkout) {
   attrs.forEach(function (a) {
     if (a && a.key === 'page_name' && a.value) props.page_name = a.value;
     if (a && a.key === 'page_version' && a.value) props.page_version = a.value;
+    if (a && a.key === 'price_tier' && a.value) props.price_tier = a.value;
   });
   return props;
 }
@@ -243,6 +244,9 @@ analytics.subscribe('checkout_completed', function (event) {
   }
   if (pageAttribution.page_version) {
     firstTouch.initial_page_version = pageAttribution.page_version;
+  }
+  if (pageAttribution.price_tier) {
+    firstTouch.initial_price_tier = pageAttribution.price_tier;
   }
   if (Object.keys(firstTouch).length) {
     mixpanel.people.set_once(firstTouch);

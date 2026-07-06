@@ -27,7 +27,7 @@ export const SOLO_COMPARE_AT_PRICE: MoneyV2 = { amount: '55.00', currencyCode: C
 
 export interface SoloPriceTier {
   /** price_tier value that activates this tier (case-insensitive). */
-  key: string;
+  key: 'a' | 'b';
   /** Price charged & displayed for this tier. */
   price: MoneyV2;
   /** Strike-through anchor (always $55 for these tests). */
@@ -75,4 +75,16 @@ export function resolveSoloPriceTier(): SoloPriceTier | null {
   const value = new URLSearchParams(window.location.search).get(TIER_PARAM_KEY)?.trim().toLowerCase();
   if (!value) return null;
   return SOLO_PRICE_TIERS.find((t) => t.key.toLowerCase() === value) ?? null;
+}
+
+/** Mixpanel / cart attribute value for the active tier (`base` = no or unknown param). */
+export type SoloPriceTierKey = 'a' | 'b' | 'base';
+
+export function getSoloPriceTierKey(): SoloPriceTierKey {
+  return resolveSoloPriceTier()?.key ?? 'base';
+}
+
+/** Cart attributes that flow to order.note_attributes and checkout.attributes. */
+export function getSoloPriceTierCartAttributes(): Array<{ key: string; value: string }> {
+  return [{ key: 'price_tier', value: getSoloPriceTierKey() }];
 }

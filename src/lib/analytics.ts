@@ -5,12 +5,17 @@ import {
   trackMetaViewContent,
 } from './meta-pixel';
 import { getPageAttribution } from './page-attribution';
+import { getSoloPriceTierKey } from './solo-pricing';
 
 const TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN as string;
 
 function pageProps() {
   const { page_name, page_version } = getPageAttribution();
-  return { page: page_name, page_name, page_version };
+  const props: Record<string, string> = { page: page_name, page_name, page_version };
+  if (page_name === 'solo') {
+    props.price_tier = getSoloPriceTierKey();
+  }
+  return props;
 }
 
 // ─── Lazy Mixpanel loading ─────────────────────────────────────────────────────

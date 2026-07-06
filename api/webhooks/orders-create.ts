@@ -175,7 +175,7 @@ export default async function handler(
     if (value) utmProps[key] = value;
   }
 
-  const PAGE_ATTR_KEYS = ['page_name', 'page_version'] as const;
+  const PAGE_ATTR_KEYS = ['page_name', 'page_version', 'price_tier'] as const;
   const pageProps: Record<string, string> = {};
   for (const key of PAGE_ATTR_KEYS) {
     const value = order.note_attributes.find((a) => a.name === key)?.value;
@@ -253,6 +253,7 @@ export default async function handler(
     const firstPage: Record<string, string> = {};
     if (pageProps.page_name) firstPage.initial_page_name = pageProps.page_name;
     if (pageProps.page_version) firstPage.initial_page_version = pageProps.page_version;
+    if (pageProps.price_tier) firstPage.initial_price_tier = pageProps.price_tier;
     mp.people.set_once(distinctId, firstPage);
   }
 
