@@ -26,6 +26,9 @@ export function Footer() {
           </a>
         </div>
       </div>
+      <p className="footer-disclaimer">
+        Offer limited to one bag per person/household at the reduced price above.
+      </p>
     </footer>
   );
 }

@@ -2019,6 +2019,15 @@ nav.site-nav {
 
 .footer-social a:hover { color: #fff; }
 
+.footer-disclaimer {
+  max-width: var(--max-width);
+  margin: 1.5rem auto 0;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  line-height: 1.5;
+}
+
 /* ============================================
    Responsive
    ============================================ */
