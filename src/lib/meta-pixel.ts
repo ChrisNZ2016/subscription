@@ -25,24 +25,31 @@ let initialized = false;
 function initFbq(): void {
   if (initialized || !PIXEL_ID) return;
 
-  if (!window.fbq) {
-    const q: unknown[][] = [];
-    const fbq: Fbq = Object.assign(
-      (...args: unknown[]) => {
-        if (fbq.callMethod) {
-          fbq.callMethod(...args);
-        } else {
-          q.push(args);
-        }
-      },
-      { queue: q },
-    );
-    if (!window._fbq) window._fbq = fbq;
-    window.fbq = fbq;
-    window.fbq.push = fbq;
-    window.fbq.loaded = true;
-    window.fbq.version = '2.0';
+  // The base snippet in index.html normally boots the pixel (init + PageView)
+  // before this bundle runs. Adopt that instance rather than re-initialising,
+  // which would double-fire events. The code below is only a fallback for a
+  // build where the head snippet is absent.
+  if (window.fbq) {
+    initialized = true;
+    return;
   }
+
+  const q: unknown[][] = [];
+  const fbq: Fbq = Object.assign(
+    (...args: unknown[]) => {
+      if (fbq.callMethod) {
+        fbq.callMethod(...args);
+      } else {
+        q.push(args);
+      }
+    },
+    { queue: q },
+  );
+  if (!window._fbq) window._fbq = fbq;
+  window.fbq = fbq;
+  window.fbq.push = fbq;
+  window.fbq.loaded = true;
+  window.fbq.version = '2.0';
 
   const script = document.createElement('script');
   script.async = true;
@@ -106,10 +113,6 @@ export interface MetaCommerceParams {
   contentIds: string[];
   value?: number;
   currency?: string;
-}
-
-export function trackMetaPageView(): void {
-  track('PageView');
 }
 
 export function trackMetaViewContent(params: MetaCommerceParams): void {

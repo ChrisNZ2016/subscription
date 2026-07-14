@@ -82,6 +82,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-07-14** — src/App.css, src/lib/analytics.ts, src/lib/meta-pixel.ts
 - **2026-07-08** — src/App.css, src/components/Footer.tsx
 - **2026-07-06** — api/webhooks/orders-create.ts, shopify/README.md, shopify/mixpanel-pixel.js, src/lib/analytics.ts, src/lib/cart-solo.ts, src/lib/solo-pricing.ts
 - **2026-07-06** — src/components/BenefitsBar.tsx, src/components/FAQCTA.tsx, src/components/SoloPage.tsx, src/components/SubscriptionPricingSection.tsx, src/components/WhyYoullLoveIt.tsx, src/lib/solo-pricing.ts

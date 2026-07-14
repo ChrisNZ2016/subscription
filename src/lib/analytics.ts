@@ -1,7 +1,6 @@
 import type { OverridedMixpanel } from 'mixpanel-browser';
 import {
   trackMetaInitiateCheckout,
-  trackMetaPageView,
   trackMetaViewContent,
 } from './meta-pixel';
 import { getPageAttribution } from './page-attribution';
@@ -103,7 +102,8 @@ export function getDistinctId(): string {
 
 export function trackPageViewed(meta?: { contentIds?: string[]; value?: number }): void {
   withMixpanel((m) => m.track('Page Viewed', pageProps()));
-  trackMetaPageView();
+  // Meta PageView is fired by the base snippet in index.html so it lands even
+  // when the visitor bounces before the SPA boots; do not re-fire it here.
   if (meta?.contentIds?.length) {
     trackMetaViewContent({
       contentIds: meta.contentIds,
