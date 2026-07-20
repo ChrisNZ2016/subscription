@@ -15,6 +15,19 @@ import type { CartCreateResponse, CartLine } from '../types/shopify';
 // free gift) stays separable. NO reactivation cart attribute here → no gift.
 export const EARLY_SUBSCRIBER_SELLING_PLAN_ID = 'gid://shopify/SellingPlan/3082027157';
 
+// The 25%-off selling plans that back the early-subscriber offer on the
+// kibble-pack product, keyed by delivery frequency (months).
+//
+// Only the 1-month plan is *named* "early subscriber"; the 2- and 3-month legs
+// live in a separate 25%-off group whose plans are named "Deliver every two/
+// three months". A near-identical 20%-off group shares those names, so these
+// must be matched by ID, never by name, to avoid grabbing the 20% plans.
+export const EARLY_SUBSCRIBER_SELLING_PLAN_IDS: Record<1 | 2 | 3, string> = {
+  1: EARLY_SUBSCRIBER_SELLING_PLAN_ID,
+  2: 'gid://shopify/SellingPlan/3145433237',
+  3: 'gid://shopify/SellingPlan/3145466005',
+};
+
 const CART_CREATE_MUTATION = `
   mutation CartCreate($lines: [CartLineInput!]!, $attributes: [AttributeInput!]) {
     cartCreate(input: { lines: $lines, attributes: $attributes }) {
