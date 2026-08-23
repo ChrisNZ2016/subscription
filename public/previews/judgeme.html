@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Judge.me widget preview — Little Green Dog</title>
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>jdgm = window.jdgm || {};jdgm.SHOP_DOMAIN = 'little-green-dog.myshopify.com';jdgm.PLATFORM = 'shopify';jdgm.PUBLIC_TOKEN = 'jEDmSnDXIhjM5bWXqP9qSf5Rutk';</script>
+  <style>
+    :root {
+      --green: #ACD45C;
+      --green-text: #5a7d27;
+      --ink: #1a1a1a;
+      --muted: #5c5c56;
+      --line: #e4e4dc;
+      --paper: #f7f6f0;
+      --card: #fff;
+      --sans: 'DM Sans', -apple-system, sans-serif;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .bar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(247, 246, 240, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .bar-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 14px 24px 0;
+    }
+    .bar-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--green-text);
+    }
+    h1 {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 400;
+      margin: 4px 0 0;
+      letter-spacing: -0.02em;
+    }
+    .product-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    input {
+      font: 13px/1.3 var(--mono);
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 6px;
+      padding: 8px 10px;
+      min-width: 180px;
+      color: var(--ink);
+    }
+    input[name="title"] { min-width: 260px; }
+    button, .chip {
+      font: 600 13px/1 var(--sans);
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 14px;
+      cursor: pointer;
+      background: var(--ink);
+      color: #fff;
+    }
+    button:hover { background: #333; }
+    .chip {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .chip:hover, .chip.is-active { background: var(--green); border-color: var(--green); }
+    .toc {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding: 12px 0;
+      margin: 8px 0 0;
+      scrollbar-width: none;
+    }
+    .toc a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+    .toc a:hover { background: #eceadf; color: var(--ink); }
+    main { max-width: 1080px; margin: 0 auto; padding: 32px 24px 120px; }
+    .note {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 62ch;
+      margin: 0 0 32px;
+    }
+    .specimen {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      margin-bottom: 28px;
+    }
+    /* Judge.me hides empty product badges and snippet widgets on some templates. */
+    .jdgm-preview-badge,
+    .jdgm-preview-badge.jdgm--done-setup,
+    .jdgm-review-widget[data-from-snippet="true"],
+    .jdgm-verified-count-badge[data-from-snippet="true"] {
+      display: inline-flex !important;
+      visibility: visible !important;
+    }
+    .jdgm-review-widget { display: block !important; }
+    .specimen-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      padding: 20px 24px 0;
+      flex-wrap: wrap;
+    }
+    .specimen h2 {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      margin: 0;
+    }
+    .scope {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: #eef5dc;
+      color: var(--green-text);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .scope.store { background: #eef0f9; color: #5465A3; }
+    .blurb {
+      padding: 6px 24px 16px;
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .canvas {
+      padding: 8px 24px 24px;
+      min-height: 56px;
+    }
+    .canvas.compact { display: flex; align-items: center; min-height: 72px; }
+    details {
+      border-top: 1px solid var(--line);
+      background: #fafaf6;
+    }
+    summary {
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 12px 24px;
+      color: var(--muted);
+      list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    pre {
+      margin: 0;
+      padding: 0 24px 20px;
+      font: 12px/1.55 var(--mono);
+      overflow-x: auto;
+      color: #333;
+      white-space: pre-wrap;
+    }
+    @media (max-width: 700px) {
+      h1 { font-size: 22px; }
+      input, input[name="title"] { min-width: 0; width: 100%; }
+      .product-form { width: 100%; }
+      .product-form label { flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <div class="bar-inner">
+      <div class="bar-top">
+        <div>
+          <div class="eyebrow">Local preview · not a live page</div>
+          <h1>Judge.me widgets</h1>
+        </div>
+        <form class="product-form" id="product-form">
+          <label>Shopify product ID
+            <input name="id" id="product-id" inputmode="numeric" spellcheck="false" />
+          </label>
+          <label>Product title
+            <input name="title" id="product-title" />
+          </label>
+          <button type="submit">Reload widgets</button>
+        </form>
+      </div>
+      <nav class="toc" aria-label="Widgets">
+        <a href="#stars">Stars</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#carousel">Carousel</a>
+        <a href="#tab">Floating tab</a>
+        <a href="#all">All reviews</a>
+        <a href="#verified">Verified counter</a>
+        <a href="#medals">Medals</a>
+        <a href="#ugc">UGC grid</a>
+        <a href="#counter">All-reviews counter</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <p class="note">
+      Defaults to the sample kibble bag
+      (<code>9054926373013</code> — 2kg Kibble Sample Pack). Star rating and the legacy review widget
+      need that Shopify product ID. Everything else is store-wide.
+      Empty widgets usually mean platform-independent widgets are off in
+      Judge.me → General Settings → Advanced.
+    </p>
+
+    <article class="specimen" id="stars">
+      <div class="specimen-head">
+        <h2>Star Rating Badge</h2>
+        <span class="scope">Product</span>
+      </div>
+      <p class="blurb">Compact stars + count. Use next to a product name or CTA.</p>
+      <div class="canvas compact">
+        <div class="jdgm-widget jdgm-preview-badge" data-id="9054926373013"></div>
+      </div>
+      <details>
+        <summary>Snippet</summary>
+        <pre>&lt;div class="jdgm-widget jdgm-preview-badge" data-id="PRODUCT_ID"&gt;&lt;/div&gt;</pre>
+      </details>
+    </article>
+
+    <article class="specimen" id="reviews">
+      <div class="specimen-head">
+        <h2>Review Widget (legacy)</h2>
+        <span class="scope">Product</span>
+      </div>
+      <p class="blurb">Full product reviews. The new Review Widget is not supported off-Shopify; this is the legacy outside-widget version.</p>
+      <div class="canvas">
+        <div class="jdgm-widget jdgm-review-widget jdgm-outside-widget" data-id="9054926373013" data-product-title="2kg Kibble Sample Pack"></div>
+      </div>
+      <details>
+        <summary>Snippet</summary>
+        <pre>&lt;div class="jdgm-widget jdgm-review-widget jdgm-outside-widget" data-id="PRODUCT_ID" data-product-title="PRODUCT_TITLE"&gt;&lt;/div&gt;</pre>
+      </details>
+    </article>
+
+    <article class="specimen" id="carousel">
+      <div class="specimen-head">
+        <h2>Reviews Carousel</h2>
+        <span class="scope store">Store</span>
+      </div>
+      <p class="blurb">Featured-review slider. The “all reviews” link points at <code>/reviews</code> on this local host, so it will 404 here.</p>
+      <div class="canvas">
+        <div class="jdgm-carousel-wrapper">
+          <h2 class="jdgm-carousel-title">Featured reviews</h2>
+          <a href="/reviews" class="jdgm-all-reviews-rating-wrapper">
+            <div data-score="" class="jdgm-all-reviews-rating"></div>
+            from <span class="jdgm-all-reviews-count"></span> reviews
+          </a>
+        </div>
+      </div>
+      <details>
+        <summary>Snippet</summary>
+        <pre>&lt;div class="jdgm-carousel-wrapper"&gt;
+  &lt;h2 class="jdgm-carousel-title"&gt;Featured reviews&lt;/h2&gt;
+  &lt;a href="/reviews" class="jdgm-all-reviews-rating-wrapper"&gt;
+    &lt;div data-score="" class="jdgm-all-reviews-rating"&gt;&lt;/div&gt;
+    from &lt;span class="jdgm-all-reviews-count"&gt;&lt;/span&gt; reviews
+  &lt;/a&gt;
+&lt;/div&gt;</pre>
+      </details>
+    </article>
+
+    <article class="specimen" id="tab">
+      <div class="specimen-head">
+        <h2>Floating Reviews Tab</h2>
+        <span class="scope store">Store</span>
+      </div>
+      <p class="blurb">Renders as a tab on the edge of the viewport (bottom). Open it from there — it is not confined to this card.</p>
+      <div class="canvas">
+        <section class="jdgm-widget jdgm-revs-tab">
+          <div class="jdgm-revs-tab-btn btn" position="bottom">Reviews</div>
+          <div class="jdgm-revs-tab__header">
+            <a class="jdgm-close-ico"></a>
+            <h3 class="jdgm-revs-tab__title">Product Reviews</h3>
+            <a href="/pages/reviews">
+              <div class="jdgm-all-reviews-rating"></div>
+              <span class="jdgm-all-reviews-count"></span> reviews
+            </a>
+          </div>
+        </section>
+      </div>
+      <details>
+        <summary>Snippet</summary>
+        <pre>&lt;section class="jdgm-widget jdgm-revs-tab"&gt;
+  &lt;div class="jdgm-revs-tab-btn btn" position="bottom"&gt;Reviews&lt;/div&gt;
+  &lt;div class="jdgm-revs-tab__header"&gt;
+    &lt;a class="jdgm-close-ico"&gt;&lt;/a&gt;
+    &lt;h3 class="jdgm-revs-tab__title"&gt;Product Reviews&lt;/h3&gt;
+    &lt;a href="/pages/reviews"&gt;
+      &lt;div class="jdgm-all-reviews-rating"&gt;&lt;/div&gt;
+      &lt;span class="jdgm-all-reviews-count"&gt;&lt;/span&gt; reviews
+    &lt;/a&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</pre>
+      </details>
+    </article>
+
+    <article class="specimen" id="all">
+      <div class="specimen-head">
+        <h2>All Reviews Widget</h2>
+        <span class="scope store">Store</span>
+      </div>
+      <p class="blurb">Every published review for the shop. Usually a dedicated reviews page.</p>
+      <div class="canvas">
+        <div class="jdgm-widget jdgm-all-reviews-widget">
+          <div class="jdgm-all-reviews__body"></div>
+        </div>
+      </div>
+      <details>
+        <summary>Snippet</summary>
+        <pre>&lt;div class="jdgm-widget jdgm-all-reviews-widget"&gt;
+  &lt;div class="jdgm-all-reviews__body"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+      </details>
+    </article>
+
+    <article class="specimen" id="verified">
+      <div class="specimen-head">
+        <h2>Verified Reviews Counter</h2>
+        <span class="scope store">Store</span>
+      </div>
+      <p class="blurb">Trust badge with the verified-review count.</p>
+      <div class="canvas compact">
+        <div class="jdgm-verified-badge-wrapper"></div>
+      </div>
+      <details>
+        <summary>Snippet</summary>
+        <pre>&lt;div class="jdgm-verified-badge-wrapper"&gt;&lt;/div&gt;</pre>
+      </details>
+    </article>
+
+    <article class="specimen" id="medals">
+      <div class="specimen-head">
+        <h2>Judge.me Medals</h2>
+        <span class="scope store">Store</span>
+      </div>
+      <p class="blurb">Medal badges earned in Judge.me (empty if none are awarded yet).</p>
+      <div class="canvas compact">
+        <div class="jdgm-medals-wrapper"></div>
+      </div>
+      <details>
+        <summary>Snippet</summary>
+        <pre>&lt;div class="jdgm-medals-wrapper"&gt;&lt;/div&gt;</pre>
+      </details>
+    </article>
+
+    <article class="specimen" id="ugc">
+      <div class="specimen-head">
+        <h2>UGC Media Grid</h2>
+        <span class="scope store">Store</span>
+      </div>
+      <p class="blurb">Photo/video reviews in a grid. Empty until UGC is published in Judge.me.</p>
+      <div class="canvas">
+        <div class="jdgm-ugc-media-wrapper"></div>
+      </div>
+      <details>
+        <summary>Snippet</summary>
+        <pre>&lt;div class="jdgm-ugc-media-wrapper"&gt;&lt;/div&gt;</pre>
+      </details>
+    </article>
+
+    <article class="specimen" id="counter">
+      <div class="specimen-head">
+        <h2>All Reviews Counter</h2>
+        <span class="scope store">Store</span>
+      </div>
+      <p class="blurb">Plain-text review count, e.g. for a header or footer line.</p>
+      <div class="canvas compact">
+        <div class="jdgm-all-reviews-text"></div>
+      </div>
+      <details>
+        <summary>Snippet</summary>
+        <pre>&lt;div class="jdgm-all-reviews-text"&gt;&lt;/div&gt;</pre>
+      </details>
+    </article>
+  </main>
+
+  <script>
+    (function () {
+      var DEFAULT_ID = '9054926373013';
+      var DEFAULT_TITLE = '2kg Kibble Sample Pack';
+      var params = new URLSearchParams(location.search);
+      var id = params.get('id') || DEFAULT_ID;
+      var title = params.get('title') || DEFAULT_TITLE;
+
+      document.getElementById('product-id').value = id;
+      document.getElementById('product-title').value = title;
+
+      document.querySelectorAll('[data-id]').forEach(function (el) {
+        el.setAttribute('data-id', id);
+      });
+      document.querySelectorAll('[data-product-title]').forEach(function (el) {
+        el.setAttribute('data-product-title', title);
+      });
+
+      document.getElementById('product-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var next = new URL(location.href);
+        next.searchParams.set('id', document.getElementById('product-id').value.trim());
+        next.searchParams.set('title', document.getElementById('product-title').value.trim());
+        location.assign(next);
+      });
+    })();
+  </script>
+  <script data-cfasync="false" type="text/javascript" async src="https://cdnwidget.judge.me/widget_preloader.js"></script>
+</body>
+</html>

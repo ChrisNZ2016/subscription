@@ -3,8 +3,12 @@ import { useSubscriptionProduct } from '../hooks/useSubscriptionProduct';
 import {
   createReactivationCart,
   createReactivationCartAndRedirect,
-  REACTIVATION_SELLING_PLAN_ID,
 } from '../lib/cart-reactivation';
+import {
+  findReactivationAllocation,
+  getReactivationSellingPlanId,
+} from '../lib/reactivation-plans';
+import type { FrequencyMonths } from '../constants/sample-subscribe';
 import { TestimonialsSection } from './TestimonialsSection';
 import { FAQSection } from './FAQSection';
 import { Footer } from './Footer';
@@ -17,17 +21,19 @@ import { VARIANT_SORT_ORDER } from '../lib/feedingGuide';
 import { formatMoney } from '../lib/pricing';
 import type { ProductVariant } from '../types/shopify';
 
-function reactivationPrice(variant: ProductVariant): string | undefined {
-  const alloc = variant.sellingPlanAllocations.nodes.find(
-    (n) => n.sellingPlan.id === REACTIVATION_SELLING_PLAN_ID,
-  );
+function reactivationPrice(
+  variant: ProductVariant,
+  frequencyMonths: FrequencyMonths = 1,
+): string | undefined {
+  const alloc = findReactivationAllocation(variant, frequencyMonths);
   return alloc ? formatMoney(alloc.priceAdjustments[0].perDeliveryPrice) : undefined;
 }
 
-function reactivationPriceAmount(variant: ProductVariant): number | undefined {
-  const alloc = variant.sellingPlanAllocations.nodes.find(
-    (n) => n.sellingPlan.id === REACTIVATION_SELLING_PLAN_ID,
-  );
+function reactivationPriceAmount(
+  variant: ProductVariant,
+  frequencyMonths: FrequencyMonths = 1,
+): number | undefined {
+  const alloc = findReactivationAllocation(variant, frequencyMonths);
   const price = alloc?.priceAdjustments[0]?.perDeliveryPrice;
   return price ? parseFloat(price.amount) : undefined;
 }
@@ -58,6 +64,7 @@ export function ReactivationPage() {
     getPriceAmount: reactivationPriceAmount,
     createCart: createReactivationCart,
     createCartAndRedirect: createReactivationCartAndRedirect,
+    getSellingPlanId: getReactivationSellingPlanId,
   });
 
   const handleNavScroll = () => {
@@ -113,7 +120,11 @@ export function ReactivationPage() {
 
         <SubscriptionBagPicker
           {...bagSelection}
+          onWeightRangeChange={bagSelection.handleWeightRangeChange}
+          onBagSizeChange={bagSelection.handleBagSizeChange}
+          onFrequencyChange={bagSelection.handleFrequencyChange}
           onCheckout={bagSelection.handleCheckout}
+          giftLabel="60-pack compostable poop bags, in your first delivery"
           finePrint="25% off every delivery · free poop bags in your first box · cancel anytime"
         />
 

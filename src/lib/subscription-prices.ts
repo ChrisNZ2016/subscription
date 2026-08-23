@@ -5,9 +5,9 @@ export interface SubscriptionPriceRow {
 
 export const SUBSCRIPTION_PRICES: SubscriptionPriceRow[] = [
   { bagSizeKg: 2, price: '$44.00' },
-  { bagSizeKg: 4, price: '$76.80' },
-  { bagSizeKg: 6, price: '$100.80' },
-  { bagSizeKg: 8, price: '$118.40' },
-  { bagSizeKg: 12, price: '$158.40' },
-  { bagSizeKg: 24, price: '$280.00' },
+  { bagSizeKg: 4, price: '$88.00' },
+  { bagSizeKg: 6, price: '$105.60' },
+  { bagSizeKg: 8, price: '$140.00' },
+  { bagSizeKg: 12, price: '$160.00' },
+  { bagSizeKg: 24, price: '$320.00' },
 ];

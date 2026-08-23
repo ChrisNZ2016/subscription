@@ -136,6 +136,9 @@ export function SubscribeIngredientsPage() {
 
         <SubscriptionBagPicker
           {...bagSelection}
+          onWeightRangeChange={bagSelection.handleWeightRangeChange}
+          onBagSizeChange={bagSelection.handleBagSizeChange}
+          onFrequencyChange={bagSelection.handleFrequencyChange}
           onCheckout={bagSelection.handleCheckout}
           finePrint="25% off every delivery · Free Shipping (over $50) · cancel anytime"
         />

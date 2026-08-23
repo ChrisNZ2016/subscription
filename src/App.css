@@ -3054,6 +3054,23 @@ nav.site-nav {
   font-weight: 600;
   color: var(--color-green-dark);
 }
+.picker-rec-gift {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--color-border);
+}
+.picker-rec-gift-label { font-size: 1rem; }
+.picker-rec-gift-price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-green-dark);
+  letter-spacing: 0.02em;
+}
 .picker-error {
   color: #c0392b;
   margin: 0 0 1rem;

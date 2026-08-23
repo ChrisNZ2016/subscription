@@ -42,11 +42,11 @@ const DISCOUNTED_PRICES_25: Record<number, number> = {
 
 const DISCOUNTED_PRICES_20: Record<number, number> = {
   2: 44,
-  4: 76.8,
-  6: 100.8,
-  8: 118.4,
-  12: 158.4,
-  24: 280,
+  4: 88,
+  6: 105.6,
+  8: 140,
+  12: 160,
+  24: 320,
 };
 
 export function getDiscountedPrice(sizeKg: number, tier: DiscountTier = DEFAULT_DISCOUNT_TIER): number {
