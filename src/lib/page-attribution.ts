@@ -1,5 +1,20 @@
 import { PAGE_VERSIONS, type PageName } from '../constants/page-versions';
 
+export type LandingVariant = 'simple' | 'solo';
+
+/**
+ * Root-path `?variant=` opt-in to the older LandingPage funnel. The root path
+ * otherwise renders SoloPage, so App.tsx and getPageName() must read the
+ * variant through this one helper or attribution will describe a page that
+ * never rendered.
+ */
+export function getLandingVariant(): LandingVariant | null {
+  const variant = new URLSearchParams(window.location.search).get('variant');
+  if (variant === 'simple') return 'simple';
+  if (variant === 'solo') return 'solo';
+  return null;
+}
+
 /** Resolve the funnel page name from the current URL (path + landing query variants). */
 export function getPageName(): PageName {
   const path = window.location.pathname;
@@ -12,10 +27,12 @@ export function getPageName(): PageName {
   }
   if (path === '/wholesale' || path === '/wholesale/') return 'wholesale';
 
-  const variant = new URLSearchParams(window.location.search).get('variant');
+  const variant = getLandingVariant();
   if (variant === 'simple') return 'landing-simple';
   if (variant === 'solo') return 'landing-solo';
-  return 'landing';
+  // Root renders SoloPage, so it reports as 'solo' — this also gates the
+  // price_tier property in analytics.ts pageProps().
+  return 'solo';
 }
 
 export function getPageVersion(): string {

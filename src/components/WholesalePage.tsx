@@ -4,7 +4,6 @@ import { useSectionViewed } from '../hooks/useSectionViewed';
 import {
   trackPageViewed,
   trackNavAnchorClicked,
-  trackInternalLinkClicked,
   trackExternalLinkClicked,
 } from '../lib/analytics';
 import { Footer } from './Footer';
@@ -230,10 +229,14 @@ export function WholesalePage() {
 
       <nav className="site-nav">
         <a
-          href="/"
+          href="https://www.littlegreendog.co.nz"
           className="nav-logo"
           onClick={() =>
-            trackInternalLinkClicked({ destination: '/', location: 'nav', label: 'logo' })
+            trackExternalLinkClicked({
+              destination: 'https://www.littlegreendog.co.nz',
+              location: 'nav',
+              label: 'logo',
+            })
           }
         >
           <img src="/logo.png" alt="Little Green Dog" className="nav-logo-img" />

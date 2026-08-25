@@ -60,7 +60,7 @@ export function SubscribePage() {
       </header>
 
       <nav className="site-nav">
-        <a href="/" className="nav-logo">
+        <a href="https://www.littlegreendog.co.nz" className="nav-logo">
           <img src="/logo.png" alt="Little Green Dog" className="nav-logo-img" />
         </a>
         <ul className="nav-links">
@@ -102,7 +102,7 @@ export function SubscribePage() {
           onBagSizeChange={bagSelection.handleBagSizeChange}
           onFrequencyChange={bagSelection.handleFrequencyChange}
           onCheckout={bagSelection.handleCheckout}
-          finePrint="25% off every delivery · Free Shipping (over $50) · cancel anytime"
+          finePrint="25% off every delivery · Free Shipping (over $89) · cancel anytime"
         />
 
         <TestimonialsSection />

@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { getLandingVariant } from './lib/page-attribution'
 
 const LandingPage = lazy(() => import('./components/LandingPage').then((m) => ({ default: m.LandingPage })))
 const SoloPage = lazy(() => import('./components/SoloPage').then((m) => ({ default: m.SoloPage })))
@@ -18,7 +19,9 @@ function resolvePage() {
   if (path === '/subscribe-offer' || path === '/subscribe-offer/') return <SubscribePage />;
   if (path === '/subscribe-ingredients' || path === '/subscribe-ingredients/') return <SubscribeIngredientsPage />;
   if (path === '/wholesale' || path === '/wholesale/') return <WholesalePage />;
-  return <LandingPage />;
+  // Root defaults to the solo funnel; `?variant=simple|solo` still opts into the
+  // older LandingPage funnel. Keep in step with getPageName() in page-attribution.
+  return getLandingVariant() ? <LandingPage /> : <SoloPage />;
 }
 
 function App() {

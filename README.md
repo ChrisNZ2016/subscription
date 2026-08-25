@@ -10,7 +10,7 @@ Routing is pathname-based in `src/App.tsx` (no React Router).
 
 | Route | Page | Purpose |
 |-------|------|---------|
-| `/` | `LandingPage` | Main funnel: hero → dog size → addons → order summary → checkout |
+| `/` | `SoloPage` | Defaults to the solo funnel (same page as `/solo`). Reports as `page_name: solo` |
 | `/solo` | `SoloPage` | Sample-only purchase (2 kg sample, subscription pricing + FAQ, no config step) |
 | `/welcome-back` | `ReactivationPage` | Lapsed subscriber reactivation (25% off + free gift via Mechanic) |
 | `/subscribe-offer` | `SubscribePage` | Early-subscriber offer from email campaigns (25% off, no gift) |
@@ -18,12 +18,24 @@ Routing is pathname-based in `src/App.tsx` (no React Router).
 
 Each route also matches with an optional trailing slash (e.g. `/solo/`).
 
-The main landing page also accepts a `?variant=` query param:
+The root path accepts a `?variant=` query param to opt into the older
+`LandingPage` funnel (hero → dog size → addons → order summary → checkout).
+Without it, `/` renders `SoloPage`:
 
-| Value | Behaviour |
-|-------|-----------|
-| `simple` | Skips addons step; simplified funnel |
-| `solo` | Sample-only checkout (same as `/solo` route behaviour) |
+| Value | Page | Behaviour |
+|-------|------|-----------|
+| _(none)_ | `SoloPage` | Default. Sample-only purchase, reports as `page_name: solo` |
+| `simple` | `LandingPage` | Skips addons step; simplified funnel (`page_name: landing-simple`) |
+| `solo` | `LandingPage` | Sample-only checkout (`page_name: landing-solo`) |
+
+`App.tsx` and `getPageName()` both read the variant via `getLandingVariant()` in
+`src/lib/page-attribution.ts` — keep them reading that one helper so attribution
+never names a page that did not render.
+
+The nav logo on every page links out to `https://www.littlegreendog.co.nz`
+(the Shopify storefront), not to `/`. Pointing it at `/` let visitors wander
+from one funnel into another and buy at a different price than the offer they
+clicked.
 
 ## Prerequisites
 
@@ -82,6 +94,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-08-25** — src/components/SubscribePage.tsx
 - **2026-08-23** — api/lib/sample-subscribe.ts, src/App.css, src/components/ReactivationPage.tsx, src/components/SubscribeIngredientsPage.tsx, src/components/SubscriptionBagPicker.tsx, src/constants/sample-subscribe.ts, src/lib/cart-reactivation.ts, src/lib/reactivation-plans.ts, src/lib/subscription-prices.ts
 - **2026-07-20** — src/lib/cart-subscribe.ts, src/lib/subscribe-offer-plans.ts
 - **2026-07-14** — src/App.css, src/lib/analytics.ts, src/lib/meta-pixel.ts
@@ -144,8 +157,8 @@ Each funnel has its own cart module in `src/lib/`:
 
 | Module | Used by |
 |--------|---------|
-| `cart.ts` | Main landing funnel |
-| `cart-solo.ts` | `/solo` and `?variant=solo` |
+| `cart.ts` | `LandingPage` funnel (`/?variant=simple`) |
+| `cart-solo.ts` | `/solo`, root `/` default, and `?variant=solo` |
 | `cart-subscribe.ts` | `/subscribe-offer` and `/subscribe-ingredients` |
 | `cart-reactivation.ts` | `/welcome-back` |
 

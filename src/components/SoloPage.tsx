@@ -140,7 +140,7 @@ export function SoloPage() {
       </header>
 
       <nav className="site-nav">
-        <a href="/" className="nav-logo">
+        <a href="https://www.littlegreendog.co.nz" className="nav-logo">
           <img src="/logo.png" alt="Little Green Dog" className="nav-logo-img" />
         </a>
         <ul className="nav-links">
