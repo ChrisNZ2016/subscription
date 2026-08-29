@@ -69,8 +69,40 @@ Copy `.env.example` to `.env.local` for local development.
 | `SHOPIFY_WEBHOOK_SECRET` | Signing secret from the Shopify `orders/create` webhook |
 | `META_PIXEL_ID` | Meta pixel ID for Conversions API (same value as `VITE_META_PIXEL_ID`) |
 | `META_CAPI_ACCESS_TOKEN` | Conversions API access token from Meta Events Manager |
+| `RECURPAY_ACCESS_TOKEN` | Recurpay admin token (`X-Recurpay-Access-Token`) |
+| `RECURPAY_API_BASE` | e.g. `https://little-green-dog.recurpay.com/admin/api/2024-07` |
+| `LINK_SIGNING_SECRET` | HMAC secret for one-click add-on links (min 16 chars) |
+| `ADDON_LINK_SECRET` | Shared secret for `POST /api/addon-link` (Klaviyo webhook + CLI) |
+| `ADDON_CAMPAIGNS` | Optional JSON override. Default is poop-bag 60 + 120 packs |
+| `ADDON_PUBLIC_BASE_URL` | Public origin for minted links (default `https://lp.littlegreendog.co.nz`) |
+| `KLAVIYO_API_KEY` | Optional. Mint endpoint writes `recurpay_subscription_id` + `recurpay_link_sig` onto the profile |
 
 See [shopify/README.md](./shopify/README.md) for Mixpanel pixel and webhook setup in Shopify Admin.
+
+## One-click subscription add-on
+
+Customers can add a product to their **next Recurpay order** from an email/SMS link. The Recurpay token stays server-side. Pretty URLs:
+
+- Confirm + apply: `https://lp.littlegreendog.co.nz/add-to-subscription/...`
+- Mint (internal): `POST https://lp.littlegreendog.co.nz/api/addon-link`
+
+Klaviyo cannot HMAC, so the flow CTA uses profile properties the mint webhook writes.
+
+60-pack:
+
+```
+https://lp.littlegreendog.co.nz/add-to-subscription/poop-bags-60?sid={{ person.recurpay_subscription_id }}&sig={{ person.recurpay_link_sig }}
+```
+
+120-pack:
+
+```
+https://lp.littlegreendog.co.nz/add-to-subscription/poop-bags-120?sid={{ person.recurpay_subscription_id }}&sig={{ person.recurpay_link_sig }}
+```
+
+After the webhook, `{{ person.addon_link_poop_bags_60 }}` / `{{ person.addon_link_poop_bags_120 }}` also work. GET shows a confirm button (email scanners prefetch GET; Recurpay is only called on POST).
+
+Agent brief for the Klaviyo flow: [docs/klaviyo-poop-bag-addon.md](docs/klaviyo-poop-bag-addon.md).
 
 ## Development
 
@@ -115,7 +147,7 @@ Static design previews are available at `/previews/*.html` during dev (served fr
 
 ## Deployment
 
-The app is hosted on **Vercel** (`vercel.json` configures SPA rewrites — all non-API routes → `index.html` — and passes through `/api/*` to serverless functions). Route components are lazy-loaded (`React.lazy` in `src/App.tsx`) so each page ships its own JS chunk.
+The app is hosted on **Vercel** (`vercel.json` configures SPA rewrites — `/add-to-subscription` and `/api/*` go to serverless functions, everything else → `index.html`). Route components are lazy-loaded (`React.lazy` in `src/App.tsx`) so each page ships its own JS chunk.
 
 **This repo does not auto-deploy from Git.** Commit and push to GitHub for version control, then publish to production with the Vercel CLI:
 
@@ -143,9 +175,11 @@ src/
   constants/      Dog size presets, page-versions (attribution semver)
   types/          Shopify GraphQL types
 api/
-  webhooks/       Vercel serverless functions (orders-create.ts → Mixpanel + Meta CAPI)
-  lib/            Shared serverless helpers (meta-capi.ts)
-scripts/          One-off maintenance scripts (backfill-utm.mjs, sync-readme.mjs)
+  add-to-subscription.ts  One-click Recurpay add-on (pretty URL `/add-to-subscription`)
+  addon-link.ts           Internal URL minting (Klaviyo webhook / CLI)
+  webhooks/               orders-create (Mixpanel + Meta CAPI), subscription-contracts-create
+  lib/                    Shared serverless helpers (Recurpay, HMAC tokens, Meta CAPI)
+scripts/          One-off maintenance scripts (generate-addon-link.mjs, backfill-utm.mjs, sync-readme.mjs)
 .githooks/        Git hooks (pre-commit → sync README page versions + changelog)
 shopify/          Mixpanel custom pixel + setup docs
 public/           Static assets and design previews
