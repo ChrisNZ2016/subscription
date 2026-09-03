@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { getLandingVariant } from './lib/page-attribution'
 
 const LandingPage = lazy(() => import('./components/LandingPage').then((m) => ({ default: m.LandingPage })))
@@ -25,6 +25,12 @@ function resolvePage() {
 }
 
 function App() {
+  useEffect(() => {
+    void import('@intercom/messenger-js-sdk').then(({ default: Intercom }) => {
+      Intercom({ app_id: 'argvrv71' });
+    });
+  }, []);
+
   return <Suspense fallback={null}>{resolvePage()}</Suspense>;
 }
 

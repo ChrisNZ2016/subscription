@@ -11,6 +11,7 @@
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true"
   },
   "dependencies": {
+    "@intercom/messenger-js-sdk": "^0.0.20",
     "mixpanel": "^0.20.0",
     "mixpanel-browser": "^2.75.0",
     "react": "^19.2.0",
