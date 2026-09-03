@@ -2667,6 +2667,17 @@ nav.site-nav {
    Responsive — new sections
    ============================================ */
 @media (max-width: 1024px) {
+  .announcement-bar { position: static; }
+
+  .sticky-cta {
+    position: sticky;
+    top: 0;
+    bottom: auto;
+    box-shadow: 0 4px 24px rgba(84,101,163,0.3);
+  }
+
+  .landing-page { padding-bottom: 0; }
+
   .tab-info-grid { gap: 3rem; }
   .benefits-layout { gap: 1.25rem; }
   .benefits-kibble-img { width: 180px; height: 240px; }

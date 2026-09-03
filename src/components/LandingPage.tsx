@@ -260,6 +260,7 @@ export function LandingPage() {
           : <p><strong>Free shipping</strong> on your first 2kg sample box</p>
         }
       </header>
+      <StickyCTA onOrderNow={() => handleGetStarted('sticky')} samplePrice={samplePriceFormatted} comparePrice={comparePriceFormatted} />
 
       <nav className="site-nav">
         <a href="https://www.littlegreendog.co.nz" className="nav-logo">
@@ -347,9 +348,6 @@ export function LandingPage() {
       </main>
 
       <Footer />
-
-      {/* Sticky bottom CTA */}
-      <StickyCTA onOrderNow={() => handleGetStarted('sticky')} samplePrice={samplePriceFormatted} comparePrice={comparePriceFormatted} />
     </>
   );
 }

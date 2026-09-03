@@ -41,6 +41,10 @@ export function SampleSubscribePage() {
           🛡️ <strong>100% money-back guarantee</strong>, full refund if it&apos;s not right for your dog
         </p>
       </header>
+      <StickyCTA
+        onOrderNow={() => handleGetStarted('sticky')}
+        samplePrice={SAMPLE_PRICE_LABEL}
+      />
 
       <nav className="site-nav">
         <a href="https://www.littlegreendog.co.nz" className="nav-logo">
@@ -131,10 +135,6 @@ export function SampleSubscribePage() {
       </main>
 
       <Footer />
-      <StickyCTA
-        onOrderNow={() => handleGetStarted('sticky')}
-        samplePrice={SAMPLE_PRICE_LABEL}
-      />
     </>
   );
 }

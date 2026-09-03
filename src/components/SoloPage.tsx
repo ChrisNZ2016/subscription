@@ -138,6 +138,7 @@ export function SoloPage() {
       <header className="announcement-bar">
         <p>🛡️ <strong>100% money-back guarantee</strong>, full refund if it's not right for your dog</p>
       </header>
+      <StickyCTA onOrderNow={() => handleGetStarted('sticky')} samplePrice={samplePrice} comparePrice={comparePrice} />
 
       <nav className="site-nav">
         <a href="https://www.littlegreendog.co.nz" className="nav-logo">
@@ -203,7 +204,6 @@ export function SoloPage() {
       </main>
 
       <Footer />
-      <StickyCTA onOrderNow={() => handleGetStarted('sticky')} samplePrice={samplePrice} comparePrice={comparePrice} />
     </>
   );
 }
