@@ -26,6 +26,8 @@ export function getPageName(): PageName {
     return 'subscribe-ingredients';
   }
   if (path === '/wholesale' || path === '/wholesale/') return 'wholesale';
+  if (path === '/keep-going' || path === '/keep-going/') return 'keep-going';
+  if (path === '/get-feedback' || path === '/get-feedback/') return 'get-feedback';
 
   const variant = getLandingVariant();
   if (variant === 'simple') return 'landing-simple';

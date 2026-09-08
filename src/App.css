@@ -2954,6 +2954,77 @@ nav.site-nav {
   color: var(--color-text-muted);
 }
 
+.feedback-hp {
+  position: absolute;
+  left: -9999px;
+  height: 0;
+  overflow: hidden;
+}
+.feedback-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.feedback-field legend,
+.feedback-field label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.feedback-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--color-bg);
+}
+.feedback-input:hover { border-color: var(--color-green-dark); }
+.feedback-input:focus {
+  outline: none;
+  border-color: var(--color-green-dark);
+  box-shadow: 0 0 0 3px var(--color-green-light);
+}
+.feedback-textarea {
+  resize: vertical;
+  min-height: 8rem;
+  line-height: 1.45;
+}
+.feedback-reason {
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+}
+.subscription-picker-inner .btn-order.reactivation-cta {
+  width: 100%;
+  max-width: none;
+}
+.feedback-error {
+  color: #b42318;
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+}
+.feedback-done {
+  text-align: center;
+}
+.feedback-done h2 { margin-bottom: 0.5rem; }
+.feedback-done p {
+  color: var(--color-text-secondary);
+  max-width: 28rem;
+  margin: 0 auto;
+}
+.reactivation-sub a,
+.reactivation-finefoot a {
+  color: var(--color-green-dark);
+}
+
 .picker-subtitle {
   max-width: 520px;
   margin: 0 auto 1.5rem;

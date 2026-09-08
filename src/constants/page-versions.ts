@@ -11,7 +11,9 @@ export type PageName =
   | 'reactivation'
   | 'subscribe-offer'
   | 'subscribe-ingredients'
-  | 'wholesale';
+  | 'wholesale'
+  | 'keep-going'
+  | 'get-feedback';
 
 export const PAGE_VERSIONS: Record<PageName, { name: PageName; version: string }> = {
   landing: { name: 'landing', version: '1.0.0' },
@@ -20,7 +22,9 @@ export const PAGE_VERSIONS: Record<PageName, { name: PageName; version: string }
   solo: { name: 'solo', version: '1.0.1' },
   'sample-subscribe': { name: 'sample-subscribe', version: '1.1.0' },
   reactivation: { name: 'reactivation', version: '1.0.0' },
-  'subscribe-offer': { name: 'subscribe-offer', version: '1.1.0' },
+  'subscribe-offer': { name: 'subscribe-offer', version: '1.2.0' },
   'subscribe-ingredients': { name: 'subscribe-ingredients', version: '1.0.0' },
   wholesale: { name: 'wholesale', version: '1.0.0' },
+  'keep-going': { name: 'keep-going', version: '1.0.0' },
+  'get-feedback': { name: 'get-feedback', version: '1.0.0' },
 };

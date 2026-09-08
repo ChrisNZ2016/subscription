@@ -15,6 +15,8 @@ Routing is pathname-based in `src/App.tsx` (no React Router).
 | `/welcome-back` | `ReactivationPage` | Lapsed subscriber reactivation (25% off + free gift via Mechanic) |
 | `/subscribe-offer` | `SubscribePage` | Early-subscriber offer from email campaigns (25% off, no gift) |
 | `/subscribe-ingredients` | `SubscribeIngredientsPage` | Ingredients-led variant of the early-subscriber offer (same cart/selling plan as `/subscribe-offer`) |
+| `/keep-going` | `KeepGoingPage` | Neutral sample check-in: contact form opens an Intercom conversation |
+| `/get-feedback` | `GetFeedbackPage` | Negative sample check-in: reasons + comment, opens an Intercom conversation |
 
 Each route also matches with an optional trailing slash (e.g. `/solo/`).
 
@@ -75,7 +77,8 @@ Copy `.env.example` to `.env.local` for local development.
 | `ADDON_LINK_SECRET` | Shared secret for `POST /api/addon-link` (Klaviyo webhook + CLI) |
 | `ADDON_CAMPAIGNS` | Optional JSON override. Default is poop-bag 60 + 120 packs |
 | `ADDON_PUBLIC_BASE_URL` | Public origin for minted links (default `https://lp.littlegreendog.co.nz`) |
-| `KLAVIYO_API_KEY` | Optional. Mint endpoint writes `recurpay_subscription_id` + `recurpay_link_sig` onto the profile |
+| `KLAVIYO_API_KEY` | Optional. Mint endpoint writes `recurpay_subscription_id` + `recurpay_link_sig` onto the profile. Also records `/keep-going` and `/get-feedback` submissions as `Feedback Recorded` |
+| `INTERCOM_ACCESS_TOKEN` | Optional. If set, `/api/feedback` opens (or updates) an Intercom inbox conversation as the customer. Create a token in Intercom Developer Hub with contacts + conversations read/write |
 
 See [shopify/README.md](./shopify/README.md) for Mixpanel pixel and webhook setup in Shopify Admin.
 
@@ -233,9 +236,11 @@ Current versions (auto-synced on commit):
 | `solo` | 1.0.1 |
 | `sample-subscribe` | 1.1.0 |
 | `reactivation` | 1.0.0 |
-| `subscribe-offer` | 1.1.0 |
+| `subscribe-offer` | 1.2.0 |
 | `subscribe-ingredients` | 1.0.0 |
 | `wholesale` | 1.0.0 |
+| `keep-going` | 1.0.0 |
+| `get-feedback` | 1.0.0 |
 <!-- PAGE_VERSIONS_END -->
 
 #### Page versioning (when to bump)

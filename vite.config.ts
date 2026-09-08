@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { readFileSync, existsSync } from 'fs'
@@ -16,6 +16,8 @@ const ROUTE_PAGES: Record<string, string> = {
   '/subscribe-offer': 'SubscribePage',
   '/subscribe-ingredients': 'SubscribeIngredientsPage',
   '/wholesale': 'WholesalePage',
+  '/keep-going': 'KeepGoingPage',
+  '/get-feedback': 'GetFeedbackPage',
 }
 // Routes whose above-the-fold hero shows /kibble/1.jpg.
 const HERO_IMAGE_ROUTES = ['/', '/solo', '/sample-subscribe', '/wholesale']
@@ -63,6 +65,71 @@ function routePreload(): Plugin {
   }
 }
 
+function sendJson(
+  res: { statusCode: number; setHeader: (name: string, value: string) => void; end: (chunk: string) => void },
+  status: number,
+  payload: unknown,
+): void {
+  res.statusCode = status
+  res.setHeader('Content-Type', 'application/json')
+  res.end(JSON.stringify(payload))
+}
+
+function feedbackApi(): Plugin {
+  return {
+    name: 'feedback-api',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const path = req.url?.split('?')[0]
+        if (path !== '/api/feedback') {
+          next()
+          return
+        }
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+        if (req.method !== 'POST') {
+          sendJson(res, 405, { error: 'Method not allowed' })
+          return
+        }
+        try {
+          const chunks: Buffer[] = []
+          for await (const chunk of req) chunks.push(Buffer.from(chunk))
+          const raw = Buffer.concat(chunks).toString('utf8')
+          let body: unknown = {}
+          if (raw) {
+            try {
+              body = JSON.parse(raw) as unknown
+            } catch {
+              sendJson(res, 400, { error: 'Invalid JSON' })
+              return
+            }
+          }
+          const env = loadEnv(server.config.mode, process.cwd(), '')
+          for (const key of ['KLAVIYO_API_KEY', 'MIXPANEL_TOKEN', 'INTERCOM_ACCESS_TOKEN'] as const) {
+            const value = env[key]?.trim()
+            if (value && value.length >= 20 && !value.startsWith('[')) {
+              process.env[key] ??= value
+            }
+          }
+          const { submitFeedback } = await import('./api/lib/submit-feedback.ts')
+          const result = await submitFeedback(body)
+          sendJson(
+            res,
+            result.ok ? 200 : result.status,
+            result.ok ? { ok: true } : { error: result.error },
+          )
+        } catch (err) {
+          console.error('feedback-api', err)
+          sendJson(res, 500, { error: 'Server error' })
+        }
+      })
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   server: {
@@ -91,6 +158,7 @@ export default defineConfig({
         })
       }
     },
+    feedbackApi(),
     react(),
     routePreload(),
   ],

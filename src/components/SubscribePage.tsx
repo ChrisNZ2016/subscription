@@ -16,8 +16,17 @@ function hasEarlySubscriberPlan(variant: ProductVariant): boolean {
   return findEarlySubscriberAllocation(variant, 1) !== undefined;
 }
 
+function subscribeHeadline(): string {
+  const status = new URLSearchParams(window.location.search).get('status')?.trim().toLowerCase();
+  if (status === 'positive') {
+    return "Thanks for letting us know it's going well. Did you know you can subscribe and save?";
+  }
+  return 'Keep it going, and lock in 25% off, for good';
+}
+
 export function SubscribePage() {
   const { product, loading, error } = useSubscriptionProduct();
+  const headline = useMemo(subscribeHeadline, []);
 
   useEffect(() => {
     trackPageViewed();
@@ -74,7 +83,7 @@ export function SubscribePage() {
 
       <main className="landing-page reactivation-page">
         <section className="reactivation-hero">
-          <h1>Keep it going, and lock in 25% off, for good</h1>
+          <h1>{headline}</h1>
           <p className="reactivation-sub">
             Your dog's settling in. Subscribe before the offer ends and you'll
             <strong> lock in 25% off every delivery</strong> for as long as you stay subscribed,

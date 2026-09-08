@@ -126,6 +126,10 @@ export function trackCtaClicked(location: CtaLocation): void {
   withMixpanel((m) => m.track('CTA Clicked', { location, ...pageProps() }));
 }
 
+export function trackFeedbackReasonClicked(props: { reason: string }): void {
+  withMixpanel((m) => m.track('Feedback Reason Clicked', { ...props, ...pageProps() }));
+}
+
 export function trackVariantSelected(props: {
   bagWeight: number;
   price: string;
