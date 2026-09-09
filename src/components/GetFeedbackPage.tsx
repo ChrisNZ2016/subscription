@@ -20,7 +20,6 @@ import { scrollToId } from '../lib/scrollTo';
 import { FeedbackHoneypot, FeedbackLayout } from './FeedbackLayout';
 
 type FeedbackDraft = {
-  email: string;
   reasons: FeedbackReasonId[];
   comment: string;
   company: string;
@@ -30,14 +29,13 @@ function toggleReason(reasons: FeedbackReasonId[], id: FeedbackReasonId): Feedba
   return reasons.includes(id) ? reasons.filter((item) => item !== id) : [...reasons, id];
 }
 
-function payloadFromDraft(draft: FeedbackDraft): FeedbackPayload | null {
-  const trimmedEmail = draft.email.trim();
-  if (!isValidEmail(trimmedEmail)) return null;
+function payloadFromDraft(email: string, draft: FeedbackDraft): FeedbackPayload | null {
+  if (!isValidEmail(email)) return null;
   if (draft.reasons.length === 0 && !draft.comment.trim()) return null;
   return {
-    submissionId: getFeedbackSubmissionId('get-feedback', trimmedEmail),
+    submissionId: getFeedbackSubmissionId('get-feedback', email),
     page: 'get-feedback',
-    email: trimmedEmail,
+    email,
     reasons: draft.reasons,
     comment: draft.comment.trim() || undefined,
     distinctId: getDistinctId(),
@@ -46,7 +44,7 @@ function payloadFromDraft(draft: FeedbackDraft): FeedbackPayload | null {
 }
 
 export function GetFeedbackPage() {
-  const [email, setEmail] = useState(() => getEmailFromSearch());
+  const email = getEmailFromSearch();
   const [reasons, setReasons] = useState<FeedbackReasonId[]>([]);
   const [comment, setComment] = useState('');
   const [company, setCompany] = useState('');
@@ -55,8 +53,8 @@ export function GetFeedbackPage() {
   const [done, setDone] = useState(false);
   const [transport] = useState(() => createFeedbackTransport());
   const sentRef = useRef(false);
-  const draftRef = useRef<FeedbackDraft>({ email, reasons, comment, company });
-  draftRef.current = { email, reasons, comment, company };
+  const draftRef = useRef<FeedbackDraft>({ reasons, comment, company });
+  draftRef.current = { reasons, comment, company };
 
   useEffect(() => {
     trackPageViewed();
@@ -65,7 +63,7 @@ export function GetFeedbackPage() {
   useEffect(() => {
     function onLeave() {
       if (sentRef.current) return;
-      const payload = payloadFromDraft(draftRef.current);
+      const payload = payloadFromDraft(email, draftRef.current);
       if (payload) transport.sendOnLeave(payload);
     }
     function onVisibility() {
@@ -77,25 +75,21 @@ export function GetFeedbackPage() {
       window.removeEventListener('pagehide', onLeave);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [transport]);
+  }, [email, transport]);
 
   function handleReasonClick(id: FeedbackReasonId): void {
     const next = toggleReason(reasons, id);
     setReasons(next);
     trackFeedbackReasonClicked({ reason: id });
-    const payload = payloadFromDraft({ ...draftRef.current, reasons: next });
+    const payload = payloadFromDraft(email, { ...draftRef.current, reasons: next });
     if (payload) transport.schedule(payload);
   }
 
   async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault();
-    const payload = payloadFromDraft(draftRef.current);
+    const payload = payloadFromDraft(email, draftRef.current);
     if (!payload) {
-      if (!isValidEmail(email.trim())) {
-        setError('Please add the email we should reply to.');
-      } else {
-        setError('Please choose a reason or add a comment.');
-      }
+      setError('Please choose a reason or add a comment.');
       return;
     }
     setError(null);
@@ -139,6 +133,14 @@ export function GetFeedbackPage() {
               <h2>We've got your feedback</h2>
               <p>Thank you for taking the time, it really does help us get this right.</p>
             </div>
+          ) : !isValidEmail(email) ? (
+            <div className="feedback-done">
+              <h2>We need the link from your email</h2>
+              <p>
+                Open this page from the message we sent you, or write to{' '}
+                <a href={`mailto:${FEEDBACK_NOTIFY_EMAIL}`}>{FEEDBACK_NOTIFY_EMAIL}</a>.
+              </p>
+            </div>
           ) : (
             <form onSubmit={handleSubmit}>
               <h2>What should we know?</h2>
@@ -147,20 +149,6 @@ export function GetFeedbackPage() {
               </p>
 
               <FeedbackHoneypot value={company} onChange={setCompany} />
-
-              <div className="feedback-field">
-                <label htmlFor="get-feedback-email">Your email</label>
-                <input
-                  id="get-feedback-email"
-                  className="feedback-input"
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
 
               <fieldset className="feedback-field">
                 <legend>Common reasons</legend>
