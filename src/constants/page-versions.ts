@@ -25,6 +25,6 @@ export const PAGE_VERSIONS: Record<PageName, { name: PageName; version: string }
   'subscribe-offer': { name: 'subscribe-offer', version: '1.2.0' },
   'subscribe-ingredients': { name: 'subscribe-ingredients', version: '1.0.0' },
   wholesale: { name: 'wholesale', version: '1.0.0' },
-  'keep-going': { name: 'keep-going', version: '1.0.0' },
+  'keep-going': { name: 'keep-going', version: '1.1.0' },
   'get-feedback': { name: 'get-feedback', version: '1.1.0' },
 };

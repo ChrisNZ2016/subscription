@@ -129,6 +129,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-09-09** — src/components/KeepGoingPage.tsx, src/constants/page-versions.ts
 - **2026-09-09** — src/components/GetFeedbackPage.tsx, src/constants/page-versions.ts
 - **2026-09-03** — src/App.css, src/components/LandingPage.tsx, src/components/SampleSubscribePage.tsx, src/components/SoloPage.tsx
 - **2026-09-03** — src/App.tsx
@@ -240,7 +241,7 @@ Current versions (auto-synced on commit):
 | `subscribe-offer` | 1.2.0 |
 | `subscribe-ingredients` | 1.0.0 |
 | `wholesale` | 1.0.0 |
-| `keep-going` | 1.0.0 |
+| `keep-going` | 1.1.0 |
 | `get-feedback` | 1.1.0 |
 <!-- PAGE_VERSIONS_END -->
 

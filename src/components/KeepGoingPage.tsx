@@ -9,7 +9,7 @@ import {
 import { FeedbackHoneypot, FeedbackLayout } from './FeedbackLayout';
 
 export function KeepGoingPage() {
-  const [email, setEmail] = useState(() => getEmailFromSearch());
+  const email = getEmailFromSearch();
   const [message, setMessage] = useState('');
   const [company, setCompany] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,11 +23,6 @@ export function KeepGoingPage() {
 
   async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault();
-    const trimmedEmail = email.trim();
-    if (!isValidEmail(trimmedEmail)) {
-      setError('Please add the email we should reply to.');
-      return;
-    }
     if (!message.trim()) {
       setError('Please add a message.');
       return;
@@ -36,9 +31,9 @@ export function KeepGoingPage() {
     setIsSubmitting(true);
     try {
       await transport.sendNow({
-        submissionId: getFeedbackSubmissionId('keep-going', trimmedEmail),
+        submissionId: getFeedbackSubmissionId('keep-going', email),
         page: 'keep-going',
-        email: trimmedEmail,
+        email,
         message: message.trim(),
         distinctId: getDistinctId(),
         company,
@@ -77,7 +72,15 @@ export function KeepGoingPage() {
           {done ? (
             <div className="feedback-done">
               <h2>We've got your message</h2>
-              <p>Someone from the team will reply to {email.trim()} as soon as we can.</p>
+              <p>Someone from the team will reply to {email} as soon as we can.</p>
+            </div>
+          ) : !isValidEmail(email) ? (
+            <div className="feedback-done">
+              <h2>We need the link from your email</h2>
+              <p>
+                Open this page from the message we sent you, or write to{' '}
+                <a href={`mailto:${FEEDBACK_NOTIFY_EMAIL}`}>{FEEDBACK_NOTIFY_EMAIL}</a>.
+              </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
@@ -87,20 +90,6 @@ export function KeepGoingPage() {
               </p>
 
               <FeedbackHoneypot value={company} onChange={setCompany} />
-
-              <div className="feedback-field">
-                <label htmlFor="keep-going-email">Your email</label>
-                <input
-                  id="keep-going-email"
-                  className="feedback-input"
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
 
               <div className="feedback-field">
                 <label htmlFor="keep-going-message">Your message</label>
