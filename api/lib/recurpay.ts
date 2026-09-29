@@ -9,23 +9,81 @@ export interface RecurpayLineItem {
   name?: string;
   properties?: Array<{ name: string; value: string | number }>;
   is_onetime?: boolean;
+  product_id?: number;
+  variant_title?: string | null;
+  price?: number;
+  /** RecurPay's own spelling of "policies". */
+  pricing_polices?: unknown[];
+}
+
+interface RecurpayPolicy {
+  frequency?: number;
+  interval?: string;
 }
 
 export interface RecurpaySubscription {
   id: number;
+  contract_id?: string;
+  plan_id?: number | null;
   status: string;
+  cancelled_reason?: string | null;
+  cancelled_at?: string | null;
+  delivery_policy?: RecurpayPolicy;
+  billing_policy?: RecurpayPolicy;
+  discount_codes?: unknown[];
+  delivery_method?: {
+    type?: string;
+    option?: string;
+    title?: string;
+    price?: number;
+    currency?: string;
+  };
+  payment_method?: {
+    gateway?: string;
+    mode?: string;
+    currency?: string;
+    currency_symbol?: string;
+  };
+  orders_count?: number;
+  last_billing_at?: string | null;
   next_billing_at?: string | null;
+  subscribed_at?: string | null;
+  halted_at?: string | null;
+  halted_reason?: string | null;
+  halted_retries_count?: number | null;
+  is_skipped?: boolean;
+  skipped_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
   line_items?: RecurpayLineItem[];
   subscriber?: {
+    id?: number;
     email?: string;
     first_name?: string;
+    last_name?: string;
   };
+}
+
+export interface RecurpayOrder {
+  id: number | string;
+  name?: string;
+  financial_status?: string;
+  total_price?: number | string;
+  currency?: string;
+  created_at?: string;
+}
+
+interface RecurpayPageInfo {
+  has_next_page?: boolean;
+  /** RecurPay's docs misspell this key. */
+  has_next_nage?: boolean;
 }
 
 interface RecurpayEnvelope<T> {
   success?: boolean;
   message?: string;
   data?: T;
+  page_info?: RecurpayPageInfo;
 }
 
 function apiBase(): string {
@@ -40,7 +98,10 @@ function accessToken(): string {
   return token;
 }
 
-async function recurpay<T>(path: string, init?: RequestInit): Promise<T> {
+async function recurpayEnvelope<T>(
+  path: string,
+  init?: RequestInit,
+): Promise<RecurpayEnvelope<T>> {
   const res = await fetch(`${apiBase()}${path}`, {
     ...init,
     headers: {
@@ -66,6 +127,11 @@ async function recurpay<T>(path: string, init?: RequestInit): Promise<T> {
     );
   }
 
+  return json;
+}
+
+async function recurpay<T>(path: string, init?: RequestInit): Promise<T> {
+  const json = await recurpayEnvelope<T>(path, init);
   return (json.data ?? json) as T;
 }
 
@@ -94,18 +160,88 @@ export async function findActiveSubscriptionByEmail(
     sort_key: 'id',
     sort_by: 'desc',
   });
+  const data = await recurpay<SubscriptionListData>(`/subscriptions?${params}`);
+  return subscriptionList(data)[0] ?? null;
+}
+
+type SubscriptionListData = {
+  subscription?: RecurpaySubscription[] | RecurpaySubscription;
+  subscriptions?: RecurpaySubscription[];
+  page_info?: RecurpayPageInfo;
+};
+
+function subscriptionList(data: SubscriptionListData | null | undefined): RecurpaySubscription[] {
+  if (!data) return [];
+  if (Array.isArray(data.subscriptions)) return data.subscriptions;
+  if (Array.isArray(data.subscription)) return data.subscription;
+  return data.subscription ? [data.subscription] : [];
+}
+
+const LIST_PAGE_SIZE = 100;
+const LIST_MAX_PAGES = 5;
+
+/**
+ * Every subscription for an email, all statuses, newest first (max 500).
+ * Pages while page_info says there is another page; page_info may sit at the
+ * envelope top level or inside data, so both are checked.
+ */
+export async function listSubscriptionsByEmail(
+  email: string,
+): Promise<RecurpaySubscription[]> {
+  const all: RecurpaySubscription[] = [];
+  for (let page = 1; page <= LIST_MAX_PAGES; page++) {
+    const params = new URLSearchParams({
+      email,
+      sort_key: 'id',
+      sort_by: 'desc',
+      limit: String(LIST_PAGE_SIZE),
+      page: String(page),
+    });
+    const json = await recurpayEnvelope<SubscriptionListData>(`/subscriptions?${params}`);
+    const data = json.data ?? (json as unknown as SubscriptionListData);
+    const list = subscriptionList(data);
+    all.push(...list);
+
+    const info = json.page_info ?? data.page_info;
+    const hasNext = info?.has_next_page ?? info?.has_next_nage ?? false;
+    if (!hasNext || list.length === 0) break;
+  }
+  return all;
+}
+
+/**
+ * RecurPay "instant order": PUT /subscriptions/{id}/renew.
+ * This charges the customer's saved payment method IMMEDIATELY, creates and
+ * ships a real Shopify order, and moves the next renewal date. It CANNOT be
+ * undone, and RecurPay has no idempotency key, so callers must guard against
+ * double calls (confirm step, recent last_billing_at check).
+ */
+export async function renewSubscription(
+  id: number,
+): Promise<{ subscription?: RecurpaySubscription; order?: RecurpayOrder }> {
   const data = await recurpay<{
-    subscription?: RecurpaySubscription[] | RecurpaySubscription;
-    subscriptions?: RecurpaySubscription[];
-  }>(`/subscriptions?${params}`);
-  const list = Array.isArray(data.subscriptions)
-    ? data.subscriptions
-    : Array.isArray(data.subscription)
-      ? data.subscription
-      : data.subscription
-        ? [data.subscription]
-        : [];
-  return list[0] ?? null;
+    subscription?: RecurpaySubscription;
+    order?: RecurpayOrder;
+  }>(`/subscriptions/${id}/renew`, { method: 'PUT', body: JSON.stringify({}) });
+  return { subscription: data.subscription, order: data.order };
+}
+
+/** True when billing and delivery cadence differ (items are locked, prepaid style). */
+export function isPrepaid(sub: RecurpaySubscription): boolean {
+  const billing = sub.billing_policy;
+  const delivery = sub.delivery_policy;
+  if (
+    billing?.frequency == null ||
+    !billing.interval ||
+    delivery?.frequency == null ||
+    !delivery.interval
+  ) {
+    return false;
+  }
+  return (
+    billing.frequency !== delivery.frequency ||
+    billing.interval.toLowerCase() !== delivery.interval.toLowerCase()
+  );
 }
 
 export function variantAlreadyOnSubscription(

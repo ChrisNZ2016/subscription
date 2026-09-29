@@ -16,6 +16,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import Mixpanel from 'mixpanel';
 import { sendMetaPurchase } from '../lib/meta-capi.js';
+import { getRawBody } from '../lib/raw-body.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -97,16 +98,6 @@ function verifyShopifyWebhook(
   } catch {
     return false;
   }
-}
-
-/** Reads the raw request body as a Buffer (required for HMAC verification). */
-async function getRawBody(req: VercelRequest): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    req.on('data', (chunk: Buffer) => chunks.push(chunk));
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
-  });
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────

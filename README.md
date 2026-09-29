@@ -78,7 +78,10 @@ Copy `.env.example` to `.env.local` for local development.
 | `ADDON_CAMPAIGNS` | Optional JSON override. Default is poop-bag 60 + 120 packs |
 | `ADDON_PUBLIC_BASE_URL` | Public origin for minted links (default `https://lp.littlegreendog.co.nz`) |
 | `KLAVIYO_API_KEY` | Optional. Mint endpoint writes `recurpay_subscription_id` + `recurpay_link_sig` onto the profile. Also records `/keep-going` and `/get-feedback` submissions as `Feedback Recorded` |
-| `INTERCOM_ACCESS_TOKEN` | Optional. If set, `/api/feedback` opens (or updates) an Intercom inbox conversation as the customer. Create a token in Intercom Developer Hub with contacts + conversations read/write |
+| `INTERCOM_ACCESS_TOKEN` | Optional. If set, `/api/feedback` opens (or updates) an Intercom inbox conversation as the customer. Create a token in Intercom Developer Hub with contacts + conversations read/write. The subscription panel also uses it to add the internal audit note (conversations write) |
+| `INTERCOM_CANVAS_CLIENT_SECRET` | Client secret of the Intercom Developer Hub app for the subscription panel. Verifies `X-Body-Signature` on every request |
+| `RECURPAY_ADMIN_URL_TEMPLATE` | Optional. URL for the panel's Open in RecurPay button, e.g. `https://…/subscriptions/{id}`. Button hidden if unset |
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis REST credentials (set by the Vercel/Upstash integration). Order lock for instant orders. Without them the panel refuses to create orders |
 
 See [shopify/README.md](./shopify/README.md) for Mixpanel pixel and webhook setup in Shopify Admin.
 
@@ -106,6 +109,17 @@ https://lp.littlegreendog.co.nz/add-to-subscription/poop-bags-120?sid={{ person.
 After the webhook, `{{ person.addon_link_poop_bags_60 }}` / `{{ person.addon_link_poop_bags_120 }}` also work. GET shows a confirm button (email scanners prefetch GET; Recurpay is only called on POST).
 
 Agent brief for the Klaviyo flow: [docs/klaviyo-poop-bag-addon.md](docs/klaviyo-poop-bag-addon.md).
+
+## Intercom subscription panel
+
+A Canvas Kit card in the Intercom conversation Details panel shows the contact's RecurPay subscriptions and has a **Create order now** button (confirm step, internal audit note, order lock).
+
+| Purpose | URL |
+|---------|-----|
+| Initialize URL | `https://lp.littlegreendog.co.nz/api/intercom/initialize` |
+| Submit URL | `https://lp.littlegreendog.co.nz/api/intercom/submit` |
+
+Env vars: `INTERCOM_CANVAS_CLIENT_SECRET`, `INTERCOM_ACCESS_TOKEN`, `RECURPAY_ADMIN_URL_TEMPLATE` (optional), `KV_REST_API_URL`, `KV_REST_API_TOKEN`, plus the existing RecurPay vars. Full design, security and rollout steps: [docs/intercom-subscription-panel.md](./docs/intercom-subscription-panel.md). Offline checks: `npx tsx scripts/check-subscription-panel.mts` and `npx tsx scripts/check-intercom-endpoints.mts` (stubbed network, no live calls).
 
 ## Development
 
@@ -184,9 +198,12 @@ src/
 api/
   add-to-subscription.ts  One-click Recurpay add-on (pretty URL `/add-to-subscription`)
   addon-link.ts           Internal URL minting (Klaviyo webhook / CLI)
+  intercom/               initialize + submit (Intercom Details panel: RecurPay subscriptions card)
   webhooks/               orders-create (Mixpanel + Meta CAPI), subscription-contracts-create
-  lib/                    Shared serverless helpers (Recurpay, HMAC tokens, Meta CAPI)
+  lib/                    Shared serverless helpers (Recurpay, HMAC tokens, Meta CAPI, Intercom
+                          Canvas builders, order-lock, subscription-panel)
 scripts/          One-off maintenance scripts (generate-addon-link.mjs, backfill-utm.mjs, sync-readme.mjs)
+                  and offline checks (check-subscription-panel.mts, check-intercom-endpoints.mts)
 .githooks/        Git hooks (pre-commit → sync README page versions + changelog)
 shopify/          Mixpanel custom pixel + setup docs
 public/           Static assets and design previews

@@ -19,6 +19,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import { processSampleSubscribeContract } from '../lib/sample-subscribe.js';
+import { getRawBody } from '../lib/raw-body.js';
 
 interface ContractWebhookPayload {
   admin_graphql_api_id?: string; // gid://shopify/SubscriptionContract/...
@@ -34,15 +35,6 @@ function verifyShopifyWebhook(rawBody: Buffer, hmacHeader: string, secret: strin
   } catch {
     return false;
   }
-}
-
-async function getRawBody(req: VercelRequest): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    req.on('data', (chunk: Buffer) => chunks.push(chunk));
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
-  });
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {

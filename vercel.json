@@ -2,6 +2,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "functions": {
+    "api/intercom/submit.ts": { "maxDuration": 30 },
+    "api/intercom/initialize.ts": { "maxDuration": 10 }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/add-to-subscription", "destination": "/api/add-to-subscription" },
