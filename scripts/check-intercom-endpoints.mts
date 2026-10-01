@@ -45,7 +45,16 @@ function makeSub(id: number, email: string, status: string, extra: Record<string
     subscriber: { email },
     delivery_policy: { frequency: 2, interval: 'months' },
     billing_policy: { frequency: 2, interval: 'months' },
-    line_items: [{ id: 1, title: 'Kibble 6kg', quantity: 1, price: 100.8 }],
+    // price is the FULL retail price; the 25% subscriber discount is in pricing_polices (pays $99.00).
+    line_items: [
+      {
+        id: 1,
+        title: 'Kibble 6kg',
+        quantity: 1,
+        price: 132,
+        pricing_polices: [{ discount: { type: 'percentage', value: 25, currency: 'NZD' } }],
+      },
+    ],
     delivery_method: { title: 'Standard', price: 0 },
     payment_method: { gateway: 'Shopify Payments' },
     orders_count: 3,
@@ -136,7 +145,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit): Promis
         success: true,
         data: {
           subscription: sub,
-          order: { id: 5551234, name: '#LGD6801', financial_status: 'paid', total_price: '100.80' },
+          order: { id: 5551234, name: '#LGD6801', financial_status: 'paid', total_price: '99.00' },
         },
       });
     }
@@ -296,6 +305,10 @@ await check('c. card lists subscriptions, order button only on the active one', 
   assert.ok(ids.includes('open:41') && ids.includes('open:42'));
   assert.ok(ids.includes('show_all'), 'cancelled subscription collapsed behind show_all');
   assert.equal(stored(r)?.contact_email, 'jane@example.com');
+  // price is full retail ($132.00); the card shows what the subscriber pays
+  assert.match(allText(r), /Kibble 6kg × 1, \$99\.00 \(25% off \$132\.00\)/);
+  assert.match(allText(r), /\$99\.00, free delivery/);
+  assert.match(allText(r), /25% subscriber discount/);
 
   const all = await call(submit, { payload: submitPayload('show_all') });
   assert.deepEqual(buttonIds(all).filter((id) => id?.startsWith('order:')), ['order:41']);
@@ -319,6 +332,9 @@ await check('d. order:N -> confirm card carrying stored_data.subscription_id', a
   assert.equal(r.status, 200);
   assert.ok(buttonIds(r).includes('confirm_order:41'));
   assert.match(allText(r), /Create an order now\?/);
+  assert.match(allText(r), /Estimated total/);
+  assert.match(allText(r), /\$99\.00/);
+  assert.doesNotMatch(allText(r), /\$132\.00/, 'confirm screen must not show the full retail price');
   assert.equal(stored(r)?.subscription_id, 41);
   assert.equal(typeof stored(r)?.nonce, 'string');
   assert.equal(world.renewCount, 0);
@@ -356,7 +372,7 @@ await check('g. happy path -> renew once, result card, one Intercom note', async
   assert.equal(world.renewCount, 1);
   assert.match(allText(r), /Order created/);
   assert.match(allText(r), /#LGD6801/);
-  assert.match(allText(r), /\$100\.80/);
+  assert.match(allText(r), /\$99\.00/);
   const shopify = components(r).find((c) => c.id === 'shopify');
   assert.equal(shopify?.action?.url, 'https://admin.shopify.com/store/little-green-dog/orders/5551234');
   assert.equal(world.notes.length, 1);
@@ -364,7 +380,7 @@ await check('g. happy path -> renew once, result card, one Intercom note', async
   assert.equal(world.notes[0].body.message_type, 'note');
   assert.equal(world.notes[0].body.admin_id, '99');
   const noteBody = String(world.notes[0].body.body);
-  assert.match(noteBody, /Chris created instant order #LGD6801 \(\$100\.80\) for RecurPay subscription 41 from Intercom\. Next order: /);
+  assert.match(noteBody, /Chris created instant order #LGD6801 \(\$99\.00\) for RecurPay subscription 41 from Intercom\. Next order: /);
   assert.equal(world.locks.has('instant-order:41'), true, 'lock is not released');
   // repeat on the same subscription: last_billing_at is now fresh, so the guard trips
   const again = await call(submit, { payload: confirmPayload(41) });

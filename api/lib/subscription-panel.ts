@@ -28,7 +28,13 @@ export type PanelLineItem = {
   name?: string;
   variant_title?: string | null;
   quantity: number | string;
+  /** FULL RETAIL price per unit. The subscriber discount lives in `pricing_polices`. */
   price?: number | string;
+  /**
+   * RecurPay's own spelling of "policies". Kept as unknown[] so RecurpayLineItem stays
+   * assignable; entries are parsed defensively by parsePricingPolicies().
+   */
+  pricing_polices?: unknown[];
   is_onetime?: boolean;
 };
 
@@ -239,18 +245,113 @@ function activeLineItems(sub: PanelSubscription): PanelLineItem[] {
   return Array.isArray(sub.line_items) ? sub.line_items : [];
 }
 
-function lineTotal(li: PanelLineItem): number | undefined {
-  const price = toNumber(li.price);
-  if (price === undefined) return undefined;
-  return price * (toNumber(li.quantity) ?? 1);
+// ---------------------------------------------------------------------------
+// Pricing
+//
+// RecurPay's line item `price` is the FULL retail price. The subscriber discount is in
+// `pricing_polices`, e.g. [{ discount: { type: 'percentage', value: 25, currency: 'NZD' } }].
+// ---------------------------------------------------------------------------
+
+/** Typed view of one pricing_polices entry. */
+type PricingPolicy = {
+  discount?: { type?: string; value?: number | string; currency?: string };
+  after_cycle?: number | string;
+  [k: string]: unknown;
+};
+
+type DiscountKind = 'percentage' | 'price' | 'amount' | 'unknown';
+
+type ParsedDiscount = { kind: DiscountKind; value?: number };
+
+/** Round to cents, half up, tolerant of binary float error (e.g. 1.005). */
+function roundCents(x: number): number {
+  return Math.round(x * 100 + 1e-7) / 100;
 }
 
-/** Sum of (line price x quantity) plus delivery price. Unparseable values count as 0. */
+function parsePricingPolicies(li: PanelLineItem): PricingPolicy[] {
+  const raw = li.pricing_polices;
+  if (!Array.isArray(raw)) return [];
+  const out: PricingPolicy[] = [];
+  for (const entry of raw as unknown[]) {
+    if (typeof entry === 'object' && entry !== null && !Array.isArray(entry)) out.push(entry as PricingPolicy);
+  }
+  return out;
+}
+
+/**
+ * The policy that applies to the NEXT order (cycle orders_count + 1). If any policy has
+ * after_cycle, use the highest after_cycle <= orders_count (a policy without after_cycle
+ * counts as 0). Otherwise the first policy.
+ */
+function applicablePolicy(li: PanelLineItem, sub: PanelSubscription): PricingPolicy | undefined {
+  const policies = parsePricingPolicies(li);
+  if (policies.length === 0) return undefined;
+  if (!policies.some((p) => toNumber(p.after_cycle) !== undefined)) return policies[0];
+  const completed = toNumber(sub.orders_count) ?? 0;
+  let best: PricingPolicy | undefined;
+  let bestCycle = -1;
+  for (const p of policies) {
+    const cycle = toNumber(p.after_cycle) ?? 0;
+    if (cycle <= completed && cycle > bestCycle) {
+      best = p;
+      bestCycle = cycle;
+    }
+  }
+  return best;
+}
+
+function parseDiscount(policy: PricingPolicy | undefined): ParsedDiscount | undefined {
+  const d = policy?.discount;
+  if (typeof d !== 'object' || d === null) return undefined;
+  const type = typeof d.type === 'string' ? d.type.trim().toLowerCase() : '';
+  const value = toNumber(d.value);
+  if (value === undefined) return { kind: 'unknown' };
+  if (type === 'percentage') return { kind: 'percentage', value };
+  if (type === 'price') return { kind: 'price', value };
+  if (type === 'fixed_amount' || type === 'amount') return { kind: 'amount', value };
+  return { kind: 'unknown' };
+}
+
+export type UnitPricing = {
+  /** Full retail price per unit (the RecurPay `price`). */
+  list?: number;
+  /** What the subscriber pays per unit. Equals `list` when there is no (known) discount. */
+  unit?: number;
+  discount?: ParsedDiscount;
+  /** True when a discount object exists but its type or value was not understood. */
+  unknownDiscount: boolean;
+};
+
+export function lineUnitPricing(li: PanelLineItem, sub: PanelSubscription): UnitPricing {
+  const list = toNumber(li.price);
+  const discount = parseDiscount(applicablePolicy(li, sub));
+  if (list === undefined) return { discount, unknownDiscount: discount?.kind === 'unknown' };
+  let unit = list;
+  if (discount?.value !== undefined) {
+    if (discount.kind === 'percentage') unit = (list * (100 - discount.value)) / 100;
+    else if (discount.kind === 'price') unit = discount.value;
+    else if (discount.kind === 'amount') unit = Math.max(0, list - discount.value);
+  }
+  return { list: roundCents(list), unit: roundCents(unit), discount, unknownDiscount: discount?.kind === 'unknown' };
+}
+
+/** Discounted unit price (what the subscriber pays per unit), or undefined if `price` is missing. */
+export function subscriptionUnitPrice(li: PanelLineItem, sub: PanelSubscription): number | undefined {
+  return lineUnitPricing(li, sub).unit;
+}
+
+function lineTotal(li: PanelLineItem, sub: PanelSubscription): number | undefined {
+  const unit = subscriptionUnitPrice(li, sub);
+  if (unit === undefined) return undefined;
+  return roundCents(unit * (toNumber(li.quantity) ?? 1));
+}
+
+/** Sum of (discounted line price x quantity) plus delivery price. Unparseable values count as 0. */
 export function estimatedTotal(sub: PanelSubscription): number {
   let total = 0;
-  for (const li of activeLineItems(sub)) total += lineTotal(li) ?? 0;
+  for (const li of activeLineItems(sub)) total += lineTotal(li, sub) ?? 0;
   total += toNumber(sub.delivery_method?.price) ?? 0;
-  return Math.round(total * 100) / 100;
+  return roundCents(total);
 }
 
 /** now + delivery interval, as an ISO string. An estimate only. */
@@ -296,17 +397,58 @@ function itemName(li: PanelLineItem): string {
   return base;
 }
 
+function percentLabel(v: number): string {
+  return `${Number.isInteger(v) ? v : Number(v.toFixed(2))}%`;
+}
+
+/** "$99.00 (25% off $132.00)". Falls back to the plain price, or "(price before discount)". */
+function priceWithDiscount(p: UnitPricing): string | undefined {
+  const unit = formatMoney(p.unit);
+  if (!unit) return undefined;
+  if (p.unknownDiscount) return `${unit} (price before discount)`;
+  const list = formatMoney(p.list);
+  const d = p.discount;
+  if (!list || !d || d.value === undefined || p.unit === p.list) return unit;
+  if (d.kind === 'percentage') return `${unit} (${percentLabel(d.value)} off ${list})`;
+  if (d.kind === 'amount') return `${unit} (${formatMoney(d.value)} off ${list})`;
+  return `${unit} (was ${list})`;
+}
+
 function itemsSummary(sub: PanelSubscription): string | undefined {
   const items = activeLineItems(sub);
   if (items.length === 0) return undefined;
   return items
     .map((li) => {
       const qty = toNumber(li.quantity) ?? 1;
-      const price = formatMoney(li.price);
+      const price = priceWithDiscount(lineUnitPricing(li, sub));
       const oneOff = li.is_onetime ? ' (one-off)' : '';
       return `${itemName(li)} × ${qty}${price ? `, ${price}` : ''}${oneOff}`;
     })
     .join('; ');
+}
+
+/** "$104.00 incl. $5.00 delivery", "$99.00, free delivery", or just the item total. */
+function pricePerOrder(sub: PanelSubscription): string | undefined {
+  const items = activeLineItems(sub);
+  let itemTotal = 0;
+  let priced = false;
+  let unknown = false;
+  for (const li of items) {
+    const t = lineTotal(li, sub);
+    if (t !== undefined) {
+      itemTotal += t;
+      priced = true;
+    }
+    if (lineUnitPricing(li, sub).unknownDiscount) unknown = true;
+  }
+  if (!priced) return undefined;
+  const itemsMoney = roundCents(itemTotal);
+  const delivery = toNumber(sub.delivery_method?.price);
+  let out: string;
+  if (delivery === undefined) out = formatMoney(itemsMoney) ?? '';
+  else if (delivery === 0) out = `${formatMoney(itemsMoney)}, free delivery`;
+  else out = `${formatMoney(roundCents(itemsMoney + delivery))} incl. ${formatMoney(delivery)} delivery`;
+  return unknown ? `${out} (price before discount)` : out;
 }
 
 function deliverySummary(sub: PanelSubscription): string | undefined {
@@ -318,7 +460,7 @@ function deliverySummary(sub: PanelSubscription): string | undefined {
   return title || price;
 }
 
-function discountSummary(sub: PanelSubscription): string | undefined {
+function discountCodeNames(sub: PanelSubscription): string[] {
   const codes = Array.isArray(sub.discount_codes) ? sub.discount_codes : [];
   const names: string[] = [];
   for (const c of codes) {
@@ -329,7 +471,27 @@ function discountSummary(sub: PanelSubscription): string | undefined {
       if (typeof v === 'string' && v.trim()) names.push(v.trim());
     }
   }
-  return names.length > 0 ? names.join(', ') : undefined;
+  return names;
+}
+
+function subscriberDiscountLabels(sub: PanelSubscription): string[] {
+  const labels: string[] = [];
+  for (const li of activeLineItems(sub)) {
+    const d = lineUnitPricing(li, sub).discount;
+    if (!d) continue;
+    let label: string;
+    if (d.kind === 'percentage' && d.value !== undefined) label = `${percentLabel(d.value)} subscriber discount`;
+    else if (d.kind === 'amount' && d.value !== undefined) label = `${formatMoney(d.value)} subscriber discount`;
+    else if (d.kind === 'price') label = 'Subscriber price';
+    else label = 'Subscriber discount (type not recognised)';
+    if (!labels.includes(label)) labels.push(label);
+  }
+  return labels;
+}
+
+function discountSummary(sub: PanelSubscription): string | undefined {
+  const parts = [...subscriberDiscountLabels(sub), ...discountCodeNames(sub).map((c) => `Code ${c}`)];
+  return parts.length > 0 ? parts.join('; ') : undefined;
 }
 
 function statusText(sub: PanelSubscription): string {
@@ -357,6 +519,7 @@ function subscriptionTable(sub: PanelSubscription): CanvasComponent {
   return dataTable([
     ['Status', statusText(sub)],
     ['Items', itemsSummary(sub)],
+    ['Price per order', pricePerOrder(sub)],
     ['Delivery', deliverySummary(sub)],
     ['Every', frequencyLabel(sub)],
     ['Next order', formatNzDate(sub.next_billing_at)],
@@ -450,7 +613,7 @@ export function buildConfirmCard(args: {
   const elig = orderEligibility(sub, now);
   const rows: Array<[string, string | undefined]> = activeLineItems(sub).map((li) => {
     const qty = toNumber(li.quantity) ?? 1;
-    return [`${itemName(li)} × ${qty}`, formatMoney(lineTotal(li))];
+    return [`${itemName(li)} × ${qty}`, formatMoney(lineTotal(li, sub))];
   });
   const dm = sub.delivery_method;
   rows.push(['Delivery', dm ? `${dm.title?.trim() ? `${dm.title.trim()}, ` : ''}${formatMoney(dm.price) ?? '$0.00'}` : undefined]);

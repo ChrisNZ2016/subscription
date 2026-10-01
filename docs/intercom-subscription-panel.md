@@ -74,17 +74,23 @@ Intercom's guidance: keep the first screen under about 400px tall, and use secon
 | Row | Source | Example |
 |---|---|---|
 | Status | `status`, plus `is_skipped` | **Active**. "Active, next order skipped". **Halted: payment failed** (error style, with `halted_reason` and `halted_retries_count`). "Cancelled 12 Aug (reason)". |
-| Items | `line_items[].title`, `variant_title`, `quantity`, `price` | Kibble 6kg × 1, $100.80 |
+| Items | `line_items[].title`, `variant_title`, `quantity`, `price`, `pricing_polices` | Kibble 6kg × 1, $99.00 (25% off $132.00) |
+| Price per order | Discounted line totals + `delivery_method.price` | $104.00 incl. $5.00 delivery. "$99.00, free delivery" when delivery is 0. Item total only when delivery is unknown. |
 | Delivery | `delivery_method.title`, `price` | Standard, $0.00 |
 | Every | `delivery_policy.frequency` + `interval` | Every 2 months |
 | Next order | `next_billing_at` | Wed 14 Oct 2026 |
 | Last order | `last_billing_at` | 14 Aug 2026 |
 | Orders so far | `orders_count` | 3 |
 | Customer since | `subscribed_at` | 19 Aug 2026 |
-| Discount | `discount_codes`, `line_items[].pricing_polices` | 20% subscriber |
+| Discount | `line_items[].pricing_polices`, `discount_codes` | 25% subscriber discount; Code SAVE10 |
 | Card | `payment_method.gateway` | Shopify Payments |
 
 - Dates in NZ format and Pacific/Auckland time. Money in NZD.
+- **Pricing: `line_items[].price` is the FULL RETAIL price, not what the subscriber pays.** The subscriber discount lives in `line_items[].pricing_polices` (RecurPay's spelling), e.g. `[{"discount":{"type":"percentage","value":25,"currency":"NZD"}}]` on `price: 132` means $99.00. Everywhere money is shown or summed (Items, Price per order, the confirm screen's per-line rows and Estimated total) the code uses the discounted unit price from `subscriptionUnitPrice()`:
+  - Policy choice: if any policy has `after_cycle`, use the one with the highest `after_cycle` <= `orders_count` (the next order is cycle `orders_count + 1`; a policy applies after N cycles, and one with no `after_cycle` counts as 0). Otherwise the first policy.
+  - `percentage`: price x (1 - value/100). `price`: the fixed unit price (used when this repo creates subscriptions, see `docs/sample-to-subscription-plan.md`). `fixed_amount` / `amount`: max(0, price - value). Rounded to cents, half up.
+  - Unknown discount type: the full price is shown with "(price before discount)" rather than a guess.
+  - `discount_codes` are listed on the Discount row but are not subtracted from any total.
 - Omit empty rows.
 - **Buttons** under each subscription: **Create order now** (secondary, only for eligible subscriptions) and **Open in RecurPay** (URL action).
 - **Footer:** **Refresh** (link style).
@@ -154,7 +160,7 @@ The API call is `PUT /subscriptions/{id}/renew`. Its documented response include
 | `INTERCOM_CANVAS_CLIENT_SECRET` | **New.** Client secret of the new Developer Hub app, used for signature checks |
 | `INTERCOM_ACCESS_TOKEN` | Existing name. For the internal note it needs conversations write access. Use the new app's token, or the existing one if it has that scope. |
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | **New.** Upstash Redis REST credentials (set by the Vercel/Upstash integration). Backs the order lock in section 7. Without them, **Create order now** is refused (fail closed). |
-| `RECURPAY_ADMIN_URL_TEMPLATE` | **New, optional.** URL for **Open in RecurPay**, e.g. `https://…/subscriptions/{id}`. Copied from the browser, since the pattern isn't documented. The button is hidden if unset. |
+| `RECURPAY_ADMIN_URL_TEMPLATE` | Set to `https://little-green-dog.recurpay.com/subscriptions/{id}` (confirmed 1 Oct 2026: the dashboard URL uses the API subscription id). Drives the **Open in RecurPay** button. |
 
 ## 9. Intercom setup (one-off, Chris)
 
