@@ -94,7 +94,6 @@ export function SubscribePage() {
             <li><strong>Your best rate, locked in.</strong> 25% beats the standard 20%, for every future delivery.</li>
             <li><strong>No lock-in.</strong> Skip, pause or cancel anytime in a couple of taps.</li>
             <li><strong>Never run out.</strong> The right amount, Free Shipping (over $50), delivered on your schedule.</li>
-            <li><strong>Always covered.</strong> The Sensitivity Promise backs every delivery, not just the first.</li>
           </ul>
         </section>
 

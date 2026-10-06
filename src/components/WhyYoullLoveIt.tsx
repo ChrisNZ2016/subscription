@@ -130,7 +130,7 @@ export function WhyYoullLoveIt({ onGetStarted, samplePrice, discountLabel = '50%
             {samplePrice ? `Get my sample, ${samplePrice}` : 'Get my sample'}
           </button>
           <p className="why-love-cta-note">{discountLabel} your first box · Delivered in 1–3 days · Cancel anytime</p>
-          <p className="cta-guarantee">🛡️ 100% money-back guarantee, no questions asked</p>
+          <p className="cta-guarantee">🛡️ 100% money-back guarantee on sample bags, no questions asked</p>
         </div>
       )}
     </section>

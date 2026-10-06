@@ -87,7 +87,7 @@ export function ProductTabs({ activeTab: controlledTab, onTabChange }: ProductTa
                 <div className="sensitivity-promise">
                   <strong>The Sensitivity Promise</strong>
                   <p>
-                    If it's not the right fit for your dog, we'll refund you, just reach out.
+                    If it's not the right fit for your dog, we'll refund you the cost of your sample bag, just reach out.
                     No hoops, no hassle.
                   </p>
                 </div>

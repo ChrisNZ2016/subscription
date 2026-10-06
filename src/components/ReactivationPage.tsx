@@ -112,7 +112,6 @@ export function ReactivationPage() {
 
           <ul className="reactivation-reasons">
             <li><strong>No lock-in.</strong> Skip, pause or cancel anytime in a couple of taps.</li>
-            <li><strong>Always covered.</strong> The Sensitivity Promise backs every delivery, not just the first.</li>
             <li><strong>Never run out.</strong> The right amount, Free Shipping (over $50), delivered every 4 weeks.</li>
             <li><strong>Your best rate.</strong> 25% beats our standard 20% subscriber price, locked in.</li>
           </ul>

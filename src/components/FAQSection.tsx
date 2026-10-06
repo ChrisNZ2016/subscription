@@ -10,7 +10,7 @@ const faqs: FaqItem[] = [
   {
     question: 'What if my dog doesn\'t like it?',
     answer:
-      'We stand behind our Sensitivity Promise. If it\'s not the right fit for your dog, just reach out and we\'ll give you a full refund, no hoops, no hassle, no questions asked.',
+      'We stand behind our Sensitivity Promise. If it\'s not the right fit for your dog, just reach out and we\'ll give you a full refund on your sample bag, no hoops, no hassle, no questions asked. Refunds only apply to your sample bag, not subsequent deliveries.',
   },
   {
     question: 'How does the subscription work after the sample?',

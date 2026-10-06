@@ -70,7 +70,7 @@ export function HeroSection({ onGetStarted, samplePrice, trustBadges = DEFAULT_T
         <p className="hero-subtitle">
           Vet-formulated, single-protein kibble with 6+ functional superfoods.
           Free from beef, dairy, gluten, wheat, grain, fillers, and colours.{' '}
-          <span className="hero-sensitivity-promise">Try risk-free with our Sensitivity Promise, full refund if it's not the right fit.</span>
+          <span className="hero-sensitivity-promise">Try risk-free with our Sensitivity Promise, full refund on your sample bag if it's not the right fit.</span>
         </p>
         <div className="hero-actions">
           <button className="btn-order" onClick={onGetStarted}>
@@ -82,7 +82,7 @@ export function HeroSection({ onGetStarted, samplePrice, trustBadges = DEFAULT_T
           <span>{trustBadges[1]}</span>
           <span>{trustBadges[2]}</span>
         </div>
-        <p className="hero-guarantee">🛡️ 100% money-back guarantee, no questions asked</p>
+        <p className="hero-guarantee">🛡️ 100% money-back guarantee on your sample bag , no questions asked</p>
       </div>
 
       <div className="hero-image">
