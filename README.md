@@ -144,6 +144,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 
 <!-- CHANGELOG_START -->
 - **2026-10-12** — api/fin/subscriptions.ts
+- **2026-10-12** — api/fin/subscriptions.ts
 - **2026-10-06** — src/components/FAQCTA.tsx, src/components/FAQSection.tsx, src/components/HeroSection.tsx, src/components/ProductTabs.tsx, src/components/ReactivationPage.tsx, src/components/SubscribePage.tsx, src/components/WhyYoullLoveIt.tsx
 - **2026-10-01** — api/lib/subscription-panel.ts
 - **2026-09-09** — src/components/KeepGoingPage.tsx, src/constants/page-versions.ts

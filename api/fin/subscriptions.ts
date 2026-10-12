@@ -96,7 +96,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   }
 
   try {
-    const all = sortSubscriptions(await listSubscriptionsByEmail(email));
+    // Only the contact's own subscriptions, in case RecurPay's email filter matches loosely.
+    const all = sortSubscriptions(
+      (await listSubscriptionsByEmail(email)).filter(
+        (sub) => sub.subscriber?.email?.trim().toLowerCase() === email,
+      ),
+    );
     res.setHeader('Cache-Control', 'no-store');
     res.status(200).json({
       email,
