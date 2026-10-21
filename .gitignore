@@ -31,3 +31,6 @@ dist-ssr
 # Claude Code internal
 .claude/worktrees/
 .env*
+
+# Local screenshot/preview output (see README "Australian demand test")
+preview/
