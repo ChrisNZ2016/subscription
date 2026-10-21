@@ -8,8 +8,11 @@ import { readFileSync, existsSync } from 'fs'
 // renders — two extra round trips on the LCP path. This plugin injects an
 // inline script that preloads the matched route's chunks and hero image
 // directly from the HTML.
+// The injected script only sees location.pathname, so '/' hints the page the
+// root renders by default — SoloPage. (`?variant=simple|solo` opts into
+// LandingPage instead; that chunk is discovered after the main bundle runs.)
 const ROUTE_PAGES: Record<string, string> = {
-  '/': 'LandingPage',
+  '/': 'SoloPage',
   '/solo': 'SoloPage',
   '/sample-subscribe': 'SampleSubscribePage',
   '/welcome-back': 'ReactivationPage',
