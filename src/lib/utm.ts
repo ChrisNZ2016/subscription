@@ -38,6 +38,11 @@ export function captureUtmParams(): void {
   }
 }
 
+/** First-touch UTMs as a plain object, for JSON payloads (e.g. the AU waitlist). */
+export function getStoredUtmParams(): UtmParams {
+  return readStoredUtms();
+}
+
 /** Cart attributes that flow to order.note_attributes for Mechanic order tagging. */
 export function getUtmCartAttributes(): Array<{ key: string; value: string }> {
   const utms = readStoredUtms();

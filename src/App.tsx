@@ -1,6 +1,9 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { getLandingVariant } from './lib/page-attribution'
 import { getEmailFromSearch } from './lib/email-from-url'
+import { isAuPath } from './lib/au-routes'
+
+const AuSite = lazy(() => import('./components/AuSite').then((m) => ({ default: m.AuSite })))
 
 const LandingPage = lazy(() => import('./components/LandingPage').then((m) => ({ default: m.LandingPage })))
 const SoloPage = lazy(() => import('./components/SoloPage').then((m) => ({ default: m.SoloPage })))
@@ -14,6 +17,10 @@ const GetFeedbackPage = lazy(() => import('./components/GetFeedbackPage').then((
 
 function resolvePage() {
   const path = window.location.pathname;
+  // The AU demand test owns every path on its own build (`VITE_SITE=au`), so no
+  // NZ funnel is reachable there — paid AU traffic can never land on a page that
+  // sells NZ stock. On the NZ build it stays previewable under /au.
+  if (isAuPath(path)) return <AuSite />;
   if (path === '/solo' || path === '/solo/') {
     return <SoloPage />;
   }

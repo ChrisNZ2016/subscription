@@ -4069,3 +4069,40 @@ nav.site-nav {
   .wh-order-actions { flex-direction: column; align-items: stretch; }
   .wh-order-actions a, .wh-order-actions .btn { text-align: center; justify-content: center; }
 }
+
+/* ── Australian demand test ─────────────────────────────────────────────── */
+
+/* The AU table carries a retail column the NZ one doesn't, so both price
+   columns right-align against the bag size. */
+.subscription-pricing-table--au th:nth-child(2),
+.subscription-pricing-table--au td:nth-child(2) {
+  text-align: right;
+}
+.subscription-pricing-table--au .subscription-pricing-retail {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+.subscription-pricing-perkg {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.waitlist-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+  text-align: left;
+}
+.waitlist-consent input {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.1rem;
+  accent-color: var(--color-green-dark);
+}

@@ -13,7 +13,9 @@ export type PageName =
   | 'subscribe-ingredients'
   | 'wholesale'
   | 'keep-going'
-  | 'get-feedback';
+  | 'get-feedback'
+  | 'solo-au'
+  | 'sold-out-au';
 
 export const PAGE_VERSIONS: Record<PageName, { name: PageName; version: string }> = {
   landing: { name: 'landing', version: '1.0.0' },
@@ -27,4 +29,6 @@ export const PAGE_VERSIONS: Record<PageName, { name: PageName; version: string }
   wholesale: { name: 'wholesale', version: '1.0.0' },
   'keep-going': { name: 'keep-going', version: '1.1.0' },
   'get-feedback': { name: 'get-feedback', version: '1.1.0' },
+  'solo-au': { name: 'solo-au', version: '1.0.0' },
+  'sold-out-au': { name: 'sold-out-au', version: '1.0.0' },
 };

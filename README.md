@@ -20,6 +20,15 @@ Routing is pathname-based in `src/App.tsx` (no React Router).
 
 Each route also matches with an optional trailing slash (e.g. `/solo/`).
 
+The Australian demand test has its own two routes, which **replace** the table
+above when the build sets `VITE_SITE=au` — see
+[Australian demand test](#australian-demand-test):
+
+| Route (AU build) | Route (NZ build, preview only) | Page | Purpose |
+|------------------|-------------------------------|------|---------|
+| `/` | `/au` | `SoloAuPage` | AU landing page, AUD pricing, no Shopify (`page_name: solo-au`) |
+| `/sold-out` | `/au/sold-out` | `SoldOutPage` | Where every AU CTA lands: out of stock + waitlist capture (`page_name: sold-out-au`) |
+
 The root path accepts a `?variant=` query param to opt into the older
 `LandingPage` funnel (hero → dog size → addons → order summary → checkout).
 Without it, `/` renders `SoloPage`:
@@ -54,6 +63,7 @@ Copy `.env.example` to `.env.local` for local development.
 
 | Variable | Description |
 |----------|-------------|
+| `VITE_SITE` | `au` in the Australian demand-test project only — serves the AU pages and nothing else. Unset = the NZ site. See [Australian demand test](#australian-demand-test) |
 | `VITE_SHOPIFY_STORE_DOMAIN` | Store domain, e.g. `your-store.myshopify.com` |
 | `VITE_SHOPIFY_STOREFRONT_TOKEN` | Storefront API access token |
 | `VITE_SHOPIFY_API_VERSION` | API version (default: `2025-01`) |
@@ -82,6 +92,7 @@ Copy `.env.example` to `.env.local` for local development.
 | `INTERCOM_CANVAS_CLIENT_SECRET` | Client secret of the Intercom Developer Hub app for the subscription panel. Verifies `X-Body-Signature` on every request |
 | `RECURPAY_ADMIN_URL_TEMPLATE` | Optional. URL for the panel's Open in RecurPay button, e.g. `https://…/subscriptions/{id}`. Button hidden if unset |
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis REST credentials (set by the Vercel/Upstash integration). Order lock for instant orders. Without them the panel refuses to create orders |
+| `KLAVIYO_AU_WAITLIST_LIST_ID` | Australian demand-test project only. Klaviyo list that `/api/waitlist` subscribes signups to. Must be **single opt-in** |
 
 See [shopify/README.md](./shopify/README.md) for Mixpanel pixel and webhook setup in Shopify Admin.
 
@@ -120,6 +131,87 @@ A Canvas Kit card in the Intercom conversation Details panel shows the contact's
 | Submit URL | `https://lp.littlegreendog.co.nz/api/intercom/submit` |
 
 Env vars: `INTERCOM_CANVAS_CLIENT_SECRET`, `INTERCOM_ACCESS_TOKEN`, `RECURPAY_ADMIN_URL_TEMPLATE` (optional), `KV_REST_API_URL`, `KV_REST_API_TOKEN`, plus the existing RecurPay vars. Full design, security and rollout steps: [docs/intercom-subscription-panel.md](./docs/intercom-subscription-panel.md). Offline checks: `npx tsx scripts/check-subscription-panel.mts` and `npx tsx scripts/check-intercom-endpoints.mts` (stubbed network, no live calls).
+
+## Australian demand test
+
+A paid-ads test of Australian demand at **https://lp.littlegreen-dog.com**. It
+measures conversion rate; it sells nothing. There is no AU stock, so the page
+never touches Shopify and every CTA lands on a sold-out page that captures an
+email for the waitlist.
+
+> **Before pointing ads at it:** advertising a product that cannot be bought is
+> bait-advertising territory under ACCC rules and Meta's unavailable-product
+> policy. The copy frames the stockout as real and immediate for that reason —
+> keep it that way, and keep the waitlist promise honest.
+
+### How it ships
+
+Same repo, **two Vercel projects**. The AU project sets `VITE_SITE=au`, which
+makes the build serve only `SoloAuPage` and `SoldOutPage` — no NZ funnel is
+routable there, so AU traffic can never land on a page selling NZ stock at NZ
+prices. Because the pixel ID and Mixpanel token are Vite build-time values, two
+projects is also what lets the AU test have its own pixel and its own Mixpanel
+project while sharing one codebase.
+
+| | NZ | AU |
+|--|----|----|
+| Vercel project | `subscription` | `lgd-lp-au` |
+| Domain | `lp.littlegreendog.co.nz` | `lp.littlegreen-dog.com` |
+| `VITE_SITE` | unset | `au` |
+| Meta pixel | shared with the Shopify app | its own AU pixel |
+| Mixpanel | NZ project | its own AU project |
+| Indexed | yes | **no** — `noindex` meta, `Disallow: /` robots.txt, `X-Robots-Tag` header |
+
+Deploy it the same way as NZ, from a checkout linked to the AU project:
+
+```bash
+npx vercel link --project lgd-lp-au   # once
+npx vercel --prod --yes
+```
+
+The env var **names** are the same as the NZ project's — only the values differ
+(`VITE_META_PIXEL_ID`/`META_PIXEL_ID` = the AU pixel, `VITE_MIXPANEL_TOKEN`/
+`MIXPANEL_TOKEN` = the AU project, plus `META_CAPI_ACCESS_TOKEN` and
+`KLAVIYO_API_KEY`). Only `VITE_SITE` and `KLAVIYO_AU_WAITLIST_LIST_ID` are new.
+
+Preview it on an NZ deploy at `/au` — but never advertise that URL: it runs on
+the NZ pixel and the NZ Mixpanel project, so clicks there pollute live NZ data.
+
+### Events
+
+The CTA click is the conversion the AU campaigns optimise for; the waitlist
+email is the quality signal behind it. Three Meta events in total, well inside
+the per-domain Aggregated Event Measurement limit of 8.
+
+| Step | Mixpanel | Meta |
+|------|----------|------|
+| Landing page view | `Page Viewed` (`page_name: solo-au`) | `PageView` (head snippet) |
+| **CTA click** | `CTA Clicked` + `location` | **`Lead`** ← optimise for this |
+| Sold-out page view | `Page Viewed` (`page_name: sold-out-au`) | — |
+| Email submitted | `Waitlist Submitted`, `Waitlist Submitted (Server)` | `CompleteRegistration` (browser + CAPI, deduped on `eventId`) |
+
+Moving between the two pages uses `pushState`, not a document navigation, so the
+`Lead` fired on the CTA click can't be cut off by a page unload and the
+campaign's UTMs survive the hop onto the waitlist signup.
+
+### Where the emails go
+
+`POST /api/waitlist` (`api/lib/submit-waitlist.ts`) subscribes the profile to the
+Klaviyo **AU Waitlist** list (`XC2sX5`) with express email consent, tracks the
+event in the AU Mixpanel project, and sends the CAPI `CompleteRegistration`.
+
+The consent checkbox on the form is required and the endpoint rejects a payload
+without it — this collects marketing consent from Australian residents under the
+Spam Act 2003. The list **must stay single opt-in**: on a double opt-in list
+Klaviyo only sends a confirmation email and the profile stays unconsented until
+the visitor clicks it, which would silently undercount the test.
+
+### Pricing
+
+AUD prices are static figures in `src/lib/au-pricing.ts` — A$24.95 delivered for
+the 2kg sample (54% off the A$54 retail anchor), plus the 2–24kg retail and
+subscription table. Changing any of them changes what the test measures, so bump
+`solo-au` in `src/constants/page-versions.ts` at the same time.
 
 ## Development
 
@@ -182,6 +274,11 @@ npx vercel --prod --yes
 
 Production is aliased to `https://lp.littlegreendog.co.nz`. There is no CI pipeline — the CLI is the deploy path.
 
+The Australian demand test deploys from this same repo as a **second** Vercel
+project (`lgd-lp-au` → `lp.littlegreen-dog.com`), so check which project your
+checkout is linked to before `--prod`. See
+[Australian demand test](#australian-demand-test).
+
 **Last deployed:** `2026-06-26T20:52:00Z` — Vercel CLI deploy (`npx vercel --prod --yes`). Production: https://subscription-83lvb8kx7-chris-oneills-projects.vercel.app. Aliased to `https://lp.littlegreendog.co.nz`. Inspect: https://vercel.com/chris-oneills-projects/subscription/DeafD9aTqxPiQ2W7G9pP18o8nPSi.
 
 ## Project structure
@@ -190,16 +287,19 @@ Production is aliased to `https://lp.littlegreendog.co.nz`. There is no CI pipel
 src/
   App.tsx         Pathname routing (lazy-loaded page components)
   components/     Funnel pages (LandingPage, SoloPage, ReactivationPage, SubscribePage,
-                  SubscribeIngredientsPage) and shared sections (HeroSection, BenefitsBar,
+                  SubscribeIngredientsPage), the AU demand test (AuSite, SoloAuPage,
+                  SoldOutPage) and shared sections (HeroSection, BenefitsBar,
                   ProductTabs, SubscriptionPricingSection, SubscriptionPricingTable,
                   TestimonialsSection, FAQSection, DogSizeCalculator, OrderSummary,
                   StickyCTA, Footer, etc.)
   hooks/          Product fetching, cart state, scroll/section-view tracking, hash scrolling
   lib/            Shopify client, cart builders, pricing, subscription-prices, analytics,
-                  meta-pixel, UTM capture, page-attribution
+                  meta-pixel, UTM capture, page-attribution, and the AU test's
+                  site/au-routes/au-pricing/waitlist-client
   constants/      Dog size presets, page-versions (attribution semver)
   types/          Shopify GraphQL types
 api/
+  waitlist.ts             AU waitlist signup (Klaviyo list + Mixpanel + Meta CAPI)
   add-to-subscription.ts  One-click Recurpay add-on (pretty URL `/add-to-subscription`)
   addon-link.ts           Internal URL minting (Klaviyo webhook / CLI)
   intercom/               initialize + submit (Intercom Details panel: RecurPay subscriptions card)
@@ -264,6 +364,8 @@ Current versions (auto-synced on commit):
 | `wholesale` | 1.0.0 |
 | `keep-going` | 1.1.0 |
 | `get-feedback` | 1.1.0 |
+| `solo-au` | 1.0.0 |
+| `sold-out-au` | 1.0.0 |
 <!-- PAGE_VERSIONS_END -->
 
 #### Page versioning (when to bump)

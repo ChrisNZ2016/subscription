@@ -1,4 +1,5 @@
 import { PAGE_VERSIONS, type PageName } from '../constants/page-versions';
+import { isAuPath, isSoldOutPath } from './au-routes';
 
 export type LandingVariant = 'simple' | 'solo';
 
@@ -18,6 +19,9 @@ export function getLandingVariant(): LandingVariant | null {
 /** Resolve the funnel page name from the current URL (path + landing query variants). */
 export function getPageName(): PageName {
   const path = window.location.pathname;
+  // The AU demand test first: on the AU build it owns every path, so this has
+  // to win before the NZ route table claims `/` as 'solo'.
+  if (isAuPath(path)) return isSoldOutPath(path) ? 'sold-out-au' : 'solo-au';
   if (path === '/solo' || path === '/solo/') return 'solo';
   if (path === '/sample-subscribe' || path === '/sample-subscribe/') return 'sample-subscribe';
   if (path === '/welcome-back' || path === '/welcome-back/') return 'reactivation';

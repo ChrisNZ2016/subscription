@@ -1,6 +1,8 @@
 import type { OverridedMixpanel } from 'mixpanel-browser';
 import {
+  trackMetaCompleteRegistration,
   trackMetaInitiateCheckout,
+  trackMetaLead,
   trackMetaViewContent,
 } from './meta-pixel';
 import { getPageAttribution } from './page-attribution';
@@ -235,4 +237,19 @@ export function trackCheckoutStarted(props: {
       currency: 'NZD',
     });
   }
+}
+
+// ─── Australian demand test ───────────────────────────────────────────────────
+// The AU page measures intent instead of revenue, so its CTA is the conversion
+// the campaigns optimise for and the waitlist email is the quality signal.
+// These stay separate from trackCtaClicked() so no NZ page can fire a Meta Lead.
+
+export function trackAuCtaClicked(location: CtaLocation): void {
+  withMixpanel((m) => m.track('CTA Clicked', { location, ...pageProps() }));
+  trackMetaLead({ contentName: 'au-sample-cta' });
+}
+
+export function trackWaitlistSubmitted(props: { eventId: string }): void {
+  withMixpanel((m) => m.track('Waitlist Submitted', { ...props, ...pageProps() }));
+  trackMetaCompleteRegistration({ eventId: props.eventId });
 }

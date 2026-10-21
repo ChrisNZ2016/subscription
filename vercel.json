@@ -6,6 +6,13 @@
     "api/intercom/submit.ts": { "maxDuration": 30 },
     "api/intercom/initialize.ts": { "maxDuration": 10 }
   },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "lp.littlegreen-dog.com" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/add-to-subscription", "destination": "/api/add-to-subscription" },

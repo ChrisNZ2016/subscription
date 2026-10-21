@@ -1,14 +1,14 @@
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
-import { readFileSync, existsSync } from 'fs'
+import { readFileSync, existsSync, writeFileSync } from 'fs'
 
 // Every route is a lazy page chunk, so without hints the browser discovers it
 // only after the main bundle executes, and the hero image only after the page
 // renders — two extra round trips on the LCP path. This plugin injects an
 // inline script that preloads the matched route's chunks and hero image
 // directly from the HTML.
-const ROUTE_PAGES: Record<string, string> = {
+const NZ_ROUTE_PAGES: Record<string, string> = {
   '/': 'LandingPage',
   '/solo': 'SoloPage',
   '/sample-subscribe': 'SampleSubscribePage',
@@ -18,11 +18,21 @@ const ROUTE_PAGES: Record<string, string> = {
   '/wholesale': 'WholesalePage',
   '/keep-going': 'KeepGoingPage',
   '/get-feedback': 'GetFeedbackPage',
+  '/au': 'AuSite',
+  '/au/sold-out': 'AuSite',
+}
+// The AU build serves only the demand test, so every path is that one chunk.
+const AU_ROUTE_PAGES: Record<string, string> = {
+  '/': 'AuSite',
+  '/sold-out': 'AuSite',
 }
 // Routes whose above-the-fold hero shows /kibble/1.jpg.
-const HERO_IMAGE_ROUTES = ['/', '/solo', '/sample-subscribe', '/wholesale']
+const NZ_HERO_IMAGE_ROUTES = ['/', '/solo', '/sample-subscribe', '/wholesale', '/au']
+const AU_HERO_IMAGE_ROUTES = ['/']
 
-function routePreload(): Plugin {
+function routePreload(isAu: boolean): Plugin {
+  const ROUTE_PAGES = isAu ? AU_ROUTE_PAGES : NZ_ROUTE_PAGES
+  const HERO_IMAGE_ROUTES = isAu ? AU_HERO_IMAGE_ROUTES : NZ_HERO_IMAGE_ROUTES
   return {
     name: 'route-preload',
     transformIndexHtml: {
@@ -75,13 +85,17 @@ function sendJson(
   res.end(JSON.stringify(payload))
 }
 
+// Serverless handlers that the landing pages POST to. Vercel runs api/*.ts in
+// production; this re-implements the same two routes for `npm run dev`.
+const DEV_API_ROUTES = ['/api/feedback', '/api/waitlist']
+
 function feedbackApi(): Plugin {
   return {
     name: 'feedback-api',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const path = req.url?.split('?')[0]
-        if (path !== '/api/feedback') {
+        if (!path || !DEV_API_ROUTES.includes(path)) {
           next()
           return
         }
@@ -108,14 +122,28 @@ function feedbackApi(): Plugin {
             }
           }
           const env = loadEnv(server.config.mode, process.cwd(), '')
-          for (const key of ['KLAVIYO_API_KEY', 'MIXPANEL_TOKEN', 'INTERCOM_ACCESS_TOKEN'] as const) {
+          const secretKeys = [
+            'KLAVIYO_API_KEY',
+            'MIXPANEL_TOKEN',
+            'INTERCOM_ACCESS_TOKEN',
+            'META_CAPI_ACCESS_TOKEN',
+          ] as const
+          for (const key of secretKeys) {
             const value = env[key]?.trim()
             if (value && value.length >= 20 && !value.startsWith('[')) {
               process.env[key] ??= value
             }
           }
-          const { submitFeedback } = await import('./api/lib/submit-feedback.ts')
-          const result = await submitFeedback(body)
+          // These two are short identifiers, not secrets, so they skip the
+          // length guard above that filters out placeholder values.
+          for (const key of ['META_PIXEL_ID', 'KLAVIYO_AU_WAITLIST_LIST_ID'] as const) {
+            const value = env[key]?.trim()
+            if (value && !value.startsWith('[')) process.env[key] ??= value
+          }
+
+          const result = path === '/api/waitlist'
+            ? await (await import('./api/lib/submit-waitlist.ts')).submitWaitlist(body)
+            : await (await import('./api/lib/submit-feedback.ts')).submitFeedback(body)
           sendJson(
             res,
             result.ok ? 200 : result.status,
@@ -130,36 +158,90 @@ function feedbackApi(): Plugin {
   }
 }
 
-// https://vite.dev/config/
-export default defineConfig({
-  server: {
-    host: true,
-  },
-  build: {
-    // Target modern browsers so esbuild skips legacy down-level transforms
-    // (avoids shipping unnecessary helpers flagged by Lighthouse).
-    target: 'es2020',
-  },
-  plugins: [
-    // Serve /previews/* static HTML before SPA fallback kicks in
-    {
-      name: 'serve-previews',
-      configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          if (req.url?.startsWith('/previews/') && req.url.endsWith('.html')) {
-            const filePath = resolve(__dirname, 'public', req.url.slice(1))
-            if (existsSync(filePath)) {
-              res.setHeader('Content-Type', 'text/html')
-              res.end(readFileSync(filePath, 'utf-8'))
-              return
-            }
-          }
-          next()
-        })
-      }
+/**
+ * Head and crawler rules for the Australian demand test.
+ *
+ * The AU build must stay out of search results: it advertises a product that is
+ * deliberately out of stock, and an indexed sold-out page would outrank nothing
+ * useful and confuse NZ customers who find it. The meta tag covers crawlers
+ * that read the HTML; robots.txt covers the ones that only ask for it. The
+ * description here stays priceless on purpose — the AU prices live in
+ * src/lib/au-pricing.ts and should not be duplicated into the head.
+ */
+function auSiteMeta(): Plugin {
+  const AU_TITLE = 'Little Green Dog, Hypoallergenic Kibble for Australia'
+  const AU_DESCRIPTION =
+    'Hypoallergenic, grain-free kibble with 6+ functional superfoods. Built for dogs with sensitive stomachs.'
+  let outDir = 'dist'
+
+  return {
+    name: 'au-site-meta',
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir)
     },
-    feedbackApi(),
-    react(),
-    routePreload(),
-  ],
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        return {
+          html: html
+            .replace(/<title>[\s\S]*?<\/title>/, `<title>${AU_TITLE}</title>`)
+            .replace(
+              /<meta name="description" content="[^"]*" \/>/,
+              `<meta name="description" content="${AU_DESCRIPTION}" />`,
+            ),
+          tags: [
+            {
+              tag: 'meta',
+              attrs: { name: 'robots', content: 'noindex, nofollow' },
+              injectTo: 'head',
+            },
+          ],
+        }
+      },
+    },
+    // publicDir is copied during the write phase, so overwrite its robots.txt
+    // afterwards rather than emitting an asset that the copy would clobber.
+    closeBundle() {
+      writeFileSync(resolve(outDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n')
+    },
+  }
+}
+
+// https://vite.dev/config/
+export default defineConfig(({ mode }) => {
+  const isAu = loadEnv(mode, process.cwd(), '').VITE_SITE?.trim().toLowerCase() === 'au'
+
+  return {
+    server: {
+      host: true,
+    },
+    build: {
+      // Target modern browsers so esbuild skips legacy down-level transforms
+      // (avoids shipping unnecessary helpers flagged by Lighthouse).
+      target: 'es2020',
+    },
+    plugins: [
+      // Serve /previews/* static HTML before SPA fallback kicks in
+      {
+        name: 'serve-previews',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            if (req.url?.startsWith('/previews/') && req.url.endsWith('.html')) {
+              const filePath = resolve(__dirname, 'public', req.url.slice(1))
+              if (existsSync(filePath)) {
+                res.setHeader('Content-Type', 'text/html')
+                res.end(readFileSync(filePath, 'utf-8'))
+                return
+              }
+            }
+            next()
+          })
+        }
+      },
+      feedbackApi(),
+      react(),
+      routePreload(isAu),
+      ...(isAu ? [auSiteMeta()] : []),
+    ],
+  }
 })

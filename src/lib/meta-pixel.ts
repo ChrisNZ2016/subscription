@@ -151,3 +151,40 @@ export function finishCheckoutRedirect(
   trackMetaAddToCart(params);
   window.location.href = appendUtmToCheckoutUrl(checkoutUrl);
 }
+
+// ─── Australian demand test ───────────────────────────────────────────────────
+// The AU page has nothing to sell, so it reports interest rather than commerce:
+// Lead on the CTA click (the event the AU campaigns optimise for) and
+// CompleteRegistration when a waitlist email is submitted. PageView still comes
+// from the base snippet in index.html.
+
+const WAITLIST_EVENT_ID_KEY = '_meta_waitlist_event_id';
+
+/** Stable per-session ID so the browser and CAPI registrations deduplicate. */
+export function getOrCreateWaitlistEventId(): string {
+  try {
+    let id = sessionStorage.getItem(WAITLIST_EVENT_ID_KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      sessionStorage.setItem(WAITLIST_EVENT_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+
+export function trackMetaLead(params?: { contentName?: string }): void {
+  track('Lead', {
+    content_name: params?.contentName,
+    content_category: 'au-demand-test',
+  });
+}
+
+export function trackMetaCompleteRegistration(params: { eventId: string }): void {
+  track(
+    'CompleteRegistration',
+    { content_name: 'au-waitlist', status: true },
+    params.eventId,
+  );
+}
