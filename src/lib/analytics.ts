@@ -6,6 +6,7 @@ import {
   trackMetaViewContent,
 } from './meta-pixel';
 import { getPageAttribution } from './page-attribution';
+import { isAuSite } from './site';
 import { getSoloPriceTierKey } from './solo-pricing';
 
 const TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN as string;
@@ -55,7 +56,21 @@ function loadMixpanel(): Promise<void> {
   loadPromise = import('mixpanel-browser')
     .then(({ default: m }) => {
       // persistence='localStorage' avoids third-party cookie issues.
-      m.init(TOKEN, { persistence: 'localStorage', track_pageview: false });
+      //
+      // The AU demand test records sessions: it has no checkout to analyse, so
+      // watching where people stall on the page is most of what it can learn.
+      // The recorder lazy-loads from Mixpanel's CDN only when this is on, so
+      // the NZ bundle is unaffected. Mixpanel masks all text and inputs by
+      // default (email inputs unconditionally), so replays carry no addresses.
+      //
+      // autocapture stays off on both sites: its automatic pageview and click
+      // events would shadow the explicit funnel events these pages report, and
+      // track_pageview is false here for the same reason.
+      m.init(TOKEN, {
+        persistence: 'localStorage',
+        track_pageview: false,
+        ...(isAuSite() ? { record_sessions_percent: 100 } : {}),
+      });
       m.identify(getOrCreateDistinctId());
       mp = m;
       while (pending.length) pending.shift()!(m);
