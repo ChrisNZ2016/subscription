@@ -222,8 +222,8 @@ the visitor clicks it, which would silently undercount the test.
 
 ### Pricing
 
-AUD prices are static figures in `src/lib/au-pricing.ts` — $24.95 delivered for
-the 2kg sample (54% off the $54 retail anchor), plus the 2–24kg retail and
+AUD prices are static figures in `src/lib/au-pricing.ts` — $19.99 delivered for
+the 2kg sample (63% off the $54 retail anchor), plus the 2–24kg retail and
 subscription table. They render with a bare `$`, not `A$` — the AU site only
 quotes Australian dollars and the pricing section says so in full. Changing any
 of them changes what the test measures, so bump `solo-au` in
@@ -389,8 +389,8 @@ Current versions (auto-synced on commit):
 | `wholesale` | 1.0.0 |
 | `keep-going` | 1.1.0 |
 | `get-feedback` | 1.1.0 |
-| `solo-au` | 1.0.1 |
-| `sold-out-au` | 1.0.1 |
+| `solo-au` | 1.1.0 |
+| `sold-out-au` | 1.1.0 |
 <!-- PAGE_VERSIONS_END -->
 
 #### Page versioning (when to bump)

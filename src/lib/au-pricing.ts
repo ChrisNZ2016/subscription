@@ -21,7 +21,7 @@ function formatAud(amount: number): string {
 }
 
 /** The 2kg sample, delivered. Shipping is included in this price. */
-export const AU_SAMPLE_AMOUNT = 24.95;
+export const AU_SAMPLE_AMOUNT = 19.99;
 /** Anchor for the sample discount: the 2kg bag at full AU retail. */
 export const AU_SAMPLE_COMPARE_AT_AMOUNT = 54;
 
