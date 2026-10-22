@@ -208,10 +208,15 @@ the visitor clicks it, which would silently undercount the test.
 
 ### Pricing
 
-AUD prices are static figures in `src/lib/au-pricing.ts` — A$24.95 delivered for
-the 2kg sample (54% off the A$54 retail anchor), plus the 2–24kg retail and
-subscription table. Changing any of them changes what the test measures, so bump
-`solo-au` in `src/constants/page-versions.ts` at the same time.
+AUD prices are static figures in `src/lib/au-pricing.ts` — $24.95 delivered for
+the 2kg sample (54% off the $54 retail anchor), plus the 2–24kg retail and
+subscription table. They render with a bare `$`, not `A$` — the AU site only
+quotes Australian dollars and the pricing section says so in full. Changing any
+of them changes what the test measures, so bump `solo-au` in
+`src/constants/page-versions.ts` at the same time.
+
+The footer address switches per build too (`src/components/Footer.tsx`): the AU
+site shows the Thomastown VIC address, the NZ funnels keep the Wellington one.
 
 ## Development
 
@@ -369,8 +374,8 @@ Current versions (auto-synced on commit):
 | `wholesale` | 1.0.0 |
 | `keep-going` | 1.1.0 |
 | `get-feedback` | 1.1.0 |
-| `solo-au` | 1.0.0 |
-| `sold-out-au` | 1.0.0 |
+| `solo-au` | 1.0.1 |
+| `sold-out-au` | 1.0.1 |
 <!-- PAGE_VERSIONS_END -->
 
 #### Page versioning (when to bump)

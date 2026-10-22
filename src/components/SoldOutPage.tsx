@@ -68,9 +68,9 @@ export function SoldOutPage({ onBack }: SoldOutPageProps) {
       <section className="reactivation-hero">
         <h1>Ah. We&apos;ve sold out.</h1>
         <p className="reactivation-sub">
-          More dogs in Australia wanted this than we had bags for, and the last of them went this
-          morning. The next batch is in production — leave your email and you&apos;ll be first in
-          line when it lands, before we open it up to anyone else.
+          More dogs in Australia wanted this than we had bags for. The next batch is in
+          production — leave your email and you&apos;ll be first in line when it lands, before
+          we open it up to anyone else.
         </p>
       </section>
 

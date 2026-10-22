@@ -1,10 +1,21 @@
+import { isAuSite } from '../lib/site';
+
+/**
+ * Each site shows the address of the business the visitor is buying from. The
+ * footer is shared with the NZ funnels, so this switches on the build rather
+ * than replacing the NZ address.
+ */
+const POSTAL_ADDRESS = isAuSite()
+  ? '88 Latitude Blvd, Thomastown VIC 3074, Australia'
+  : '82 Balfour St, Wellington, NZ';
+
 export function Footer() {
   return (
     <footer className="site-footer">
       <div className="footer-inner">
         <div className="footer-brand">
           <strong>Little Green Dog</strong>
-          <span>82 Balfour St, Wellington, NZ</span>
+          <span>{POSTAL_ADDRESS}</span>
         </div>
         <nav className="footer-links" aria-label="Footer navigation">
           <a href="https://www.littlegreendog.co.nz/pages/about-us" target="_blank" rel="noopener noreferrer">About Us</a>

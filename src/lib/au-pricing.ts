@@ -10,9 +10,14 @@
  * change stays tellable apart.
  */
 
-/** Drops the cents on whole dollars, so the table reads A$54, not A$54.00. */
+/**
+ * Drops the cents on whole dollars, so the table reads $54, not $54.00.
+ *
+ * Bare `$`, not `A$`: the AU site only ever quotes Australian dollars, and the
+ * pricing section says so in full underneath the table.
+ */
 function formatAud(amount: number): string {
-  return `A$${Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2)}`;
+  return `$${Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2)}`;
 }
 
 /** The 2kg sample, delivered. Shipping is included in this price. */
@@ -52,7 +57,7 @@ export const AU_SUBSCRIPTION_PRICES: AuSubscriptionPriceRow[] = AU_PRICE_SHEET.m
     bagSizeKg,
     retail: formatAud(retail),
     subscription: formatAud(subscription),
-    perKg: `A$${(subscription / bagSizeKg).toFixed(2)}`,
+    perKg: `$${(subscription / bagSizeKg).toFixed(2)}`,
     percentOffRetail: Math.round((1 - subscription / retail) * 100),
   }),
 );
