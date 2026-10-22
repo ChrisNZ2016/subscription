@@ -10,6 +10,7 @@ export type PageName =
   | 'sample-subscribe'
   | 'reactivation'
   | 'subscribe-offer'
+  | 'black-friday'
   | 'subscribe-ingredients'
   | 'wholesale'
   | 'keep-going'
@@ -23,6 +24,7 @@ export const PAGE_VERSIONS: Record<PageName, { name: PageName; version: string }
   'sample-subscribe': { name: 'sample-subscribe', version: '1.1.0' },
   reactivation: { name: 'reactivation', version: '1.0.0' },
   'subscribe-offer': { name: 'subscribe-offer', version: '1.2.0' },
+  'black-friday': { name: 'black-friday', version: '1.0.0' },
   'subscribe-ingredients': { name: 'subscribe-ingredients', version: '1.0.0' },
   wholesale: { name: 'wholesale', version: '1.0.0' },
   'keep-going': { name: 'keep-going', version: '1.1.0' },

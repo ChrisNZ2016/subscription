@@ -22,6 +22,7 @@ export function getPageName(): PageName {
   if (path === '/sample-subscribe' || path === '/sample-subscribe/') return 'sample-subscribe';
   if (path === '/welcome-back' || path === '/welcome-back/') return 'reactivation';
   if (path === '/subscribe-offer' || path === '/subscribe-offer/') return 'subscribe-offer';
+  if (path === '/black-friday' || path === '/black-friday/') return 'black-friday';
   if (path === '/subscribe-ingredients' || path === '/subscribe-ingredients/') {
     return 'subscribe-ingredients';
   }

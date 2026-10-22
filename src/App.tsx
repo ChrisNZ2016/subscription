@@ -7,6 +7,7 @@ const SoloPage = lazy(() => import('./components/SoloPage').then((m) => ({ defau
 const SampleSubscribePage = lazy(() => import('./components/SampleSubscribePage').then((m) => ({ default: m.SampleSubscribePage })))
 const ReactivationPage = lazy(() => import('./components/ReactivationPage').then((m) => ({ default: m.ReactivationPage })))
 const SubscribePage = lazy(() => import('./components/SubscribePage').then((m) => ({ default: m.SubscribePage })))
+const BlackFridayPage = lazy(() => import('./components/BlackFridayPage').then((m) => ({ default: m.BlackFridayPage })))
 const SubscribeIngredientsPage = lazy(() => import('./components/SubscribeIngredientsPage').then((m) => ({ default: m.SubscribeIngredientsPage })))
 const WholesalePage = lazy(() => import('./components/WholesalePage').then((m) => ({ default: m.WholesalePage })))
 const KeepGoingPage = lazy(() => import('./components/KeepGoingPage').then((m) => ({ default: m.KeepGoingPage })))
@@ -20,6 +21,7 @@ function resolvePage() {
   if (path === '/sample-subscribe' || path === '/sample-subscribe/') return <SampleSubscribePage />;
   if (path === '/welcome-back' || path === '/welcome-back/') return <ReactivationPage />;
   if (path === '/subscribe-offer' || path === '/subscribe-offer/') return <SubscribePage />;
+  if (path === '/black-friday' || path === '/black-friday/') return <BlackFridayPage />;
   if (path === '/subscribe-ingredients' || path === '/subscribe-ingredients/') return <SubscribeIngredientsPage />;
   if (path === '/wholesale' || path === '/wholesale/') return <WholesalePage />;
   if (path === '/keep-going' || path === '/keep-going/') return <KeepGoingPage />;

@@ -3302,6 +3302,73 @@ nav.site-nav {
   .picker-how { padding: 1rem 1rem 0.5rem; }
 }
 
+/* Black Friday: pitch and picker share a row on desktop, stack on small screens */
+.black-friday-page .bf-offer-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 2.5rem 3rem;
+  padding: 2.5rem 4rem 3rem;
+}
+.black-friday-page .bf-offer-layout .reactivation-hero {
+  text-align: left;
+  padding: 0.25rem 0 0;
+}
+.black-friday-page .bf-offer-layout .reactivation-sub {
+  margin: 0 0 1.5rem;
+  max-width: 38rem;
+}
+.black-friday-page .bf-offer-layout .reactivation-reasons {
+  margin: 1.5rem 0 0;
+  max-width: none;
+}
+.black-friday-page .bf-offer-layout .subscription-picker-primary {
+  padding: 0;
+  background: none;
+}
+.black-friday-page .bf-offer-layout .subscription-picker-inner {
+  max-width: none;
+  margin: 0;
+}
+.black-friday-page .reactivation-cta {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
+}
+
+@media (max-width: 900px) {
+  .black-friday-page .bf-offer-layout {
+    display: block;
+    padding: 0;
+  }
+  .black-friday-page .bf-offer-layout .reactivation-hero {
+    text-align: center;
+    padding: 2.5rem 1.5rem 1.5rem;
+  }
+  .black-friday-page .bf-offer-layout .reactivation-sub {
+    margin: 0 auto 1.5rem;
+    max-width: 600px;
+  }
+  .black-friday-page .bf-offer-layout .reactivation-reasons {
+    margin: 1.5rem auto 0;
+    max-width: 520px;
+  }
+  .black-friday-page .bf-offer-layout .subscription-picker-primary {
+    padding: 2rem 1.5rem 3rem;
+    background: linear-gradient(180deg, var(--color-green-light) 0%, rgba(232, 245, 200, 0.35) 100%);
+  }
+  .black-friday-page .bf-offer-layout .subscription-picker-inner {
+    max-width: 540px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .black-friday-page .bf-offer-layout .subscription-picker-primary {
+    padding: 1.25rem 1rem 2rem;
+  }
+}
+
 .subscribe-ingredients-page .reactivation-hero .section-label {
   display: block;
   margin-bottom: 0.75rem;

@@ -12,6 +12,7 @@ import {
   subscribeOfferCartKey,
 } from '../lib/cart-subscribe';
 import { findEarlySubscriberAllocation, getEarlySubscriberSellingPlanId } from '../lib/subscribe-offer-plans';
+import type { OfferPlanIds } from '../lib/subscribe-offer-plans';
 import { trackCheckoutStarted, trackCtaClicked, trackPlanCustomized, trackVariantSelected } from '../lib/analytics';
 import { shopifyGidToContentId, trackMetaViewContent } from '../lib/meta-pixel';
 import { formatMoney } from '../lib/pricing';
@@ -51,8 +52,9 @@ export interface SubscribeOfferPricing {
 function getOfferPricing(
   variant: ProductVariant,
   frequencyMonths: FrequencyMonths,
+  planIds?: OfferPlanIds,
 ): SubscribeOfferPricing | null {
-  const allocation = findEarlySubscriberAllocation(variant, frequencyMonths);
+  const allocation = findEarlySubscriberAllocation(variant, frequencyMonths, planIds);
   if (!allocation) return null;
 
   const subPrice = allocation.priceAdjustments[0].perDeliveryPrice;
@@ -73,9 +75,41 @@ function getOfferPricing(
 
 interface UseSubscribeOfferSelectionOptions {
   variants: ProductVariant[];
+  /** Selling plans backing the offer. Defaults to the 25% early-subscriber set. */
+  planIds?: OfferPlanIds;
+  /**
+   * Cart builders, so an offer can add extra lines (e.g. the Black Friday gift).
+   * Defaults to the single-line early-subscriber cart.
+   */
+  cart?: {
+    key: (variantId: string, sellingPlanId: string) => string;
+    create: (variantId: string, sellingPlanId: string) => Promise<string>;
+    createAndRedirect: (
+      variantId: string,
+      sellingPlanId: string,
+      checkoutValue?: number,
+      prefetchedCheckoutUrl?: string,
+    ) => Promise<void>;
+  };
 }
 
-export function useSubscribeOfferSelection({ variants }: UseSubscribeOfferSelectionOptions) {
+const DEFAULT_CART = {
+  key: subscribeOfferCartKey,
+  create: (variantId: string, sellingPlanId: string) =>
+    createSubscribeCart(variantId, sellingPlanId),
+  createAndRedirect: (
+    variantId: string,
+    sellingPlanId: string,
+    checkoutValue?: number,
+    prefetchedCheckoutUrl?: string,
+  ) => createSubscribeCartAndRedirect(variantId, checkoutValue, prefetchedCheckoutUrl, sellingPlanId),
+};
+
+export function useSubscribeOfferSelection({
+  variants,
+  planIds,
+  cart = DEFAULT_CART,
+}: UseSubscribeOfferSelectionOptions) {
   const availableSizes = useMemo(
     () => [...new Set(variants.map((variant) => parseVariantBagKg(variant.title)))].sort((a, b) => a - b),
     [variants],
@@ -112,16 +146,16 @@ export function useSubscribeOfferSelection({ variants }: UseSubscribeOfferSelect
   );
 
   const pricing = useMemo(
-    () => (selectedVariant ? getOfferPricing(selectedVariant, frequencyMonths) : null),
-    [selectedVariant, frequencyMonths],
+    () => (selectedVariant ? getOfferPricing(selectedVariant, frequencyMonths, planIds) : null),
+    [selectedVariant, frequencyMonths, planIds],
   );
 
   const availableFrequencies = useMemo(() => {
     if (!selectedVariant) return FREQUENCY_MONTHS_OPTIONS;
     return FREQUENCY_MONTHS_OPTIONS.filter(
-      (months) => getEarlySubscriberSellingPlanId(selectedVariant, months) !== undefined,
+      (months) => getEarlySubscriberSellingPlanId(selectedVariant, months, planIds) !== undefined,
     );
-  }, [selectedVariant]);
+  }, [selectedVariant, planIds]);
 
   useEffect(() => {
     if (availableFrequencies.includes(frequencyMonths)) return;
@@ -129,13 +163,13 @@ export function useSubscribeOfferSelection({ variants }: UseSubscribeOfferSelect
   }, [availableFrequencies, frequencyMonths]);
 
   const sellingPlanId = useMemo(
-    () => (selectedVariant ? getEarlySubscriberSellingPlanId(selectedVariant, frequencyMonths) : undefined),
-    [selectedVariant, frequencyMonths],
+    () => (selectedVariant ? getEarlySubscriberSellingPlanId(selectedVariant, frequencyMonths, planIds) : undefined),
+    [selectedVariant, frequencyMonths, planIds],
   );
 
   const cartKey = useMemo(
-    () => (selectedVariant && sellingPlanId ? subscribeOfferCartKey(selectedVariant.id, sellingPlanId) : ''),
-    [selectedVariant, sellingPlanId],
+    () => (selectedVariant && sellingPlanId ? cart.key(selectedVariant.id, sellingPlanId) : ''),
+    [selectedVariant, sellingPlanId, cart],
   );
 
   useEffect(() => {
@@ -151,10 +185,10 @@ export function useSubscribeOfferSelection({ variants }: UseSubscribeOfferSelect
 
   useEffect(() => {
     if (!selectedVariant || !sellingPlanId || !cartKey || prefetchedUrls.current[cartKey]) return;
-    createSubscribeCart(selectedVariant.id, sellingPlanId)
+    cart.create(selectedVariant.id, sellingPlanId)
       .then((url) => { prefetchedUrls.current[cartKey] = url; })
       .catch(() => { /* fall back at click time */ });
-  }, [cartKey, selectedVariant, sellingPlanId]);
+  }, [cartKey, selectedVariant, sellingPlanId, cart]);
 
   useEffect(() => {
     if (!selectedVariant || !pricing?.priceAmount) return;
@@ -202,17 +236,17 @@ export function useSubscribeOfferSelection({ variants }: UseSubscribeOfferSelect
         contentIds: [shopifyGidToContentId(selectedVariant.id)],
         value: pricing.priceAmount,
       });
-      await createSubscribeCartAndRedirect(
+      await cart.createAndRedirect(
         selectedVariant.id,
+        sellingPlanId,
         pricing.priceAmount,
         prefetchedUrls.current[cartKey],
-        sellingPlanId,
       );
     } catch (err) {
       setCartError(err instanceof Error ? err.message : 'Failed to create cart');
       setIsSubmitting(false);
     }
-  }, [selectedVariant, sellingPlanId, pricing, frequencyMonths, cartKey]);
+  }, [selectedVariant, sellingPlanId, pricing, frequencyMonths, cartKey, cart]);
 
   return {
     weightRangeId,
@@ -244,6 +278,8 @@ interface SubscribeOfferPickerProps {
   onFrequencyChange: (months: number) => void;
   onCheckout: () => void;
   finePrint: string;
+  /** CTA copy. Defaults to the 25% early-subscriber wording. */
+  ctaLabel?: string;
 }
 
 export function SubscribeOfferPicker({
@@ -260,6 +296,7 @@ export function SubscribeOfferPicker({
   onFrequencyChange,
   onCheckout,
   finePrint,
+  ctaLabel = 'Buy now to save 25%',
 }: SubscribeOfferPickerProps) {
   const freqLabel = frequencyMonths === 1 ? 'month' : `${frequencyMonths} months`;
 
@@ -360,7 +397,7 @@ export function SubscribeOfferPicker({
           onClick={onCheckout}
           disabled={isSubmitting || !pricing}
         >
-          {isSubmitting ? 'Working…' : 'Buy now to save 25%'}
+          {isSubmitting ? 'Working…' : ctaLabel}
         </button>
         <p className="reactivation-finefoot">{finePrint}</p>
       </div>

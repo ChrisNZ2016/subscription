@@ -143,6 +143,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-10-22** — src/App.css, src/App.tsx, src/components/BlackFridayPage.tsx, src/components/SubscribeOfferPicker.tsx, src/constants/page-versions.ts, src/lib/black-friday-plans.ts, src/lib/cart-blackfriday.ts, src/lib/page-attribution.ts, src/lib/subscribe-offer-plans.ts
 - **2026-10-12** — api/fin/subscriptions.ts
 - **2026-10-12** — api/fin/subscriptions.ts
 - **2026-10-06** — src/components/FAQCTA.tsx, src/components/FAQSection.tsx, src/components/HeroSection.tsx, src/components/ProductTabs.tsx, src/components/ReactivationPage.tsx, src/components/SubscribePage.tsx, src/components/WhyYoullLoveIt.tsx
@@ -260,6 +261,7 @@ Current versions (auto-synced on commit):
 | `sample-subscribe` | 1.1.0 |
 | `reactivation` | 1.0.0 |
 | `subscribe-offer` | 1.2.0 |
+| `black-friday` | 1.0.0 |
 | `subscribe-ingredients` | 1.0.0 |
 | `wholesale` | 1.0.0 |
 | `keep-going` | 1.1.0 |
