@@ -299,9 +299,9 @@ project (`lgd-lp-au` → `lp.littlegreen-dog.com`), so check which project your
 checkout is linked to before `--prod`. See
 [Australian demand test](#australian-demand-test).
 
-**AU last deployed:** `2026-10-21T23:52:00Z` — `lgd-lp-au`, production, from
-branch `claude/lucid-euler-fkfcjr` (`2e576f3`). Live on
-`https://lp.littlegreen-dog.com`. Deployment `dpl_BZyMZJ8dX9ZTcgP1VFxAJXoQvxTm`.
+**AU last deployed:** `2026-10-22T02:01:54Z` — `lgd-lp-au`, production, from
+branch `claude/lucid-euler-fkfcjr` (`1cae3ce`). Live on
+`https://lp.littlegreen-dog.com`. Deployment `dpl_8iWqzqDcda6NgRcpAmWTE16H9xA5`.
 
 **Last deployed:** `2026-06-26T20:52:00Z` — Vercel CLI deploy (`npx vercel --prod --yes`). Production: https://subscription-83lvb8kx7-chris-oneills-projects.vercel.app. Aliased to `https://lp.littlegreendog.co.nz`. Inspect: https://vercel.com/chris-oneills-projects/subscription/DeafD9aTqxPiQ2W7G9pP18o8nPSi.
 
