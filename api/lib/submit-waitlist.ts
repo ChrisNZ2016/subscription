@@ -9,6 +9,9 @@ import { sendMetaCompleteRegistration } from './meta-capi.js';
  * conversion: it records the email in Klaviyo, the event in the AU Mixpanel
  * project, and a CompleteRegistration in the AU pixel via CAPI.
  *
+ * Only the Klaviyo write decides whether the request succeeded — see the
+ * comment at the bottom of submitWaitlist().
+ *
  * Express consent is required — this collects marketing emails from Australian
  * residents, so the checkbox on the form is not decoration and an unconsented
  * payload is rejected rather than quietly subscribed.
@@ -190,26 +193,67 @@ export async function submitWaitlist(
   const klaviyoKey = readSecret('KLAVIYO_API_KEY');
   const listId = process.env.KLAVIYO_AU_WAITLIST_LIST_ID?.trim();
   const mixpanelToken = readSecret('MIXPANEL_TOKEN');
-  const tasks: Array<Promise<void>> = [];
 
-  if (klaviyoKey && listId) {
-    tasks.push(
-      subscribeToKlaviyoList({
-        apiKey: klaviyoKey,
-        listId,
-        email,
-        properties: {
-          waitlist_source: 'au-demand-test',
-          waitlist_page: pageName,
-          waitlist_page_version: pageVersion,
-          ...utms,
-        },
-      }),
-    );
+  // Klaviyo decides the outcome. It is the only channel that stores the address
+  // somewhere we can email from later, and the page has just promised the
+  // visitor exactly that — so a signup Klaviyo did not accept is a failed
+  // signup, however well the analytics went. Telling someone they are on a
+  // list they are not on is the one failure here with no way back: they do not
+  // retry, and during a campaign it is silent.
+  if (!klaviyoKey || !listId) {
+    // Local `npm run dev` usually has placeholder env values; accept the
+    // submission so the form can be previewed. Vercel functions always have
+    // VERCEL_REGION and must have somewhere real to put the email.
+    if (!process.env.VERCEL_REGION) {
+      console.info('Waitlist accepted locally (no Klaviyo keys)', { email, pageName });
+      return { ok: true };
+    }
+    console.error('Waitlist submit: missing KLAVIYO_API_KEY or KLAVIYO_AU_WAITLIST_LIST_ID');
+    return { ok: false, status: 500, error: 'Server misconfiguration' };
   }
 
+  try {
+    await subscribeToKlaviyoList({
+      apiKey: klaviyoKey,
+      listId,
+      email,
+      properties: {
+        waitlist_source: 'au-demand-test',
+        waitlist_page: pageName,
+        waitlist_page_version: pageVersion,
+        ...utms,
+      },
+    });
+  } catch (err) {
+    console.error('Waitlist Klaviyo subscribe failed', err);
+    return {
+      ok: false,
+      status: 502,
+      error: 'Could not save your email. Please try again in a moment.',
+    };
+  }
+
+  // The email is stored, so the signup has happened. Everything below reports
+  // it; none of it can un-happen it, so none of it changes the response. These
+  // are awaited rather than left dangling because the serverless instance is
+  // frozen as soon as the response is sent.
+  const reports: Array<Promise<unknown>> = [
+    sendMetaCompleteRegistration({
+      eventId,
+      email,
+      fbp: fbp || undefined,
+      fbc: fbc || undefined,
+      sourceUrl: sourceUrl || undefined,
+      clientIp: meta.clientIp,
+      userAgent: meta.userAgent,
+      customData: utms,
+    }).catch((err: unknown) => {
+      console.error('Waitlist CAPI failed', err);
+    }),
+  ];
+
   if (mixpanelToken) {
-    tasks.push(
+    reports.push(
       trackMixpanel({
         token: mixpanelToken,
         insertId,
@@ -219,51 +263,13 @@ export async function submitWaitlist(
         pageName,
         pageVersion,
         utms,
+      }).catch((err: unknown) => {
+        console.error('Waitlist Mixpanel failed', err);
       }),
     );
   }
 
-  // CAPI is a best-effort duplicate of the browser pixel, never the only
-  // record of the signup, so it is not counted when deciding success below.
-  const capi = sendMetaCompleteRegistration({
-    eventId,
-    email,
-    fbp: fbp || undefined,
-    fbc: fbc || undefined,
-    sourceUrl: sourceUrl || undefined,
-    clientIp: meta.clientIp,
-    userAgent: meta.userAgent,
-    customData: utms,
-  }).catch((err: unknown) => {
-    console.error('Waitlist CAPI failed', err);
-  });
-
-  if (tasks.length === 0) {
-    await capi;
-    // Local `npm run dev` usually has placeholder env values; accept the
-    // submission so the form can be previewed. Vercel functions always have
-    // VERCEL_REGION and must have somewhere real to store the email.
-    if (!process.env.VERCEL_REGION) {
-      console.info('Waitlist saved locally (no storage keys)', { email, pageName });
-      return { ok: true };
-    }
-    console.error('Waitlist submit: no KLAVIYO_API_KEY + KLAVIYO_AU_WAITLIST_LIST_ID, no MIXPANEL_TOKEN');
-    return { ok: false, status: 500, error: 'Server misconfiguration' };
-  }
-
-  const results = await Promise.allSettled(tasks);
-  await capi;
-  const failures = results.filter((r) => r.status === 'rejected');
-  for (const failure of failures) {
-    console.error('Waitlist submit channel failed', failure.reason);
-  }
-  if (failures.length === results.length) {
-    return {
-      ok: false,
-      status: 502,
-      error: 'Could not save your email. Please try again in a moment.',
-    };
-  }
+  await Promise.all(reports);
 
   return { ok: true };
 }

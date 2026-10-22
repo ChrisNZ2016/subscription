@@ -200,6 +200,20 @@ campaign's UTMs survive the hop onto the waitlist signup.
 Klaviyo **AU Waitlist** list (`XC2sX5`) with express email consent, tracks the
 event in the AU Mixpanel project, and sends the CAPI `CompleteRegistration`.
 
+**Only the Klaviyo write decides the response.** It is the one channel that
+stores the address somewhere the waitlist email can actually be sent from, so a
+signup Klaviyo rejects returns 502 and the visitor is asked to retry. Mixpanel
+and the CAPI event are reported after the address is stored and can never fail
+the request. Telling someone they are on a list they are not on is the failure
+with no way back — they do not retry, and mid-campaign it is silent.
+
+The Klaviyo key needs the **`subscriptions:write`** scope. The scopes the NZ
+project needs (`profiles:write`, `events:write`) are not enough: subscribing a
+profile to a list is a different permission, and without it the call 403s.
+
+Offline check (stubbed network, no live calls):
+`npx tsx scripts/check-waitlist.mts`.
+
 The consent checkbox on the form is required and the endpoint rejects a payload
 without it — this collects marketing consent from Australian residents under the
 Spam Act 2003. The list **must stay single opt-in**: on a double opt-in list
@@ -317,7 +331,8 @@ api/
   lib/                    Shared serverless helpers (Recurpay, HMAC tokens, Meta CAPI, Intercom
                           Canvas builders, order-lock, subscription-panel)
 scripts/          One-off maintenance scripts (generate-addon-link.mjs, backfill-utm.mjs, sync-readme.mjs)
-                  and offline checks (check-subscription-panel.mts, check-intercom-endpoints.mts)
+                  and offline checks (check-subscription-panel.mts, check-intercom-endpoints.mts,
+                  check-waitlist.mts)
 .githooks/        Git hooks (pre-commit → sync README page versions + changelog)
 shopify/          Mixpanel custom pixel + setup docs
 public/           Static assets and design previews
