@@ -159,7 +159,7 @@ export function BlackFridayPage() {
             </p>
 
             <ul className="reactivation-reasons">
-              <li><strong>Free bags, every delivery.</strong> A 60-pack rides along with the food for 12 months. They&apos;re the home-compostable ones, not the misleading kind.</li>
+              <li><strong>Free bags, every delivery.</strong> A 60-pack rides along with the food for 12 months.</li>
               <li><strong>20% off the dog food.</strong> For as long as you stay subscribed, not just the first order.</li>
               <li><strong>No lock-in.</strong> Skip, pause or cancel anytime in a couple of taps.</li>
             </ul>
