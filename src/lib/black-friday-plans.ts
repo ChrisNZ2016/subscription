@@ -1,4 +1,5 @@
 import type { FrequencyMonths } from '../constants/sample-subscribe';
+import type { ProductVariant } from '../types/shopify';
 
 /**
  * Black Friday 2026: subscribe to the kibble on the standard 20% plan and a
@@ -22,18 +23,23 @@ export const BF_GIFT_VARIANT_ID = 'gid://shopify/ProductVariant/10597438849060';
 
 /** Storefront handle for the poop bag product the gift variant belongs to. */
 export const BF_GIFT_PRODUCT_HANDLE =
-  import.meta.env.VITE_BF_GIFT_PRODUCT_HANDLE || 'compostable-poop-bags-5-pack-60-bags';
+  import.meta.env.VITE_BF_GIFT_PRODUCT_HANDLE || 'compostable-poop-bags-60-pack';
 
 /**
- * The 100%-off gift plans: Shopify selling plan group 4758044821,
+ * The 100%-off gift plans: Shopify selling plan group 4770562197,
  * merchantCode RP_PLAN_11152968 / 11152969 / 11152970.
+ *
+ * WARNING: activating or deactivating the plan in RecurPay DESTROYS AND
+ * RECREATES this group with brand new ids. It did exactly that on 27 Oct 2026
+ * (group 4758044821 -> 4770562197), which broke the live page. Re-check these
+ * ids after ANY RecurPay change to the plan.
  *
  * Verified 23 Oct 2026: the group is attached to exactly one product, the
  * 5-pack poop bags, and NOT to the kibble. That matters, because a 100%-off
  * plan on the kibble product would give the food away. Re-check that if the
  * plan is ever edited:
  *
- *   { sellingPlanGroup(id: "gid://shopify/SellingPlanGroup/4758044821") {
+ *   { sellingPlanGroup(id: "gid://shopify/SellingPlanGroup/4770562197") {
  *       productsCount { count } products(first: 10) { edges { node { title } } } } }
  *
  * Billing and delivery intervals both match the kibble legs (1/2/3 months).
@@ -41,9 +47,9 @@ export const BF_GIFT_PRODUCT_HANDLE =
  * taking a subscription without the gift attached.
  */
 export const BF_GIFT_SELLING_PLAN_IDS: Record<FrequencyMonths, string> = {
-  1: 'gid://shopify/SellingPlan/7345012885',
-  2: 'gid://shopify/SellingPlan/7345045653',
-  3: 'gid://shopify/SellingPlan/7345078421',
+  1: 'gid://shopify/SellingPlan/7358447765',
+  2: 'gid://shopify/SellingPlan/7358480533',
+  3: 'gid://shopify/SellingPlan/7358513301',
 };
 
 export function getGiftSellingPlanId(frequencyMonths: FrequencyMonths): string | undefined {
@@ -53,4 +59,27 @@ export function getGiftSellingPlanId(frequencyMonths: FrequencyMonths): string |
 /** True once every interval the kibble offers has a matching gift plan. */
 export function isGiftOfferConfigured(): boolean {
   return ([1, 2, 3] as FrequencyMonths[]).every((m) => Boolean(BF_GIFT_SELLING_PLAN_IDS[m]));
+}
+
+/**
+ * Resolve the gift selling plan from the live product instead of trusting the
+ * hardcoded ids above.
+ *
+ * This exists because activating the plan in RecurPay on 27 Oct 2026 destroyed
+ * and recreated the Shopify group with new ids, which broke the live page
+ * silently. Matching on "costs nothing, right interval" is immune to that: it
+ * checks the thing we actually require, which is that the line is free.
+ *
+ * Falls back to the hardcoded id so the page still works if the lookup fails.
+ */
+export function resolveGiftSellingPlanId(
+  giftVariant: ProductVariant | undefined,
+  frequencyMonths: FrequencyMonths,
+): string | undefined {
+  const free = giftVariant?.sellingPlanAllocations.nodes.find((node) => {
+    const perDelivery = node.priceAdjustments[0]?.perDeliveryPrice?.amount;
+    if (perDelivery === undefined || parseFloat(perDelivery) !== 0) return false;
+    return node.sellingPlan.name.trim().startsWith(String(frequencyMonths));
+  });
+  return free?.sellingPlan.id ?? getGiftSellingPlanId(frequencyMonths);
 }

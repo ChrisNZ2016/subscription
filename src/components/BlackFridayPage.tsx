@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useSubscriptionProduct } from '../hooks/useSubscriptionProduct';
+import { useGiftProduct } from '../hooks/useGiftProduct';
 import { findEarlySubscriberAllocation } from '../lib/subscribe-offer-plans';
 import { TestimonialsSection } from './TestimonialsSection';
 import { FAQSection } from './FAQSection';
@@ -12,8 +13,8 @@ import { useHashScroll } from '../hooks/useHashScroll';
 import { VARIANT_SORT_ORDER } from '../lib/feedingGuide';
 import {
   BF_KIBBLE_SELLING_PLAN_IDS,
-  getGiftSellingPlanId,
   isGiftOfferConfigured,
+  resolveGiftSellingPlanId,
 } from '../lib/black-friday-plans';
 import {
   blackFridayCartKey,
@@ -35,50 +36,53 @@ function frequencyForKibblePlan(sellingPlanId: string): FrequencyMonths | undefi
 }
 
 /**
- * The gift has to ride the same interval as the food. Resolve it from the
- * kibble plan rather than from picker state, so the two can never drift apart.
+ * The gift has to ride the same interval as the food, so resolve it from the
+ * kibble plan rather than from picker state: the two can then never drift.
  *
- * Returns undefined rather than throwing: `key` runs inside a useMemo during
- * render, and a throw there takes the whole page down before the not-configured
- * guard below ever gets to run.
+ * `planFor` returns undefined rather than throwing, because `key` runs inside a
+ * useMemo during render and a throw there white-screens the page before the
+ * not-configured guard can run. Only the checkout path throws.
  */
-function giftPlanFor(kibbleSellingPlanId: string): string | undefined {
-  const months = frequencyForKibblePlan(kibbleSellingPlanId);
-  return months ? getGiftSellingPlanId(months) : undefined;
+function makeBfCart(giftVariant: ProductVariant | undefined) {
+  const planFor = (kibbleSellingPlanId: string) => {
+    const months = frequencyForKibblePlan(kibbleSellingPlanId);
+    return months ? resolveGiftSellingPlanId(giftVariant, months) : undefined;
+  };
+  const requirePlan = (kibbleSellingPlanId: string) => {
+    const id = planFor(kibbleSellingPlanId);
+    if (!id) throw new Error('Black Friday gift plan is not configured');
+    return id;
+  };
+  return {
+    key: (variantId: string, sellingPlanId: string) => {
+      const giftPlanId = planFor(sellingPlanId);
+      return giftPlanId ? blackFridayCartKey(variantId, sellingPlanId, giftPlanId) : '';
+    },
+    create: (variantId: string, sellingPlanId: string) =>
+      createBlackFridayCart(variantId, sellingPlanId, requirePlan(sellingPlanId)),
+    createAndRedirect: (
+      variantId: string,
+      sellingPlanId: string,
+      checkoutValue?: number,
+      prefetchedCheckoutUrl?: string,
+    ) =>
+      createBlackFridayCartAndRedirect(
+        variantId,
+        sellingPlanId,
+        requirePlan(sellingPlanId),
+        checkoutValue,
+        prefetchedCheckoutUrl,
+      ),
+  };
 }
 
-function requireGiftPlan(kibbleSellingPlanId: string): string {
-  const giftPlanId = giftPlanFor(kibbleSellingPlanId);
-  if (!giftPlanId) throw new Error('Black Friday gift plan is not configured');
-  return giftPlanId;
-}
-
-const BF_CART = {
-  // Empty key disables prefetch, which is correct when there is nothing to sell.
-  key: (variantId: string, sellingPlanId: string) => {
-    const giftPlanId = giftPlanFor(sellingPlanId);
-    return giftPlanId ? blackFridayCartKey(variantId, sellingPlanId, giftPlanId) : '';
-  },
-  create: (variantId: string, sellingPlanId: string) =>
-    createBlackFridayCart(variantId, sellingPlanId, requireGiftPlan(sellingPlanId)),
-  createAndRedirect: (
-    variantId: string,
-    sellingPlanId: string,
-    checkoutValue?: number,
-    prefetchedCheckoutUrl?: string,
-  ) =>
-    createBlackFridayCartAndRedirect(
-      variantId,
-      sellingPlanId,
-      requireGiftPlan(sellingPlanId),
-      checkoutValue,
-      prefetchedCheckoutUrl,
-    ),
-};
 
 export function BlackFridayPage() {
   const { product, loading, error } = useSubscriptionProduct();
-  const giftReady = isGiftOfferConfigured();
+  const giftProduct = useGiftProduct();
+  const giftVariant = giftProduct?.variants.nodes[0];
+  const bfCart = useMemo(() => makeBfCart(giftVariant), [giftVariant]);
+  const giftReady = isGiftOfferConfigured() || Boolean(giftVariant);
 
   useEffect(() => {
     trackPageViewed();
@@ -100,7 +104,7 @@ export function BlackFridayPage() {
   const bagSelection = useSubscribeOfferSelection({
     variants,
     planIds: BF_KIBBLE_SELLING_PLAN_IDS,
-    cart: BF_CART,
+    cart: bfCart,
   });
 
   const handleNavScroll = () => {

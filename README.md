@@ -143,6 +143,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-10-26** — src/components/BlackFridayPage.tsx, src/hooks/useGiftProduct.ts, src/lib/black-friday-plans.ts
 - **2026-10-22** — src/App.css, src/App.tsx, src/components/BlackFridayPage.tsx, src/components/SubscribeOfferPicker.tsx, src/constants/page-versions.ts, src/lib/black-friday-plans.ts, src/lib/cart-blackfriday.ts, src/lib/page-attribution.ts, src/lib/subscribe-offer-plans.ts
 - **2026-10-12** — api/fin/subscriptions.ts
 - **2026-10-12** — api/fin/subscriptions.ts
