@@ -18,7 +18,6 @@ interface SoldOutPageProps {
  */
 export function SoldOutPage({ onBack }: SoldOutPageProps) {
   const [email, setEmail] = useState('');
-  const [consent, setConsent] = useState(false);
   const [company, setCompany] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,14 +33,10 @@ export function SoldOutPage({ onBack }: SoldOutPageProps) {
       setError('Please enter a valid email address.');
       return;
     }
-    if (!consent) {
-      setError('Please tick the box so we know we can email you.');
-      return;
-    }
     setError(null);
     setIsSubmitting(true);
     try {
-      const { eventId } = await submitWaitlist({ email, consent, company });
+      const { eventId } = await submitWaitlist({ email, consent: true, company });
       trackWaitlistSubmitted({ eventId });
       setDone(true);
     } catch (err) {
@@ -110,24 +105,15 @@ export function SoldOutPage({ onBack }: SoldOutPageProps) {
                 />
               </div>
 
-              <label className="waitlist-consent">
-                <input
-                  type="checkbox"
-                  checked={consent}
-                  onChange={(e) => setConsent(e.target.checked)}
-                  required
-                />
-                <span>
-                  Email me when Little Green Dog is available in Australia. You can unsubscribe at
-                  any time.
-                </span>
-              </label>
-
               {error && <p className="feedback-error" role="alert">{error}</p>}
 
               <button className="btn-order reactivation-cta" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Adding you...' : 'Tell me when it lands'}
               </button>
+              <p className="waitlist-consent-note">
+                By joining, you agree we can email you when Little Green Dog reaches Australia.
+                Unsubscribe any time.
+              </p>
               <p className="reactivation-finefoot">
                 Or email{' '}
                 <a href={`mailto:${FEEDBACK_NOTIFY_EMAIL}`}>{FEEDBACK_NOTIFY_EMAIL}</a>

@@ -200,11 +200,21 @@ campaign's UTMs survive the hop onto the waitlist signup.
 Klaviyo **AU Waitlist** list (`XC2sX5`) with express email consent, tracks the
 event in the AU Mixpanel project, and sends the CAPI `CompleteRegistration`.
 
+The list subscription and the attribution fields are **two separate Klaviyo
+calls**: `profile-subscription-bulk-create-jobs` takes the email and the consent
+but rejects a profile carrying `properties` with a 400, so `waitlist_source` and
+the `utm_*` fields go through `profile-import` afterwards, best-effort.
+
+Consent is given by submitting the form under the notice beneath the button —
+there is no checkbox.
+
 **Only the Klaviyo write decides the response.** It is the one channel that
 stores the address somewhere the waitlist email can actually be sent from, so a
 signup Klaviyo rejects returns 502 and the visitor is asked to retry. Mixpanel
 and the CAPI event are reported after the address is stored and can never fail
-the request. Telling someone they are on a list they are not on is the failure
+the request. When Klaviyo rejects the write, the address is still recorded to
+Mixpanel as `Waitlist Save Failed (Server)` before the error goes back, so a
+failed run stays recoverable instead of leaving only a stack trace. Telling someone they are on a list they are not on is the failure
 with no way back — they do not retry, and mid-campaign it is silent.
 
 The Klaviyo key needs the **`subscriptions:write`** scope. The scopes the NZ
@@ -390,7 +400,7 @@ Current versions (auto-synced on commit):
 | `keep-going` | 1.1.0 |
 | `get-feedback` | 1.1.0 |
 | `solo-au` | 1.1.0 |
-| `sold-out-au` | 1.1.0 |
+| `sold-out-au` | 1.2.0 |
 <!-- PAGE_VERSIONS_END -->
 
 #### Page versioning (when to bump)

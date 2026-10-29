@@ -34,6 +34,7 @@ function submissionId(email: string): string {
 
 export async function submitWaitlist(input: {
   email: string;
+  /** True once the visitor submits under the consent notice on the form. */
   consent: boolean;
   /** Honeypot. Anything in here and the server quietly drops the submission. */
   company?: string;

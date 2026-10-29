@@ -71,6 +71,10 @@ function readUtms(value: unknown): Record<string, string> {
 /**
  * Subscribes the profile to the AU waitlist list with express email consent.
  *
+ * The profile object here takes identifiers and `subscriptions` only — NOT
+ * `properties`. Klaviyo rejects the whole request with a 400 if you send them,
+ * so the attribution fields go through profile-import instead (below).
+ *
  * Klaviyo honours the list's own opt-in setting here: on a double opt-in list
  * this only sends a confirmation email and the profile stays unconsented until
  * the visitor clicks it, which would silently undercount the test. The AU
@@ -80,7 +84,6 @@ async function subscribeToKlaviyoList(input: {
   apiKey: string;
   listId: string;
   email: string;
-  properties: Record<string, string>;
 }): Promise<void> {
   const res = await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs', {
     method: 'POST',
@@ -100,7 +103,6 @@ async function subscribeToKlaviyoList(input: {
                 type: 'profile',
                 attributes: {
                   email: input.email,
-                  properties: input.properties,
                   subscriptions: {
                     email: { marketing: { consent: 'SUBSCRIBED' } },
                   },
@@ -123,8 +125,44 @@ async function subscribeToKlaviyoList(input: {
   }
 }
 
+/**
+ * Writes the attribution fields onto the profile. Separate call because the
+ * subscribe job above will not take them — same endpoint the one-click add-on
+ * links already use (api/lib/klaviyo-addon.ts).
+ *
+ * Best-effort: the signup is the list membership, and losing which campaign
+ * someone came from is not worth making them retype their address.
+ */
+async function writeKlaviyoProfileProperties(input: {
+  apiKey: string;
+  email: string;
+  properties: Record<string, string>;
+}): Promise<void> {
+  const res = await fetch('https://a.klaviyo.com/api/profile-import', {
+    method: 'POST',
+    headers: {
+      Authorization: `Klaviyo-API-Key ${input.apiKey}`,
+      revision: KLAVIYO_REVISION,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      data: {
+        type: 'profile',
+        attributes: { email: input.email, properties: input.properties },
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Klaviyo profile-import ${res.status}: ${(await res.text()).slice(0, 300)}`,
+    );
+  }
+}
+
 function trackMixpanel(input: {
   token: string;
+  event: string;
   insertId: string;
   distinctId: string;
   email: string;
@@ -135,7 +173,7 @@ function trackMixpanel(input: {
 }): Promise<void> {
   return new Promise((resolve, reject) => {
     Mixpanel.init(input.token).track(
-      'Waitlist Submitted (Server)',
+      input.event,
       {
         distinct_id: input.distinctId,
         $insert_id: input.insertId,
@@ -212,20 +250,39 @@ export async function submitWaitlist(
     return { ok: false, status: 500, error: 'Server misconfiguration' };
   }
 
+  const profileProperties = {
+    waitlist_source: 'au-demand-test',
+    waitlist_page: pageName,
+    waitlist_page_version: pageVersion,
+    ...utms,
+  };
+
+  const mixpanelEvent = (event: string): Promise<void> =>
+    mixpanelToken
+      ? trackMixpanel({
+          token: mixpanelToken,
+          event,
+          insertId,
+          distinctId: distinctId || email,
+          email,
+          submissionId,
+          pageName,
+          pageVersion,
+          utms,
+        }).catch((err: unknown) => {
+          console.error(`Waitlist Mixpanel ${event} failed`, err);
+        })
+      : Promise.resolve();
+
   try {
-    await subscribeToKlaviyoList({
-      apiKey: klaviyoKey,
-      listId,
-      email,
-      properties: {
-        waitlist_source: 'au-demand-test',
-        waitlist_page: pageName,
-        waitlist_page_version: pageVersion,
-        ...utms,
-      },
-    });
+    await subscribeToKlaviyoList({ apiKey: klaviyoKey, listId, email });
   } catch (err) {
     console.error('Waitlist Klaviyo subscribe failed', err);
+    // The visitor is told it failed and can retry, but their address must not
+    // vanish with the error. Recording it here keeps a failed run recoverable
+    // instead of leaving nothing but a stack trace — which is exactly what a
+    // Klaviyo outage cost us before this existed.
+    await mixpanelEvent('Waitlist Save Failed (Server)');
     return {
       ok: false,
       status: 502,
@@ -237,7 +294,14 @@ export async function submitWaitlist(
   // it; none of it can un-happen it, so none of it changes the response. These
   // are awaited rather than left dangling because the serverless instance is
   // frozen as soon as the response is sent.
-  const reports: Array<Promise<unknown>> = [
+  await Promise.all([
+    writeKlaviyoProfileProperties({
+      apiKey: klaviyoKey,
+      email,
+      properties: profileProperties,
+    }).catch((err: unknown) => {
+      console.error('Waitlist Klaviyo properties failed', err);
+    }),
     sendMetaCompleteRegistration({
       eventId,
       email,
@@ -250,26 +314,8 @@ export async function submitWaitlist(
     }).catch((err: unknown) => {
       console.error('Waitlist CAPI failed', err);
     }),
-  ];
-
-  if (mixpanelToken) {
-    reports.push(
-      trackMixpanel({
-        token: mixpanelToken,
-        insertId,
-        distinctId: distinctId || email,
-        email,
-        submissionId,
-        pageName,
-        pageVersion,
-        utms,
-      }).catch((err: unknown) => {
-        console.error('Waitlist Mixpanel failed', err);
-      }),
-    );
-  }
-
-  await Promise.all(reports);
+    mixpanelEvent('Waitlist Submitted (Server)'),
+  ]);
 
   return { ok: true };
 }
