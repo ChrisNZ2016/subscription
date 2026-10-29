@@ -2954,11 +2954,10 @@ nav.site-nav {
   color: var(--color-text-muted);
 }
 
+/* display:none, not off-screen: browser autofill skips the former and fills
+   the latter, which binned real submissions. See FeedbackHoneypot. */
 .feedback-hp {
-  position: absolute;
-  left: -9999px;
-  height: 0;
-  overflow: hidden;
+  display: none;
 }
 .feedback-field {
   display: flex;

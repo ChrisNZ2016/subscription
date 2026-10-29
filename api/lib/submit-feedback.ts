@@ -141,8 +141,14 @@ function trackMixpanel(input: {
 export async function submitFeedback(raw: unknown): Promise<SubmitFeedbackResult> {
   const body = (raw ?? {}) as FeedbackBody;
 
-  // Honeypot: pretend success so bots don't retry.
+  // Honeypot: pretend success so bots don't retry, but leave a trace. A
+  // trapped submission was indistinguishable from a successful one, so a
+  // customer caught by browser autofill vanished without a sign.
   if (asString(body.company, 200)) {
+    console.warn('Feedback honeypot blocked a submission', {
+      page: asString(body.page, 40),
+      email: asString(body.email, 320).toLowerCase(),
+    });
     return { ok: true };
   }
 

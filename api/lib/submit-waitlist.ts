@@ -199,8 +199,30 @@ export async function submitWaitlist(
 ): Promise<SubmitWaitlistResult> {
   const body = (raw ?? {}) as WaitlistBody;
 
-  // Honeypot: pretend success so bots don't retry.
-  if (asString(body.company, 200)) {
+  // Honeypot: still pretend success so bots don't retry, but never silently.
+  // A trapped submission used to leave no trace at all, so there was no way to
+  // tell a bot from a customer whose autofill had filled the hidden field —
+  // and the customer got the confirmation screen having been binned.
+  const honeypot = asString(body.company, 200);
+  if (honeypot) {
+    const trappedEmail = asString(body.email, 320).toLowerCase();
+    console.warn('Waitlist honeypot blocked a submission', { email: trappedEmail });
+    const token = readSecret('MIXPANEL_TOKEN');
+    if (token) {
+      await trackMixpanel({
+        token,
+        event: 'Waitlist Honeypot Blocked (Server)',
+        insertId: `hp-${crypto.createHash('sha256').update(`${trappedEmail}:${honeypot}`).digest('hex').slice(0, 24)}`,
+        distinctId: asString(body.distinctId, 120) || trappedEmail || 'anonymous',
+        email: trappedEmail,
+        submissionId: asString(body.submissionId, 80),
+        pageName: asString(body.pageName, 40) || 'sold-out-au',
+        pageVersion: asString(body.pageVersion, 20) || '0.0.0',
+        utms: readUtms(body.utm),
+      }).catch((err: unknown) => {
+        console.error('Waitlist honeypot tracking failed', err);
+      });
+    }
     return { ok: true };
   }
 

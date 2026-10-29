@@ -17,17 +17,32 @@ type FeedbackHoneypotProps = {
   onChange: (value: string) => void;
 };
 
+/**
+ * Spam trap. A real visitor never sees it, so anything typed here came from
+ * something filling the form blind.
+ *
+ * Two things keep honest submissions out of it. The field is display:none
+ * rather than parked off-screen, which browser autofill skips but an
+ * off-screen field it will happily complete. And nothing about it reads as a
+ * contact field: the label and name were "Company", which is one of the
+ * standard tokens autofill matches on, and `autocomplete="off"` is widely
+ * ignored for those. A customer whose password manager filled this in was
+ * dropped silently, which is the opposite of what a trap is for.
+ */
 export function FeedbackHoneypot({ value, onChange }: FeedbackHoneypotProps) {
   return (
-    <label className="feedback-hp" aria-hidden="true">
-      Company
+    <div className="feedback-hp" aria-hidden="true">
+      <label htmlFor="lgd-hp-field">Leave this field empty</label>
       <input
+        id="lgd-hp-field"
+        name="lgd_hp_field"
+        type="text"
         tabIndex={-1}
         autoComplete="off"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />
-    </label>
+    </div>
   );
 }
 

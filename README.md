@@ -264,6 +264,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-10-29** — api/lib/submit-feedback.ts, api/lib/submit-waitlist.ts, src/App.css, src/components/FeedbackLayout.tsx
 - **2026-10-21** — src/lib/analytics.ts
 - **2026-10-12** — api/fin/subscriptions.ts
 - **2026-10-12** — api/fin/subscriptions.ts
