@@ -7,6 +7,7 @@ import {
 } from './meta-pixel';
 import { getPageAttributionCartAttributes } from './page-attribution';
 import { getSoloPriceTierCartAttributes } from './solo-pricing';
+import { getSoloSaleCartAttributes } from './solo-sale';
 import { getUtmCartAttributes } from './utm';
 import type { CartCreateResponse } from '../types/shopify';
 
@@ -35,6 +36,7 @@ export async function createSoloCart(sampleVariantId: string): Promise<string> {
     { key: 'mp_distinct_id', value: getDistinctId() },
     ...getPageAttributionCartAttributes(),
     ...getSoloPriceTierCartAttributes(),
+    ...getSoloSaleCartAttributes(),
     ...getMetaCartAttributes(),
     ...getUtmCartAttributes(),
   ];

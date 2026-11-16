@@ -5,6 +5,7 @@ import {
 } from './meta-pixel';
 import { getPageAttribution } from './page-attribution';
 import { getSoloPriceTierKey } from './solo-pricing';
+import { getSoloSaleKey } from './solo-sale';
 
 const TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN as string;
 
@@ -13,6 +14,7 @@ function pageProps() {
   const props: Record<string, string> = { page: page_name, page_name, page_version };
   if (page_name === 'solo') {
     props.price_tier = getSoloPriceTierKey();
+    props.sale = getSoloSaleKey();
   }
   return props;
 }

@@ -3,6 +3,7 @@ import { useSampleProduct } from '../hooks/useSampleProduct';
 import { createSoloCart, createSoloCartAndRedirect } from '../lib/cart-solo';
 import { formatMoney } from '../lib/pricing';
 import { resolveSoloPriceTier } from '../lib/solo-pricing';
+import { resolveSoloSale } from '../lib/solo-sale';
 import { HeroSection } from './HeroSection';
 import { BenefitsBar } from './BenefitsBar';
 import { WhyYoullLoveIt } from './WhyYoullLoveIt';
@@ -33,6 +34,21 @@ export function SoloPage() {
   // added to the cart switch to the tier's dedicated variant, so checkout
   // charges the tier price. Null → base sample variant / pricing.
   const priceTier = useMemo(() => resolveSoloPriceTier(), []);
+
+  // `?sale=blackfriday` → Black Friday branding. Copy and theme only; the
+  // offer, price and cart variant are untouched.
+  const isBlackFriday = useMemo(() => resolveSoloSale() === 'blackfriday', []);
+
+  useEffect(() => {
+    if (!isBlackFriday) return;
+    const previousTitle = document.title;
+    document.body.classList.add('sale-blackfriday');
+    document.title = 'Black Friday Sale | Little Green Dog';
+    return () => {
+      document.body.classList.remove('sale-blackfriday');
+      document.title = previousTitle;
+    };
+  }, [isBlackFriday]);
 
   // The variant actually purchased: the tier's variant when active, else the
   // default sample variant.
@@ -136,9 +152,18 @@ export function SoloPage() {
   return (
     <>
       <header className="announcement-bar">
-        <p>🛡️ <strong>100% money-back guarantee</strong>, full refund if it's not right for your dog</p>
+        {isBlackFriday ? (
+          <p><strong>Black Friday</strong> · {discountLabel} your first box · 100% money-back guarantee</p>
+        ) : (
+          <p>🛡️ <strong>100% money-back guarantee</strong>, full refund if it's not right for your dog</p>
+        )}
       </header>
-      <StickyCTA onOrderNow={() => handleGetStarted('sticky')} samplePrice={samplePrice} comparePrice={comparePrice} />
+      <StickyCTA
+        onOrderNow={() => handleGetStarted('sticky')}
+        samplePrice={samplePrice}
+        comparePrice={comparePrice}
+        label={isBlackFriday ? `Black Friday · ${discountLabel} your first box` : undefined}
+      />
 
       <nav className="site-nav">
         <a href="https://www.littlegreendog.co.nz" className="nav-logo">
@@ -176,6 +201,7 @@ export function SoloPage() {
           }}
           samplePrice={samplePrice}
           trustBadges={heroTrustBadges}
+          badge={isBlackFriday ? `Black Friday Sale · ${discountLabel}` : undefined}
         />
         <BenefitsBar discountPercent={priceTier?.percentOff ?? 50} />
         <ProductTabs activeTab={activeProductTab} onTabChange={setActiveProductTab} />

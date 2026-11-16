@@ -6,6 +6,8 @@ interface HeroSectionProps {
   onViewIngredients?: () => void;
   samplePrice?: string;
   trustBadges?: [string, string, string];
+  /** Pill above the headline. */
+  badge?: string;
 }
 
 const DEFAULT_TRUST_BADGES: [string, string, string] = [
@@ -25,7 +27,7 @@ const galleryImages = [
 
 const COUNT = galleryImages.length;
 
-export function HeroSection({ onGetStarted, samplePrice, trustBadges = DEFAULT_TRUST_BADGES }: HeroSectionProps) {
+export function HeroSection({ onGetStarted, samplePrice, trustBadges = DEFAULT_TRUST_BADGES, badge = 'Hypoallergenic Dog Food' }: HeroSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   // live drag offset in px (null = not dragging)
   const [dragOffset, setDragOffset] = useState<number | null>(null);
@@ -65,7 +67,7 @@ export function HeroSection({ onGetStarted, samplePrice, trustBadges = DEFAULT_T
   return (
     <section className="hero">
       <div className="hero-copy">
-        <span className="badge">Hypoallergenic Dog Food</span>
+        <span className="badge">{badge}</span>
         <h1>Stop the scratching, stomach issues, and food guessing, for good.</h1>
         <p className="hero-subtitle">
           Vet-formulated, single-protein kibble with 6+ functional superfoods.
