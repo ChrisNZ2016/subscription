@@ -6,6 +6,12 @@
     "api/intercom/submit.ts": { "maxDuration": 30 },
     "api/intercom/initialize.ts": { "maxDuration": 10 }
   },
+  "headers": [
+    {
+      "source": "/.well-known/apple-developer-merchantid-domain-association",
+      "headers": [{ "key": "Content-Type", "value": "application/octet-stream" }]
+    }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/add-to-subscription", "destination": "/api/add-to-subscription" },
