@@ -11,6 +11,7 @@ import {
   createSubscribeCartAndRedirect,
   subscribeOfferCartKey,
 } from '../lib/cart-subscribe';
+import { goToNewCheckout, prefetchCheckoutMode, resolveCheckoutMode, subscribeOfferCheckoutUrl } from '../lib/new-checkout';
 import { findEarlySubscriberAllocation, getEarlySubscriberSellingPlanId } from '../lib/subscribe-offer-plans';
 import type { OfferPlanIds } from '../lib/subscribe-offer-plans';
 import { trackCheckoutStarted, trackCtaClicked, trackPlanCustomized, trackVariantSelected } from '../lib/analytics';
@@ -116,6 +117,9 @@ export function useSubscribeOfferSelection({
   );
 
   const [weightRangeId, setWeightRangeId] = useState(DOG_WEIGHT_RANGES[2].id);
+  useEffect(() => {
+    if (cart === DEFAULT_CART) prefetchCheckoutMode();
+  }, [cart]);
   const [bagSizeKg, setBagSizeKg] = useState(() => clampBagSize(6, availableSizes));
   const [frequencyMonths, setFrequencyMonths] = useState<FrequencyMonths>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -236,6 +240,15 @@ export function useSubscribeOfferSelection({
         contentIds: [shopifyGidToContentId(selectedVariant.id)],
         value: pricing.priceAmount,
       });
+      // New checkout (lgd-subscriptions) for the plain early-subscriber offer when the switch
+      // says so. Offers with their own cart (e.g. the Black Friday gift) stay on Shopify.
+      if (cart === DEFAULT_CART && (await resolveCheckoutMode('subscribe-offer')) === 'new') {
+        goToNewCheckout(subscribeOfferCheckoutUrl(parseVariantBagKg(selectedVariant.title), frequencyMonths), {
+          contentIds: [shopifyGidToContentId(selectedVariant.id)],
+          value: pricing.priceAmount,
+        });
+        return;
+      }
       await cart.createAndRedirect(
         selectedVariant.id,
         sellingPlanId,
