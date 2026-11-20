@@ -3,19 +3,110 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "functions": {
-    "api/intercom/submit.ts": { "maxDuration": 30 },
-    "api/intercom/initialize.ts": { "maxDuration": 10 }
+    "api/intercom/submit.ts": {
+      "maxDuration": 30
+    },
+    "api/intercom/initialize.ts": {
+      "maxDuration": 10
+    }
   },
   "headers": [
     {
       "source": "/.well-known/apple-developer-merchantid-domain-association",
-      "headers": [{ "key": "Content-Type", "value": "application/octet-stream" }]
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/octet-stream"
+        }
+      ]
     }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/add-to-subscription", "destination": "/api/add-to-subscription" },
-    { "source": "/add-to-subscription/:campaign", "destination": "/api/add-to-subscription?campaign=:campaign" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/checkout",
+      "has": [
+        {
+          "type": "host",
+          "value": "lp.littlegreendog.co.nz"
+        }
+      ],
+      "destination": "https://checkout.littlegreendog.co.nz/checkout"
+    },
+    {
+      "source": "/checkout/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "lp.littlegreendog.co.nz"
+        }
+      ],
+      "destination": "https://checkout.littlegreendog.co.nz/checkout/:path*"
+    },
+    {
+      "source": "/_next/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "lp.littlegreendog.co.nz"
+        }
+      ],
+      "destination": "https://checkout.littlegreendog.co.nz/_next/:path*"
+    },
+    {
+      "source": "/sentry-tunnel",
+      "has": [
+        {
+          "type": "host",
+          "value": "lp.littlegreendog.co.nz"
+        }
+      ],
+      "destination": "https://checkout.littlegreendog.co.nz/sentry-tunnel"
+    },
+    {
+      "source": "/149e9513-01fa-4fb0-aad4-566afd725d1b/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "lp.littlegreendog.co.nz"
+        }
+      ],
+      "destination": "https://checkout.littlegreendog.co.nz/149e9513-01fa-4fb0-aad4-566afd725d1b/:path*"
+    },
+    {
+      "source": "/checkout",
+      "destination": "https://lp-staging.littlegreendog.co.nz/checkout"
+    },
+    {
+      "source": "/checkout/:path*",
+      "destination": "https://lp-staging.littlegreendog.co.nz/checkout/:path*"
+    },
+    {
+      "source": "/_next/:path*",
+      "destination": "https://lp-staging.littlegreendog.co.nz/_next/:path*"
+    },
+    {
+      "source": "/sentry-tunnel",
+      "destination": "https://lp-staging.littlegreendog.co.nz/sentry-tunnel"
+    },
+    {
+      "source": "/149e9513-01fa-4fb0-aad4-566afd725d1b/:path*",
+      "destination": "https://lp-staging.littlegreendog.co.nz/149e9513-01fa-4fb0-aad4-566afd725d1b/:path*"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/add-to-subscription",
+      "destination": "/api/add-to-subscription"
+    },
+    {
+      "source": "/add-to-subscription/:campaign",
+      "destination": "/api/add-to-subscription?campaign=:campaign"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

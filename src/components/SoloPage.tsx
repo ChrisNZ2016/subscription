@@ -4,6 +4,7 @@ import { createSoloCart, createSoloCartAndRedirect } from '../lib/cart-solo';
 import { formatMoney } from '../lib/pricing';
 import { resolveSoloPriceTier } from '../lib/solo-pricing';
 import { resolveSoloSale } from '../lib/solo-sale';
+import { goToNewCheckout, prefetchCheckoutMode, resolveCheckoutMode, soloCheckoutUrl } from '../lib/new-checkout';
 import { HeroSection } from './HeroSection';
 import { BenefitsBar } from './BenefitsBar';
 import { WhyYoullLoveIt } from './WhyYoullLoveIt';
@@ -105,6 +106,13 @@ export function SoloPage() {
       ? formatMoney(sampleVariant.compareAtPrice)
       : undefined;
 
+  // New checkout (lgd-subscriptions) when the switch says so. Price tiers and the Black Friday
+  // sale stay on the Shopify cart: their variants and cart attributes exist only there.
+  const newCheckoutEligible = !priceTier && !isBlackFriday;
+  useEffect(() => {
+    if (newCheckoutEligible) prefetchCheckoutMode();
+  }, [newCheckoutEligible]);
+
   const handleCheckout = useCallback(async () => {
     if (!cartVariantId) return;
     setIsSubmitting(true);
@@ -119,6 +127,13 @@ export function SoloPage() {
         contentIds: [shopifyGidToContentId(cartVariantId)],
         value: checkoutValue,
       });
+      if (newCheckoutEligible && (await resolveCheckoutMode('solo')) === 'new') {
+        goToNewCheckout(soloCheckoutUrl(cartVariantId), {
+          contentIds: [shopifyGidToContentId(cartVariantId)],
+          value: checkoutValue,
+        });
+        return;
+      }
       await createSoloCartAndRedirect(
         cartVariantId,
         checkoutValue,
@@ -128,7 +143,7 @@ export function SoloPage() {
       setCartError(err instanceof Error ? err.message : 'Failed to create cart');
       setIsSubmitting(false);
     }
-  }, [cartVariantId, samplePrice, activePriceObj]);
+  }, [cartVariantId, samplePrice, activePriceObj, newCheckoutEligible]);
 
   const handleGetStarted = useCallback((location: 'hero' | 'nav' | 'sticky' | 'why-you-love-it' | 'faq' = 'hero') => {
     trackCtaClicked(location);
