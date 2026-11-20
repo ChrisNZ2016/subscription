@@ -6,7 +6,8 @@ Every such order is tagged `airwallex`, plus `airwallex-sample`, `airwallex-subs
 `_Plan` (`every {n} Month(s)`). The app sends its own Mixpanel and Meta CAPI events, the receipt
 (Resend) and the Klaviyo events, so nothing in this repo or in Mechanic should act on these orders.
 
-Nothing here is deployed or merged. Chris approves and applies.
+Merged 21 Nov (PR #4); live after the next production deploy of this repo. Mechanic changes are
+made by hand in Mechanic.
 
 ## (a) `api/webhooks/orders-create.ts` (this branch)
 
@@ -28,29 +29,40 @@ Takes effect on the next production deploy of this repo. Deploy it **before** th
 The repo only has copies of two tasks (`mechanic-reactivation-gift.liquid`,
 `mechanic-utm-tags.liquid`); the live tasks and any others are in Mechanic. For each task:
 
+**Live tasks checked 21 Nov.** Code read for the first four rows; the rest from the task list.
+What a new-app order carries: tags `airwallex` + one kind tag, lines with `_PlanId`/`_Plan`
+(sample lines SKU `LGD-KBL-SAM`), attributes `charge_id`, `airwallex_payment_intent_id`,
+`subscription_id`, `offer_key`; no discount codes, no `utm_*`, no `reactivation` attribute.
+
 | Task | Change | Why |
 |---|---|---|
-| Reactivation gift (auto-add LGD-60-NZ, `shopify/orders/paid`) | **Add the exclusion** | New-app subscription lines carry `_PlanId`, so condition (b) passes; only the missing `reactivation` attribute stops it today. An order edit would change the order total so it no longer matches the Airwallex charge (reconciliation flags it) |
-| Post-purchase gift bundle | **Add the exclusion** | Same: order edits on new-app orders break the charge = order total check |
-| UTM order tagging | None needed (optional exclusion) | New-app orders have no `utm_*` note attributes or storefront visits, so it adds no tags; attribution is stored by the new app |
-| Any other task | Exclude if it edits orders, adds items, sends customer email or SMS, or tags based on subscription lines | List them for the checkpoint 4 sign-off |
+| Subscription Activation Gift (reactivation gift, `orders/paid`) | None | It fires only on the `reactivation=true` note attribute (set by /welcome-back, which stays on Shopify). New-app orders never carry it |
+| Send email when an order is tagged | None | Watches tag `morepork` and emails staff only. New-app orders never get that tag |
+| Release the sample hold | None | Acts only when staff add `sample-abuse-release` by hand |
+| Sample re-order hold | None: **keep it running on new-app orders** | It tags the customer `sample_purchased` and records the address in the shop ledger, so the old cart still catches repeats after a new-app sample, and it catches repeats the new app misses (the new app doesn't read this ledger). A flagged new-app order is held and gets an Intercom ticket: **refund it in the new app's console, never in Shopify** (a Shopify refund doesn't refund the Airwallex charge) |
+| Back-fill, Task Sweeper | To check | Code not seen yet |
+| Auto-tag tasks (customer tags, discount code, country, UTM, subscription products), KPP routing tags, Copy tags to customers | None | Tags only; tags don't change the order total. KPP: check on the demo store that a new-app order gets the right routing tag |
+| Manual address hash, Ticket failure watcher, out-of-stock report, Webhook Test | None | Manual or not order triggered |
 
-**The exclusion** (paste straight after the `{% if event.topic == ... %}` line, and after any
-`event.preview` block so previews still work):
+**If a task ever needs to skip these orders**, wrap the part that acts in a condition. Don't use
+`{% break %}` to stop early: at the top level of a Mechanic task it does nothing (it only ends a
+`for` loop), so the task would carry on.
 
 ```liquid
 {% assign lgd_order_tags = order.tags | downcase | split: ", " %}
 {% if lgd_order_tags contains "airwallex" %}
   {% log message: "Order created by the new subscriptions app (airwallex tag); skipping.", order: order.admin_graphql_api_id %}
-  {% break %}
+{% else %}
+  … the task's existing code …
 {% endif %}
 ```
 
-For a task that loops over orders from a GraphQL or bulk query (e.g. a `mechanic/user/trigger`
-backfill), skip inside the loop instead: `{% if node.tags contains "airwallex" %}{% continue %}{% endif %}`
-(GraphQL returns `tags` as an array).
+Put it after any `event.preview` block so previews still work. For a task that loops over orders
+from a GraphQL or bulk query, skip inside the loop instead:
+`{% if node.tags contains "airwallex" %}{% continue %}{% endif %}` (GraphQL returns `tags` as an
+array).
 
-**Test each task before launch:** in the task editor, preview with an order payload whose `tags`
+**Testing a task that has the skip:** in the task editor, preview with an order payload whose `tags`
 is `"airwallex, airwallex-subscription-first"` and a `_PlanId` line: the log shows the skip message
 and no actions. Then preview with `"tags": ""`: the task behaves as before. Finally run it against a
 real `airwallex`-tagged order on the demo store (`subscription-tests-yu4awbqm`).
