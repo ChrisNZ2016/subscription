@@ -5,6 +5,10 @@
  * then fires a "Purchase Completed (Server)" event to Mixpanel via the
  * Node.js SDK (not affected by ad-blockers).
  *
+ * Orders tagged `airwallex` are created by the new subscriptions app (lgd-subscriptions), which
+ * sends its own Mixpanel and Meta CAPI events, so they are acknowledged and skipped here to avoid
+ * double counting.
+ *
  * Required environment variables (set in Vercel dashboard):
  *   MIXPANEL_TOKEN          — Mixpanel project token
  *   SHOPIFY_WEBHOOK_SECRET  — The signing secret from the Shopify webhook row
@@ -47,6 +51,8 @@ interface ShopifyOrder {
   line_items: ShopifyLineItem[];
   note_attributes: ShopifyNoteAttribute[];
   created_at: string;
+  /** Comma-separated in the REST webhook payload, e.g. "airwallex, airwallex-sample". */
+  tags?: string | string[] | null;
   customer?: {
     id: number;
     email: string;
@@ -100,6 +106,12 @@ function verifyShopifyWebhook(
   }
 }
 
+/** True for orders created by the new subscriptions app (every one carries the `airwallex` tag). */
+export function isAirwallexOrder(order: Pick<ShopifyOrder, 'tags'>): boolean {
+  const tags = Array.isArray(order.tags) ? order.tags : (order.tags ?? '').split(',');
+  return tags.some((tag) => tag.trim().toLowerCase() === 'airwallex');
+}
+
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 export default async function handler(
@@ -138,6 +150,12 @@ export default async function handler(
     order = JSON.parse(rawBody.toString()) as ShopifyOrder;
   } catch {
     res.status(400).json({ error: 'Invalid JSON' });
+    return;
+  }
+
+  // The new subscriptions app already tracked this order (Mixpanel, Meta CAPI): do nothing.
+  if (isAirwallexOrder(order)) {
+    res.status(200).json({ ok: true, skipped: 'airwallex' });
     return;
   }
 
