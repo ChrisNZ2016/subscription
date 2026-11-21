@@ -143,6 +143,7 @@ Enable hooks after clone: `npm install` (via `prepare`) or manually `git config 
 ## Changelog
 
 <!-- CHANGELOG_START -->
+- **2026-11-21** — src/components/SoloPage.tsx, src/lib/new-checkout.ts
 - **2026-11-20** — src/components/SoloPage.tsx, src/components/SubscribeOfferPicker.tsx, src/lib/new-checkout.ts
 - **2026-11-17** — api/webhooks/orders-create.ts
 - **2026-11-16** — src/App.css, src/components/HeroSection.tsx, src/components/SoloPage.tsx, src/components/StickyCTA.tsx, src/lib/analytics.ts, src/lib/cart-solo.ts, src/lib/solo-sale.ts

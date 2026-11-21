@@ -106,9 +106,11 @@ export function SoloPage() {
       ? formatMoney(sampleVariant.compareAtPrice)
       : undefined;
 
-  // New checkout (lgd-subscriptions) when the switch says so. Price tiers and the Black Friday
-  // sale stay on the Shopify cart: their variants and cart attributes exist only there.
-  const newCheckoutEligible = !priceTier && !isBlackFriday;
+  // New checkout (lgd-subscriptions) when the switch says so. Price tiers stay on the Shopify cart
+  // (their variants exist only there). The Black Friday sale is branding only (same variant and
+  // price), so it follows the switch; the checkout gets `sale=blackfriday` and writes it to the
+  // order like the old cart's `sale` attribute.
+  const newCheckoutEligible = !priceTier;
   useEffect(() => {
     if (newCheckoutEligible) prefetchCheckoutMode();
   }, [newCheckoutEligible]);

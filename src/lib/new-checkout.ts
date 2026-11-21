@@ -1,5 +1,6 @@
 import { getDistinctId } from './analytics';
 import { trackMetaAddToCart, shopifyGidToContentId } from './meta-pixel';
+import { resolveSoloSale } from './solo-sale';
 
 /**
  * Handoff to the new checkout (lgd-subscriptions). `/checkout` on this site is rewritten to that
@@ -75,9 +76,11 @@ function attributionParams(params: URLSearchParams): void {
   }
 }
 
-/** /checkout?offer=solo&sample=<variant id>&… */
+/** /checkout?offer=solo&sample=<variant id>&… (plus `sale=blackfriday` on the Black Friday page). */
 export function soloCheckoutUrl(sampleVariantGid: string): string {
   const params = new URLSearchParams({ offer: 'solo', sample: shopifyGidToContentId(sampleVariantGid) });
+  const sale = resolveSoloSale();
+  if (sale) params.set('sale', sale);
   attributionParams(params);
   return `/checkout?${params.toString()}`;
 }
